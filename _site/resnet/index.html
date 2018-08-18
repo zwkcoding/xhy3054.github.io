@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ResNet论文笔记 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/resnet.png alt="ResNet论文笔记">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Jun 25</p>
+        <h1 class="post_title">ResNet论文笔记</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="退化问题">退化问题</h2>
+<p>2013年以来cnn飞速发展，从比较简单的LeNet、AlexNet,到结构对称美观的VGGNet（经典结构之一，SegNet、SSD等都使用它作为基础网络），再到可以大量减少参数的GoogleNet（Inception），一直到本文主角ResNet的出现，它们都有一个共同的特点：网络层数在不断加深。</p>
+
+<p>按理说，深度cnn网络集成了特征提取器与特征分类器，并且特征水平可以通过层数的堆砌来提升。层数越深，网络的学习能力应该越强，网络的准确度也应该越高，那只要不断加深cnn网络的层数不就好了？确实是这样的，但是，总归没有那么简单。
+<img src="/assets/img/resnet/issue.png" alt="issue" /></p>
+
+<p>从上图我们可以看到，56层网络的训练错误率与测试错误率反而比20层的（在CIFAR-10上）要高。没错，<strong>传统cnn网络随心所欲的增加层数是不行的,当更深的网络开始收敛时，会出现退化问题。（层数增多，准确率反而下降，因为深层网络会出现梯度消失）</strong></p>
+
+<h2 id="resnet的做法">ResNet的做法</h2>
+<p>ResNet为了解决cnn网络层数增加，学习能力反而下降的问题，提出了一种 residual 结构。
+<img src="/assets/img/resnet/residual.png" alt="residual" /></p>
+
+<p>如上图，增加了一个恒等映射（identity mapping），将原始需要学习的函数<code class="highlighter-rouge">H(X)</code>转换成<code class="highlighter-rouge">F(x)+x</code>。作者认为对残差<code class="highlighter-rouge">F(x)</code>做优化会比直接对<code class="highlighter-rouge">H(x)</code>做优化要简单很多。这个公式的实现是通过上图的<code class="highlighter-rouge">shortcut connections</code>，这并不会增加额外参数和计算复杂性。</p>
+
+<p>其中，<code class="highlighter-rouge">H(x) = y = F(x)+x</code>,<code class="highlighter-rouge">F(x)</code>为要学习的残差映射。但是，我们都知道输入与输出的维度很有可能会发生变化，因此<code class="highlighter-rouge">shortcut</code>的方式，需要认真考虑。针对深度增加的情况，论文中提出了两种解决方法：</p>
+<ol>
+  <li>zero_padding:依然是恒等映射，对于增加的层填充0,这样不会有额外的参数;</li>
+  <li>projection:采用<code class="highlighter-rouge">1×1</code>卷积核来增加维度。</li>
+</ol>
+
+<h2 id="实际效果">实际效果</h2>
+<p>如下图，为普通 VGG-19 网络与34层普通cnn网络还有34层的残差网络结构图：
+<img src="/assets/img/resnet/net.png" alt="net" /></p>
+
+<p>结果对比</p>
+
+<p><img src="/assets/img/resnet/result.png" alt="result" /></p>
+
+<h2 id="改进">改进</h2>
+<p>我们可以发现， ResNet 确实有效的解决了深度网络的退化问题。</p>
+
+<p>但是虽然 ResNet 在深度网络的退化问题上取得了一定的效果，但是参数数量是不变的。这使得 ResNet 工作在更高的层数时依然吃力。为了减少参数数量，提高效率，作者又提出了以下结构：</p>
+
+<p><img src="/assets/img/resnet/newres.png" alt="newres" /></p>
+
+<p>使用<code class="highlighter-rouge">1×1</code>卷积核来分别进行降维与升维，使得<code class="highlighter-rouge">3×3</code>卷积核工作在较低维度，大大减少参数数量，作者基于此又提出了 ResNet 的50、101、152层网络。</p>
+
+<h2 id="resnet原理探讨">ResNet原理探讨</h2>
+<p>纵观全文，作者在引入新的结构时几乎没有进行原理上的分析，用到最多的词反而是：实验结果表明。ResNet是不可解释的吗？其实不然，下面就将尝试进行解释。</p>
+
+<p>深层网络会出现梯度消失的问题，进而导致退化现象的产生。梯度消失的出现主要是由神经网络的求解方式—梯度下降法导致的，在进行梯度链式求导时，由于每一层梯度求导的值都会很小，当层数很深依次链式求导时，就会出现梯度消失。</p>
+
+<p>而残差网络中，会有一条identity分支。<code class="highlighter-rouge">H(x) = F(x) + x</code>在反向传播求导(此处是对x求导)时，会得到<code class="highlighter-rouge">(1 + F'(x)) d H(x)</code>，此式可以保证与<code class="highlighter-rouge">d H(x)</code>保持在一个数量级，从而有效的减小了梯度消失。</p>
+
+<p>另外，有一篇论文认为残差网络就是大量的不同长度的神经网络组成的组合函数，从而可以有效缓解梯度消失。</p>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=ResNet论文笔记&url=http://localhost:4000/resnet/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/resnet/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/resnet/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#机器学习" class="tag">机器学习</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

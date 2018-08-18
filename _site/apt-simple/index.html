@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>APT包管理简析 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/APT.png alt="APT包管理简析">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, May 01</p>
+        <h1 class="post_title">APT包管理简析</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="advanced-packaging-toolapt">Advanced Packaging Tool(APT)</h2>
+<blockquote>
+  <p>高级打包工具（英语：Advanced Packaging Tools，缩写为APT）是Debian及其派生发行版的软件包管理器。APT可以自动下载，配置，安装二进制或者源代码格式的软件包，因此简化了Unix系统上管理软件的过程。——维基百科</p>
+</blockquote>
+
+<p>Debian是ubuntu的母版系统，Advanced Packaging Tools(APT)是各种基于Debian的发行版通用的一种软件包管理工具。借助这个包管理工具，用户可以方便的为自己电脑上的Linux安装各种程序软件包。</p>
+
+<h2 id="ubuntu软件源的选择">ubuntu软件源的选择</h2>
+<p>Ubuntu是用的APT进行包管理的,而这种管理方式是基于软件源的。软件源，顾名思义，就是各种软件包的集合。用户在软件源里查找自己需要的包进行安装十分方便。全世界有很多的Ubuntu软件源服务器，对于普通用户来讲，每个软件源上的包资源基本都是一样的，因为自己想找的包无论在哪个软件源上，基本都会存在。安装完Ubuntu后，其默认的软件源是Ubuntu官方提供的软件源服务器。由于这个服务器是在美国，而我国又有一些网络因素存在，使得用这个软件源安装软件时速度十分的慢。想要解决这个问题，换一个软件源就好了。</p>
+
+<p>如何更换软件源呢？系统的软件源列表就是<code class="highlighter-rouge">/etc/apt/sources.list</code>文件，打开我们会发现里面大多是如下形式：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial main restricted
+deb-src http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial multiverse universe main restricted 
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">mirrors.tuna.tsinghua.edu.cn</code>代表我使用的是清华的软件源，修改软件源其实只要修改这个域名就好了。上面每一项的含义是什么呢？具体apt又是怎么工作的呢？</p>
+
+<p>首先，每个软件源服务器上都会将各个版本各种类型的ubuntu的软件库列表区分开来，在这里指明了软件源列表的网络位置，其中一些单词的含义下面列出。（其中，<code class="highlighter-rouge">deb-src</code>代表的是二进制包。）</p>
+
+<blockquote>
+  <ol>
+    <li>xenial - 代表适用ubuntu16.04系统的软件。（一般此项xenial代表的不同版本系统存储路径下会有以下Main、Universe等路径）</li>
+    <li>Main - Canonical支持的免费和开源软件。</li>
+    <li>Universe - 社区维护的免费和开源软件。</li>
+    <li>restricted - 设备的专有驱动程序。</li>
+    <li>Multiverse - 受版权或法律问题限制的软件</li>
+  </ol>
+</blockquote>
+
+<p>上述这些进入Ubuntu桌面的<strong><em>设置-软件和更新</em></strong>可以看的更加直观方便些。用户可以根据自己的需要添加自己可能会用到的软件服务选项。
+<img src="/assets/img/apt/apt-gui.PNG" alt="gui-apt" /></p>
+
+<p>上面其实是指明了清华的源上可用软件列表的网络存储位置，软件列表存储的信息有哪些软件包可用、以及去哪里可以获取它。如果想要安装一个软件，就可以到这个网络位置上对软件列表进行索引，如果能索引到这个软件包便能定位它并下载安装。但是每次安装软件都要去访问这个网络位置是很耗时费力的，因此系统实际的做法是会在本地存储一份源的软件列表，在要安装软件时直接索引本地的软件列表。所以，在你更换了自己的软件源后一定要记得<code class="highlighter-rouge">sudo apt-get update</code>，这个命令会重新从<code class="highlighter-rouge">source.list</code>上的网络位置上更新本地的软件列表，不更新的话你的新软件源是不生效的。同时为了始终安装最新的软件包，建议每隔一段时间便执行一次<code class="highlighter-rouge">sudo apt-get update</code>，这样可以使得自己本地的软件列表的软件版本一直是最新的。</p>
+
+<p>想要替换软件源，可以直接修改<code class="highlighter-rouge">sources.list</code>，也可以在<code class="highlighter-rouge">系统设置/软件和更新</code>里进行选择。替换哪个软件源呢？其实也很容易选择，<code class="highlighter-rouge">ping</code>一下看看速度，选择最快的一个便好，下面是我选择的过程。因为校园网的问题，不知为什么ping不通阿里的源，然后可以ping通中科大与清华的源，因为清华的源速度更快，我选择了它。友情提醒：用虚拟机的朋友，直接在虚拟机下ping，由于虚拟机的网络是在本机的局域网内的重映射，没有进行特殊设置的话，一般只能ping通主机，是ping不通任何软件源的。所以我ping是在本机Windows上进行的。</p>
+
+<p><img src="/assets/img/apt/ping_ustc.png" alt="ping_ustc" /></p>
+
+<p>清华比中科大快一些</p>
+
+<p><img src="/assets/img/apt/ping_tsinghua.png" alt="ping_tsinghua" /></p>
+
+<h2 id="apt命令与apt-get命令">apt命令与apt-get命令</h2>
+<p>上文提到了Ubuntu系统使用的是Advanced Packaging Tool(APT)进行包管理的。而<code class="highlighter-rouge">apt-get</code>是系统提供用户使用来与APT进行交互，使得用户可以实现安装、删除、更新软件的命令行工具。相似的命令还有<code class="highlighter-rouge">apt-cache</code>与<code class="highlighter-rouge">apt-config</code>。这三个命令里都会有一些用户特别常用的包管理命令，说的直白点，就是用户最常用的命令分散在了<strong>apt-get</strong>、<strong>apt-cache</strong>、<strong>apt-config</strong>里。它们三个每个里面大部分的命令用户都不会用到。</p>
+
+<p>到Ubuntu16.04里，出现了<code class="highlighter-rouge">apt</code>命令。<strong>apt</strong>里包含了原本<code class="highlighter-rouge">apt-get</code>、<code class="highlighter-rouge">apt-cache</code>与<code class="highlighter-rouge">apt-config</code>里常用的命令和一些自己的命令，更加方便用户的使用。</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=APT包管理简析&url=http://localhost:4000/apt-simple/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/apt-simple/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/apt-simple/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#linux" class="tag">linux</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

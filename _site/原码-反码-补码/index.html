@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>补码，原码，反码 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/image.jpg alt="补码，原码，反码">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Apr 24</p>
+        <h1 class="post_title">补码，原码，反码</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="写作缘由">写作缘由</h2>
+
+<p>昨天室友忽然提到老师布置的作业里有关补码的问题，我竟然有些生疏了，张口结舌说忘了。事后想到这是最基础的内容了，不由老脸一红。赌气般的把这个问题又梳理了一遍。想来想去觉得还是写出来吧，加深记忆，随时翻阅，省的再给忘了。</p>
+
+<h2 id="有符号数与无符号数">有符号数与无符号数</h2>
+
+<p>首先，无符号数是最简单的，例如一个八位的无符号数取值范围为<code class="highlighter-rouge">0～255</code>。</p>
+
+<p>而有符号数最高位为符号位，所以一个八位的有符号数取值范围为多少呢（先卖个关子）？计算机中存储的都是有符号数，也叫<strong>机器数</strong>。机器数<code class="highlighter-rouge">10000001</code>的<strong>形式值</strong>为129，<strong>真值</strong>为<code class="highlighter-rouge">-1</code>。</p>
+
+<p>下文中说的都是对于八位有符号数，因为无符号数讨论补码原码什么着实没什么意义，更多位数的如16位有符号数可以自己类推。</p>
+
+<h3 id="原码">原码</h3>
+
+<p>原码：符号位 + 绝对值</p>
+
+<p>所以八位机器数的原码范围为<code class="highlighter-rouge">11111111 ～ 01111111</code>，也就是<code class="highlighter-rouge">-127～127</code>（0有两种表示）。</p>
+
+<p>这种形式及其符合人们脑海中对于有符号数的第一印象，看到这里都会觉得理所当然，确实，这是人脑最容易理解与计算的形式。但，对电脑不是。</p>
+
+<h3 id="反码">反码</h3>
+
+<p>反码：</p>
+<ul>
+  <li>首先记住，符号位是不会变得，正数最高位为0，负数最高位为1</li>
+  <li>正数的反码为本身</li>
+  <li>负数的反码是其原码符号位不变的基础上，其余各位取反</li>
+</ul>
+
+<p>反码有什么用呢？</p>
+
+<p>计算机只会做加法，不会做减法，反码可以用来实现机器减法，没错，而且这个减法是完备的，在负数域，可用的，只是有一个小小的缺点而已，如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1 - 1 = 1 + （-1） = 反[00000001] + 反[11111110] = 反[11111111] = 原[10000000] = -0
+</code></pre></div></div>
+
+<p>其他的数大家也可以试试，在结果是负数或0时都成立的，但是在结果是正数时，我们会发现结果刚好小1。例如</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3 - 1 = 3 + （-1）=反[00000011] + 反[11111110] = 反[00000001] = 原[00000001] = 1
+</code></pre></div></div>
+
+<p>这个原因我们仔细考虑一下会发现，在采用反码的减法中，负数通过加正数得0时得到的是<code class="highlighter-rouge">-0</code>，而且刚好<code class="highlighter-rouge">-0 +1 = +0（本来应该是1的）</code>。如何解决这个问题呢？我们来看补码。</p>
+
+<h3 id="补码">补码</h3>
+
+<p>补码：</p>
+<ul>
+  <li>同样，符号位始终不变，正数最高位为0，负数最高位为1, 而0的补码为<code class="highlighter-rouge">00000000</code>（原来的负0在补码里变成了-128），所以补码表示范围<code class="highlighter-rouge">-128~127</code></li>
+  <li>正数的补码为本身</li>
+  <li>负数的补码是其原码在符号位不变的基础上，其余各位取反加1（也就是反码的基础上加1）</li>
+</ul>
+
+<p>下面来讨论上面的问题，用补码来实现机器减法：如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1 - 1 = 1 + （-1） = 补[00000001] + 补[11111111] = 补[00000000] = 原[00000000] = 0
+</code></pre></div></div>
+
+<p>由于补码实现的减法得到的结果不是-0而是0了，反码的那个问题便解决了。只是需要说明的是原来的<code class="highlighter-rouge">-0</code>即<code class="highlighter-rouge">10000000</code>现在干嘛去了呢？对，它现在是<code class="highlighter-rouge">-128</code>，而这个数（-128）只存在补码表示，不存在原码和反码表示。编程里常用的32位有符号int取值范围是<code class="highlighter-rouge">[-2^31 ～ 2^31 -1]</code>，没错，都是补码存储的。</p>
+
+<p><code class="highlighter-rouge">10000000</code>看作原码是-0;求反码是<code class="highlighter-rouge">11111111</code>，再求补码是<code class="highlighter-rouge">10000000</code>（求补码时加一是不进最高位的，但是补码还有反码减法时最高位符号位是会进位的），不过此时代表-128。</p>
+
+<h3 id="神奇补码背后思考">神奇补码背后思考</h3>
+
+<blockquote>
+  <p>其实仔细想想补码这样定义确实是有其原因的。（当然，只是我个人理解用的）</p>
+</blockquote>
+
+<p>我们都知道加法减法是满足结合率的，所以要想知道做减法需要用到的负数机器码应该如何定义可以这样想：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>原数 + a - a = 原数
++a + （-a) = 0
+</code></pre></div></div>
+
+<ul>
+  <li>所以会有<code class="highlighter-rouge">1 + （-1）= 0</code>，我们知道1为<code class="highlighter-rouge">00000001</code>，所以-1应该为<code class="highlighter-rouge">11111111</code></li>
+  <li>同理，2为<code class="highlighter-rouge">00000010</code>，-2应该为<code class="highlighter-rouge">11111110</code></li>
+  <li>。。。依次类推，补码也诞生了，这种实现减法的思想依靠的是有限位数进位导致的循环来实现的。在8位二进制数中，减1也就等于加255，刚好是求补的感觉，所以这种编码方式叫做补码（我猜的）。</li>
+</ul>
+
+<blockquote>
+  <p>亮点：计算机中数都是补码存储的，计算机的加法计算也没有什么弯弯绕绕，就是很耿直的进位加法，补码这种形式刚好可以使得加法计算的结果正确无误，无非就是靠进位导致的循环来实现罢了。很多人只是不熟悉而已，熟悉了在分析此类问题时会自动先将数据切换成补码形式，任何问题都会一目了然。</p>
+</blockquote>
+
+<p><strong>现在我们可以想一下并发现，如果8位计算溢出了，大于127比如结果为<code class="highlighter-rouge">127+n</code>（n&gt;0且n&lt;=256），8位存储的数会变成<code class="highlighter-rouge">-129+n</code>（从-128到127）;小于-128比如结果为<code class="highlighter-rouge">-128-n</code>（n&gt;0且n&lt;=256）,8位存储的数会变成<code class="highlighter-rouge">128-n</code>（从127到-128）。这就是一个完美循环。</strong></p>
+
+<p>其实这没有什么不好理解的，你只需要想清楚，在计算机中，数据都是补码形式存储的。计算机做加法操作其实就是不断进位喽。如果你还是觉得不太直观，写个c语言程序验证一下，我的<code class="highlighter-rouge">c_learn</code>文件夹下<code class="highlighter-rouge">ch3</code>目录就写了一个很简短的验证。</p>
+
+<h2 id="总结">总结</h2>
+<p>一般情况下，以上这些已经足够了，为了不会闹笑话，我们来检验一下：</p>
+
+<p>-8的补码是多少？</p>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=补码，原码，反码&url=http://localhost:4000/%E5%8E%9F%E7%A0%81-%E5%8F%8D%E7%A0%81-%E8%A1%A5%E7%A0%81/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/%E5%8E%9F%E7%A0%81-%E5%8F%8D%E7%A0%81-%E8%A1%A5%E7%A0%81/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/%E5%8E%9F%E7%A0%81-%E5%8F%8D%E7%A0%81-%E8%A1%A5%E7%A0%81/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#计算机基础" class="tag">计算机基础</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

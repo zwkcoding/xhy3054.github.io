@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>c语言与c++语言中关键字extern的使用 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/extern.jpg alt="c语言与c++语言中关键字extern的使用">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Aug 15</p>
+        <h1 class="post_title">c语言与c++语言中关键字extern的使用</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>相比static关键字，可能大家对于extern更是陌生一些。我有段时间就是这样，看到static，觉得自己好像知道一点，虽然其实是半知半解。看到extern，我通常会心里一虚，确实很陌生啊。记得查过几次，但是似乎看完就又忘记了，原因就是根本没理解。所以，在昨天把曾让自己半知半解的static关键字讲解完毕后，今天再来写曾经让我半知半解都没有的extern关键字。</p>
+
+<h2 id="链接属性">链接属性</h2>
+<p>我们知道一个程序中的多个源文件是分别被编译，最后通过链接器将多个目标文件还有库文件链接起来才形成一个单一完整的可执行文件的。那么如果相同的标识符出现在几个不同的源文件中，它们是代表同一个实体，还是不同的实体呢？</p>
+
+<p>其实，这个问题的答案是由标识符的链接属性决定的。链接属性一共有三种，分别是external（外部）、internal（内部）和none（无）。</p>
+
+<ol>
+  <li>none代表没有链接属性，这种标识符有多少个声明就有多少个独立不同的实体；</li>
+  <li>internal代表内部链接，这种标识符在同一个文件内的所有声明都指向同一实体，但是位于不同源文件的多个声明代表不同实体。</li>
+  <li>external代表外部链接，这种标识符无论声明多少次，都表示同一个实体。</li>
+</ol>
+
+<p>一般缺省情况下，文件作用域定义的变量都是external属性。代码块作用域声明的变量都是none属性。同时用extern与static可以修改变量的链接属性，static只在变量缺省为external的时候可以将链接属性修改为internal。</p>
+
+<h2 id="extern关键字">extern关键字</h2>
+<p>关于链接属性的问题，已经讲得很清楚了。按理说，只要是在代码块之外的声明，默认都是external属性。那么我们只需要在代码块里使用extern关键字来声明那些要用到的在别的源文件中定义好的的外部链接的变量不就好了。事实有这么简单吗？</p>
+
+<h3 id="c中的extern">c中的extern</h3>
+<p>在c语言中确实就是这么简单。请看如下代码,首先是<code class="highlighter-rouge">a.c</code>：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include &lt;stdio.h&gt;
+</span>
+<span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="sc">'A'</span><span class="p">;</span> <span class="c1">// global variable</span>
+<span class="kt">void</span> <span class="nf">msg</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c "</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+<p>接下来是<code class="highlighter-rouge">main.c</code>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span><span class="kt">char</span> <span class="n">a</span><span class="p">;</span>                <span class="c1">// 1.直接在文件作用域声明a，具有external属性</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>    
+    <span class="c1">//extern char a;   // 2.在代码块中使用extern关键字修改链接属性 </span>
+    <span class="n">a</span> <span class="o">=</span> <span class="sc">'B'</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c "</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="c1">//(void)msg();</span>
+    <span class="n">msg</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>上述两个文件联合编译，可以通过（只是会有一个msg函数隐式声明的警告）生成可执行文件，运行可得：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>B B Hello
+</code></pre></div></div>
+
+<p>如上我们可以发现，1与2两种声明方式其实效果是一样的，都是可以达到我们想要的结果的。</p>
+
+<h3 id="c中的extern-1">c++中的extern</h3>
+<p>这里需要指出的是，在c++中，与c语言对于变量链接属性是有很大的区别的，我甚至感觉，在用c++进行编程时，链接属性的区分已经不是那么重要了。</p>
+
+<p>首先，c++中希望每一份代码的作用尽量清晰。所以c++中规定，定义与声明是不一样的。一个变量可以在多个文件中声明，被使用，但是，定义它的举动只能出现在一个源文件中。c++作者认为这样可以更好地支持分离式编译。</p>
+
+<p>在c++中，<strong>声明</strong>使得名字为程序所知，一个文件如果想要使用别处定义的名字必须包含对那个名字的声明。而<strong>定义</strong>则负责与名字关联的实体的创建和改动。</p>
+
+<p>所以可以参考一下如下代码，首先是<code class="highlighter-rouge">a.cpp</code>文件：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include &lt;stdio.h&gt;
+</span>
+<span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="sc">'A'</span><span class="p">;</span> <span class="c1">// global variable</span>
+<span class="kt">void</span> <span class="nf">msg</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+<p>然后是<code class="highlighter-rouge">main.cpp</code>文件：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span><span class="kt">char</span> <span class="n">a</span><span class="p">;</span>              
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c "</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="n">msg</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>将这两个源文件进行联合编译，如果是c语言，那肯定是通过了，但是c++嘛！报了两个错误！</p>
+
+<ol>
+  <li>第一个错误是<code class="highlighter-rouge">msg这个函数未在此作用域内声明</code>，没错，c++就是这么严格，c语言的隐式声明在c++中是不存在的。</li>
+  <li>第二个错误是<code class="highlighter-rouge">变量a被多次定义</code>！怎么会呢，原来c++规定，如果想要声明一个变量而不是定义一个变量，一定要在变量名前添加关键字extern。必须加extern，否则就是又定义了一个a，extern关键字告诉编译器a在别处已经定义，此处只是声明。否则就是在一个程序中同时定义两个外部链接的变量<code class="highlighter-rouge">a</code>，就会报错。</li>
+</ol>
+
+<p>然后我们将<code class="highlighter-rouge">main.cpp</code>文件改为如下形式：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span><span class="k">extern</span> <span class="kt">char</span> <span class="n">a</span><span class="p">;</span>          <span class="c1">//1. 必须加extern，否则就是又定义了一个a，用extern的话告诉编译器a在别处已经定义，此处只是声明</span>
+<span class="kt">void</span> <span class="n">msg</span><span class="p">();</span>		<span class="c1">//如果没有这个声明，会报错</span>
+<span class="c1">//char a;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>    
+    <span class="c1">//extern char a;   //2. 不同位置，作用一样，只是声明作用域不一样</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c "</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="n">msg</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>这样就可以编译通过了，执行编译得到的可执行文件生成如下结果：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>A Hello
+</code></pre></div></div>
+
+<p>在c++语言中，还有两点需要注意：</p>
+<ol>
+  <li>在头文件中只进行声明，不进行定义。这个原因是因为，包含头文件其实就是把头文件内容复制到包含的地方，如果在头文件中有定义，那每包含一次，就会定义一次，铁定炸。</li>
+  <li>一个文件如果因为需要使用某个变量而声明了它，在这个文件中千万不要对这个变量进行改动（对同一个变量的改动只能出现在一个文件中）！比如一个文件中如果有对这个赋值操作，其实就是对这个变量进行重新定义，也铁定炸。</li>
+</ol>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=c语言与c++语言中关键字extern的使用&url=http://localhost:4000/c-cpp-extern/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/c-cpp-extern/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/c-cpp-extern/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

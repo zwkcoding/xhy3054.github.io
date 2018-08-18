@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>计算机中register、cache、memory的区别 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/memory.jpg alt="计算机中register、cache、memory的区别">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Jul 02</p>
+        <h1 class="post_title">计算机中register、cache、memory的区别</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="概念">概念</h2>
+<ol>
+  <li>register：寄存器。cpu中的基本单元，与cpu中的运算单元是一个级别的。运算单元直接处理的数据存储器。从普通单片机到intel的cpu全都存在寄存器。</li>
+  <li>cache：缓存。一般普通MCU是没有缓存的，一些强大的个人电脑或者手机芯片才会有缓存，缓存的一般用的是SRAM存储器，速度很快。通常情况是电脑在工作时将从内存中读入的用过的数据放入缓存，以便下次用时可以快速找到它。不过cpu一般不会直接访问缓存，而是先将缓存放入寄存器，再操作。</li>
+  <li>memory：内存。一般普通MCU也是没有内存的，而且内存一般是外置的，而缓存与寄存器通常集成在cpu内部。内存一般使用DRAM存储器，速度稍慢。</li>
+</ol>
+
+<p>好比医院，医生对面的椅子就是寄存器，要看病的病人(data)就座这个椅子(register)；已经挂号的(data)进入诊室(cache)排队，其他的就在医院里（memory）。医生可以操作的就是面对面的病人，其他人要看病（如急病）也需先坐上这个位置，这是最快的。</p>
+
+<h2 id="访问速度差异原因">访问速度差异原因</h2>
+<ol>
+  <li>晶体管存储构造的不同是一个原因。</li>
+  <li>同时内存（memory）在cpu外部，距离运算单元比较远，也算是一个原因吧。</li>
+  <li>还有一个原因，就是访问方式的差异。一般寄存器（register）按位进行直接访问，速度最快；缓存（cache）与内存（memory）的访问方式一般差不多，但是缓存比较小（寻址空间小），且内存构造速度更快。</li>
+</ol>
+
+<h2 id="缓存与内存的访问方式">缓存与内存的访问方式</h2>
+<ol>
+  <li>找到数据的指针。（指针可能存放在寄存器内，所以这一步就已经包括寄存器的全部工作了。）</li>
+  <li>将指针送往内存管理单元（MMU），由MMU将虚拟的内存地址翻译成实际的物理地址。</li>
+  <li>将物理地址送往内存控制器（memory controller），由内存控制器找出该地址在哪一根内存插槽（bank）上。</li>
+  <li>确定数据在哪一个内存块（chunk）上，从该块读取数据。</li>
+  <li>数据先送回内存控制器，再送回CPU，然后开始使用。</li>
+</ol>
+
+<h2 id="总结">总结</h2>
+<p>CPU本身只负责运算，不负责储存数据。数据一般储存在内存之中，CPU要用的时候就去内存读写数据。但是，CPU的运算速度远高于内存的读写速度，为了避免被拖慢，CPU一般都会自带一级缓存与二级缓存。基本上，CPU缓存可以看作是读写速度较快的内存。</p>
+
+<p>但是，CPU缓存还是不够快，另外数据在缓存里面的地址是不固定的，CPU每次读写还需要做寻址操作，这会明显的拖慢速度。因此，除了缓存之外，CPU还自带了寄存器（register），寄存器不依靠地址区分数据，而是依靠名称来按位访问，速度最快，有的人称它为零级缓存。寄存器常常用来储存最常用的数据。也就是说，那些最频繁读写的数据（比如循环变量），都会放在寄存器里面，CPU优先读写寄存器，再由寄存器跟内存交换数据。</p>
+
+<p><img src="/assets/img/data_store/vel.png" alt="vel" /></p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=计算机中register、cache、memory的区别&url=http://localhost:4000/register-cache-memory/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/register-cache-memory/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/register-cache-memory/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#计算机基础" class="tag">计算机基础</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

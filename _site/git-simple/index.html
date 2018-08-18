@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Git与Github简要教程 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/github-for-atom.png alt="Git与Github简要教程">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Apr 12</p>
+        <h1 class="post_title">Git与Github简要教程</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="whats-git-and-whats-github">what’s Git and what’s Github</h2>
+<p>Git是一种分布式版本控制系统，具体学习可以参考<a href="https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000">廖雪峰的git教程</a>,讲解清晰易懂，本文主要介绍如何运用git与github进行基本上手操作。</p>
+
+<p>GitHub是通过Git进行版本控制的软件源代码托管服务。</p>
+
+<h2 id="安装git">安装git</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>git
+</code></pre></div></div>
+
+<h2 id="git与github基本使用">git与github基本使用</h2>
+
+<h3 id="git与github远程库交互">git与github远程库交互</h3>
+<p>本地创建版本库<strong>learngit</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">mkdir </span>learngit
+<span class="nv">$ </span><span class="nb">cd </span>learngit
+<span class="nv">$ </span>git init
+</code></pre></div></div>
+
+<p>编辑完文件<strong>readme</strong>添加到仓库并提交</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git add readme
+<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s1">'first commit'</span>
+</code></pre></div></div>
+
+<p>如果是第一次使用git，那么<code class="highlighter-rouge">git commit</code>可能报错，所以需要你配置一些个人信息</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git config <span class="nt">--global</span> user.email <span class="s2">"you@example.com"</span>
+<span class="nv">$ </span>git config <span class="nt">--global</span> user.name <span class="s2">"Your Name"</span>
+</code></pre></div></div>
+
+<p>上传到github,首先登陆自己的github帐号，然后新建一个<strong>repository</strong>并取名为<strong>learngit</strong>,然后执行下面命令</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git remote add origin https://github.com/xhy3054/learngit.git  <span class="c">#与远程库建立链接,只有第一次上传需要执行</span>
+<span class="nv">$ </span>git push <span class="nt">-u</span> origin master
+</code></pre></div></div>
+
+<p>克隆远程库到本地</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/xhy3054/learngit.git  <span class="c">#与远程库建立链接</span>
+</code></pre></div></div>
+
+<p>远程库修改过，更新本地库（将远程库拉下来与本地库合并）</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git pull #此命令用时需保证本地库没有修改未提交，
+</code></pre></div></div>
+
+<p>查看本地分支列表</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch
+</code></pre></div></div>
+
+<p>查看本地仓库工作状态</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git status
+</code></pre></div></div>
+
+<p>查看本地库关联的远程库（即push与pull推送与拉取的那个远程库）</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git remote -v
+</code></pre></div></div>
+
+<p>修改本地库关联的远程库</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git remote -v set-url origin https://github.com/xhy3054/ssdcaffe.git
+</code></pre></div></div>
+
+<h3 id="git版本管理">git版本管理</h3>
+
+<p>查看历史版本</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$git log
+commit 85c18305998dc282973a21513aa1893567a52e33
+Author: xhy3054 &lt;1076170656@qq.com&gt;
+Date:   Mon May 7 14:31:42 2018 +0800
+
+    buma
+
+commit fd2bc5b0c3d2bbb06a51ec757c34f27a20ca1e8f
+Author: xhy3054 &lt;1076170656@qq.com&gt;
+Date:   Sat May 5 20:51:53 2018 +0800
+
+    add a image
+</code></pre></div></div>
+
+<p>回退到版本<code class="highlighter-rouge">add a image</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git reset --hard fd2bc5
+</code></pre></div></div>
+
+<p>查看当前分支</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch
+</code></pre></div></div>
+
+<p>新建分支<code class="highlighter-rouge">dev</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch dev
+</code></pre></div></div>
+
+<p>切换到分支<code class="highlighter-rouge">dev</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout dev
+</code></pre></div></div>
+
+<p>如果<code class="highlighter-rouge">dev</code>上的工作想合并到<code class="highlighter-rouge">master</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout master
+git merge dev
+</code></pre></div></div>
+
+<p>删除分支<code class="highlighter-rouge">dev</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch -d dev
+</code></pre></div></div>
+
+<p>其他git命令请<a href="http://www.ruanyifeng.com/blog/2015/12/git-cheat-sheet.html">查询</a>.</p>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=Git与Github简要教程&url=http://localhost:4000/git-simple/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/git-simple/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/git-simple/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#tools" class="tag">tools</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

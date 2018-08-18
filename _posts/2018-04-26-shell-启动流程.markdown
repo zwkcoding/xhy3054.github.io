@@ -1,0 +1,75 @@
+---
+layout: post
+title: shell启动流程
+date: 2018-04-26 10:07:24.000000000 +09:00
+img:   workflow.jpg # Add image post (optional)
+tags: [linux]
+---
+
+## 什么是shell
+
+> 在计算机科学中，**壳层**（英语：shell）指“为用户提供用户界面”的软件，通常指的是命令行界面的解析器。一般来说，这个词是指操作系统中，提供访问内核所提供之服务的程序。——维基百科
+
+shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(**CLI-Shell**)和图形界面的shell(**GUI-Shell**)。**CLI-Shell**最典型的就是linux的bash与windows的cmd，**GUI-Shell**最常见的就是Windows Explorer。
+
+我会写出来的肯定是**CLI-Shell**,以我的这个Ubuntu为例，可以通过`cat /etc/shells`查看现有的shell种类：
+
+	# /etc/shells: valid login shells
+	/bin/sh
+	/bin/dash
+	/bin/bash
+	/bin/rbash
+
+在各个Linux的发行版中，默认的都是bash，所以以下讲解都是基于**bash**（一种CLI-Shell）。
+
+
+## shell的运行模式
+### 交互式shell与非交互式shell
+
+这个很简单，直接按照字面理解便可以想清楚。交互式shell就是terminal。非交互式shell就是`shell script`。
+
+检验：
+
+1. 命令行输入`echo $-`
+```
+	xhy@ubuntu:~$ echo $-
+	himBH #代表是交互式shell
+```
+2. 在一个shell脚本中写入`echo $-`,然后运行这个脚本
+```
+	xhy@ubuntu:~$ ./test.sh
+	hB #代表是非交互式shell
+```
+
+### 登录shell与非登录shell
+其实我们平时用到的都是非登录shell，比如在Linux桌面里`Ctrl+Alt+T`打开的bash终端，就是非登录的shell，包括你在这个终端里进行用户切换，比如说切换到root账户，其实还是非登录shell。那什么时候才是登录shell呢？
+
+很简单，判断是登录shell，还是非登录shell是通过启动bash时的命令选项决定的。`Ctrl+Alt+T`其实就是执行了一个`bash`命令，没有参数，默认是非登录shell。而登录shell在启动时执行的是`bash -login`。
+
+怎么判断是登录shell还是非登录shell呢？首先`Ctrl+Alt+T`打开bash终端，通过下面两个办法检验非登录shell的结果；再在bash终端里输入`bash -login`进入登录shell，再试一次。查看区别。
+
+1. 可以通过`echo $0`命令查看
+
+2. `logout`命令可以退出登录shell，不能退出登录shell，`exit`命令都可以退出
+
+说了半天，知道这些有什么用呢？额其实作用就是为下面讲的做铺垫。
+
+
+## shell启动时的脚本读取情况
+其实在Linux系统启动时（开机）以图形模式登录时是以`bash -login`模式的。随后我们打开终端的都是`bash`模式。
+
+登录shell在启动时会进行如下初始化读取操作：
+
+> 1. 首先执行 /etc/profile
+> 2. 然后**依次**查找 ~/.bash_profile, ~/.bash_login, ~/.profile 三个文件，找到第一个存在且可读的文件来执行。
+> 3. 如果存在 ~/.bash_logout，退出时会执行这个脚本。
+
+> 我们知道，~/目录下的是用户配置文件（每个用户不一定相同），是可以覆盖 /etc/profile 中的全局设置的。这几个配置文件如果修改了，只有重启才会在接下来所有新开的bash终端中生效，source只会在当前终端中生效。
+
+
+非登录shell在启动时进行如下初始化操作
+
+> 1. 先执行 /etc/bash.bashrc
+> 2. 后执行 ~/.bashrc
+
+> 这个配置文件如果修改了，对接下来新开的终端都会有效果，source一下对当前终端也生效。

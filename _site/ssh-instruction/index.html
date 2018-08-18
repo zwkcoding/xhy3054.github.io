@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>SSH简要教程 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/ssh.jpg alt="SSH简要教程">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Apr 16</p>
+        <h1 class="post_title">SSH简要教程</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h3 id="whats-ssh">what’s SSH</h3>
+<p>通俗来讲，<strong>SSH</strong>是一种网络协议，主要用于远程登陆。由于这种登陆中信息是加密的，所以即使被中途拦截，也不会泄露密码。</p>
+
+<h3 id="ssh基本用法">SSH基本用法</h3>
+<p><strong>username</strong>为你登陆的远程主机用户名（若本地用户名与远程用户名一致，可省略<code class="highlighter-rouge">username@</code>），<strong>host</strong>为你登陆的远程主机ip，此命令默认使用远程主机的<strong>22</strong>端口进行登陆。</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh username@host
+</code></pre></div></div>
+
+<p>若想指定端口号,可用<strong>p</strong>参数（例如指定<strong>33</strong>端口发送登陆请求）</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh <span class="nt">-p</span> 33 username@host
+</code></pre></div></div>
+
+<h3 id="ssh免密登陆">SSH免密登陆</h3>
+<p>每次登陆都需要输入密码会比较麻烦，可以设置免密登陆。</p>
+
+<p>免密登陆的原理是：</p>
+<blockquote>
+  <p>用户将自己的公钥存储在远程主机上,在登陆时,远程主机会向用户发送一段随机字符串，用户用自己的私钥加密后，再发回来。远程主机用事先储存的公钥进行解密，如果成功，就证明用户是可信的，直接允许登录shell，不再要求密码。</p>
+</blockquote>
+
+<p>因此,用户首先需要提供自己的公钥,可以进入目录<code class="highlighter-rouge">~/.ssh</code>查看一下,<code class="highlighter-rouge">id_rsa.pub</code>为私钥,<code class="highlighter-rouge">id_rsa</code>为公钥。如果没有,可以用如下方式生成:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh-keygen
+</code></pre></div></div>
+
+<p>然后用如下命令,可以将公钥传送给远程主机</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh-copy-id username@host
+</code></pre></div></div>
+
+<p>正常情况至此应该已经大公告成,如果没有,请查看远程主机的<code class="highlighter-rouge">/etc/ssh/sshd_config</code>文件,将下面几行的注释取消</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>　　RSAAuthentication yes
+　　PubkeyAuthentication yes
+　　AuthorizedKeysFile .ssh/authorized_keys
+</code></pre></div></div>
+
+<p>然后重启远程主机的<strong><em>SSH</em></strong>服务(ubuntu)</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>service ssh restart
+</code></pre></div></div>
+
+<p>大功告成!</p>
+
+<h3 id="本机与远程主机之间文件传输">本机与远程主机之间文件传输</h3>
+<p>由本机往远程主机路径<code class="highlighter-rouge">~/picture/</code>传输文件<strong>a</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>scp a username@host:~/picture/
+</code></pre></div></div>
+
+<p>由远程主机往本机路径<code class="highlighter-rouge">~/picture/</code>传输文件<strong>b</strong>(本机<strong>localhost</strong>可以由<code class="highlighter-rouge">ifconfig</code>命令查看)</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>scp b localusername@localhost:~/picture/
+</code></pre></div></div>
+
+<h3 id="ssh登陆知识常识">SSH登陆知识常识</h3>
+<p>SSH之所以能够保证安全，原因在于它采用了公钥加密。</p>
+
+<p>整个过程是这样的：</p>
+<blockquote>
+  <ul>
+    <li>远程主机收到用户的登录请求，把自己的公钥发给用户。</li>
+    <li>用户使用这个公钥，将登录密码加密后，发送回来。</li>
+    <li>远程主机用自己的私钥，解密登录密码，如果密码正确，就同意用户登录。</li>
+  </ul>
+</blockquote>
+
+<p>这个过程本身是安全的，但是实施的时候存在一个风险：如果有人截获了登录请求，然后冒充远程主机，将伪造的公钥发给用户，那么用户很难辨别真伪。因为不像https协议，SSH协议的公钥是没有证书中心（CA）公证的，也就是说，都是自己签发的。</p>
+
+<p>可以设想，如果攻击者插在用户与远程主机之间（比如在公共的wifi区域），用伪造的公钥，获取用户的登录密码。再用这个密码登录远程主机，那么SSH的安全机制就荡然无存了。这种风险就是著名的”中间人攻击”（Man-in-the-middle attack）。</p>
+
+<p>其实到目前为止并没有有效阻止“中间人攻击的方法”，因此在用户首次尝试登陆远程主机时，SSH会做出如下提示：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ssh user@host
+
+　　The authenticity of host 'host (12.18.429.21)' can't be established.
+
+　　RSA key fingerprint is 98:2e:d7:e0:de:9f:ac:67:28:c2:42:2d:37:16:58:4d.
+
+　　Are you sure you want to continue connecting (yes/no)?
+</code></pre></div></div>
+<p>即无法确定host主机的真实性，只知道它的公钥指纹，如果你可以核对这个公钥指纹，即可确保安全登陆。</p>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=SSH简要教程&url=http://localhost:4000/ssh-instruction/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ssh-instruction/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/ssh-instruction/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#linux" class="tag">linux</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

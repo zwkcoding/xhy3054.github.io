@@ -1,0 +1,24 @@
+---
+layout: default
+title: About
+permalink: /about/
+---
+<section class="about">
+  <a href="{{site.baseurl}}/" class="button_back"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
+  <div class="about_box">
+    <div class="author">
+        <div class="author_image">
+          <img src="{{site.baseurl}}/assets/img/{% if site.author-pic %}{{site.author-pic}}{% endif %}" alt="Author image">
+        </div>
+        <div class="author_info">
+          <h2 class="author_title">{% if site.author-name %}{{site.author-name}}{% else %}line{% endif %}</h2>
+          <p class="author_subtitle">{% if site.about-author %}{{site.about-author}}{% else %}怕什么真理无穷，进一寸有一寸的欢喜。{% endif %}</p>
+          <p class="author_subtitle">热爱生活，热爱学习。写这个博客记录本人的一点学习笔记，可能以后也会开始记录一些生活琐事。希望时光悠悠，我的日子也悠悠。</p>
+        </div>
+      </div>
+
+      <div class="about_social">
+        {% include social_footer.html %}
+      </div>
+    </div> <!-- End Section Author -->
+</section>

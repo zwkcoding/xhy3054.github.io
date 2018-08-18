@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>大批量编译make与cmake - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/software.jpg alt="大批量编译make与cmake">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, May 12</p>
+        <h1 class="post_title">大批量编译make与cmake</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="前言">前言</h2>
+
+<p>很早之前就接触过makefile的语法，但是没有深入的学习下去。本来以为自己了解这方面的知识了，谁知道最近做项目时，<strong>cmake</strong>、<strong>make install</strong>、<strong>make distribute</strong>…各种形式接连丢过来，我竟是懵了。这才发现自己其实根本没有形成系统的理解，稍微变形就使得我不知所云。想来想去还是写一篇博客吧，把自己的理解梳理一遍，以后如果有更深入、更清晰的理解，我会对这篇博客进行补充，尽量使得自己的知识见解有条理，系统化。</p>
+
+<h2 id="编译原理">编译原理</h2>
+
+<p>首先，拿c语言为例，我们先写出了代码。通过编译器可以利用这些c代码（源文件）生成可执行文件。整个的编译流程其实是这样的：</p>
+
+<ol>
+  <li>首先，进行预处理器处理（用实际值替代#define、读入#include指令包含的头文件等）；</li>
+  <li>其次，解析源代码（根据语法判断语句意思、这个阶段产生绝大多数错误与警告），转换为目标代码（产生机器指令的初步形式,也就是<code class="highlighter-rouge">.o</code>文件）；</li>
+  <li>最后将各个目标文件由链接器捆绑起来形成单一完整的可执行程序（ 通过1和2已经将一个程序的每个（有可能多个）源文件转换成目标代码），链接器同时也会引入标准c函数库中任何被该程序用到的函数。</li>
+</ol>
+
+<ul>
+  <li>上述中1与2两步其实就是<strong>编译器</strong>生成<code class="highlighter-rouge">.o</code>文件，<strong>链接器</strong>将<code class="highlighter-rouge">.o</code>文件链接成可执行文件。</li>
+</ul>
+
+<p>我在网上看到一张图，对于整个编译流程归纳的特别详细：
+<img src="/assets/img/make/make.png" alt="make" /></p>
+
+<h3 id="gcc编译方式bash">gcc编译方式（bash）</h3>
+<p>编译<code class="highlighter-rouge">main.c</code>、<code class="highlighter-rouge">1.c</code>、<code class="highlighter-rouge">1.h</code>，生成可执行文件<code class="highlighter-rouge">excute</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcc -o excute main.c 1.c 1.h 
+</code></pre></div></div>
+
+<p>注1：如果不<code class="highlighter-rouge">-o</code>指定生成<code class="highlighter-rouge">excute</code>，将默认生成<code class="highlighter-rouge">a.out</code>。</p>
+
+<p>注2：如果源文件不止一个，第二步产生的<code class="highlighter-rouge">.o</code>文件将会保留，以待重新编译只编译改动过的代码。</p>
+
+<h2 id="make与cmake">make与cmake</h2>
+
+<p>由上，我们知道了整个编译过程，但是如果一个项目很大，使用上述方式输入命令，似乎就很不灵活了。于是产生了<strong>make</strong>工具，它是一个自动化编译工具，规定好编译规则（<strong>Makefile</strong>），一条命令<code class="highlighter-rouge">make</code>，便能将整个工程编译完毕。</p>
+
+<p>对于一个合格的程序员来说，编写Makefile是必备技能。</p>
+
+<p>但是对于一个很大的项目，自己编写Makefile无疑是一件及其吃力的事情。于是又出现了<strong>cmake</strong>，它可以读入所有源文件后，自动生成Makefile文件。当然，cmake也有自己的规则文件（<strong>CmakeLists.txt</strong>）。不过比较而言，编写<code class="highlighter-rouge">CmakeLists.txt</code>却是简单多了。</p>
+
+<p>一般只需要输入<code class="highlighter-rouge">cmake</code>，整个项目会自动编译完成。cmake时大体流程如下：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>`cmake(CmakeLists.txt) --&gt; Makefile`
+
+`make(Makefile) --&gt; 编译完成`
+</code></pre></div></div>
+
+<p>注：make一般在windows下效果不好，camke跨平台比较常见</p>
+
+<h3 id="make选项">make选项</h3>
+
+<p>我们也会经常看到<code class="highlighter-rouge">make install</code>、<code class="highlighter-rouge">make distribute</code>等形式，这些都是什么意思呢？</p>
+
+<p><code class="highlighter-rouge">make install</code>:有些程序需要源码安装，<strong>make install</strong>在编译完程序源码后，会接着往系统写入一些配置，完成程序安装。</p>
+
+<p><code class="highlighter-rouge">make distribute</code>:感觉应该是使当前项目可以被外部项目依赖？</p>
+
+<h3 id="大工程-make-编译流程">大工程 make 编译流程</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./configure
+make
+make install
+</code></pre></div></div>
+
+<p>一般会是如上的顺序进行大工程的编译（c与c++）。</p>
+
+<ol>
+  <li>
+    <p>configure脚本：这个脚本的作用有获取编译参数（当前的系统环境，比如标准库在哪里、软件的安装位置在哪里、需要安装哪些组件）;确定标准库与头文件的位置;确定依赖关系，生成makefile;</p>
+  </li>
+  <li>
+    <p>make：编译;</p>
+  </li>
+  <li>
+    <p>make install：将编译器在内存中生成的可执行文件保存到用户事先指定的安装目录（创建目录、保存文件、设置权限等，并告知操作系统，即在操作系统中，登记这个程序的元数据：文件名、文件描述、关联后缀名等等。Linux系统中，这些信息通常保存在/usr/share/applications目录下的.desktop文件中。）</p>
+  </li>
+</ol>
+
+<h3 id="动态连接与静态连接">动态连接与静态连接</h3>
+<p>开发者可以在编译阶段选择可执行文件连接外部函数库的方式，到底是静态连接（编译时连接），还是动态连接（运行时连接）。所以，最后还要提一下，什么叫做动态连接。</p>
+
+<p>前面已经说过，静态连接就是把外部函数库，拷贝到可执行文件中。这样做的好处是，适用范围比较广，不用担心用户机器缺少某个库文件；缺点是安装包会比较大，而且多个应用程序之间，无法共享库文件。动态连接的做法正好相反，外部函数库不进入安装包，只在运行时动态引用。好处是安装包会比较小，多个应用程序可以共享库文件；缺点是用户必须事先安装好库文件，而且版本和安装位置都必须符合要求，否则就不能正常运行。</p>
+
+<p>现实中，大部分软件采用动态连接，共享库文件。这种动态共享的库文件，Linux平台是后缀名为.so的文件，Windows平台是.dll文件，Mac平台是.dylib文件。</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=大批量编译make与cmake&url=http://localhost:4000/make/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/make/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/make/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+          <a href="/tags#编译原理" class="tag">编译原理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

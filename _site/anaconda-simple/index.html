@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Anaconda简要教程 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/anaconda.png alt="Anaconda简要教程">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Apr 12</p>
+        <h1 class="post_title">Anaconda简要教程</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h3 id="whats-anaconda">what’s Anaconda</h3>
+
+<p><strong>Anaconda</strong>,是用于python编程环境管理的一个工具。它让你可以为每一个项目单独的构建自己的python编程环境，因此很好的解决了不同项目之间的串扰问题。并且使得你的工作更加清晰有条理。</p>
+
+<h3 id="install-anaconda">install Anaconda</h3>
+<p>从<a href="https://www.anaconda.com/download/">官网</a>下载安装文件，在linux下是一个<code class="highlighter-rouge">Anaconda2-5.1.0-Linux-x86_64.sh</code>文件，安装只需运行</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>bash Anaconda2-5.1.0-Linux-x86_64.sh 
+</code></pre></div></div>
+
+<h3 id="anaconda启用与停用">Anaconda启用与停用</h3>
+<p>安装的过程中会有两次让你确认的交互，第一次是让你同意他的协议，输入yes即可；第二次是问你是否将anaconda/bin添加到环境变量中，一般来说点击yes是没问题的，这样安装完，就直接和你的python3命令绑定了。如果这一步输入了no，相当于默认没有启动anaconda,需要去环境变量中添加，方法如下：</p>
+
+<ol>
+  <li>
+    <p>打开终端并输入<code class="highlighter-rouge">sudo gedit ~/.bashrc</code></p>
+  </li>
+  <li>
+    <p>在<code class="highlighter-rouge">.bashrc</code>文件末尾输入<code class="highlighter-rouge">export PATH=/home/xhy/anaconda3/bin:$PATH </code>,路径换为自己的，然后保存。</p>
+  </li>
+  <li>
+    <p>终端输入<code class="highlighter-rouge">source~/.bashrc</code>，使得立即生效。</p>
+  </li>
+</ol>
+
+<p>若想停用anaconda，方法如下：</p>
+
+<ol>
+  <li>
+    <p>打开终端并输入<code class="highlighter-rouge">sudo gedit ~/.bashrc</code></p>
+  </li>
+  <li>
+    <p>找到刚才添加的那行路径注释掉</p>
+  </li>
+  <li>
+    <p>终端输入<code class="highlighter-rouge">source~/.bashrc</code>，使得立即生效。</p>
+  </li>
+  <li>
+    <p>重开一终端即可看到效果。</p>
+  </li>
+</ol>
+
+<h3 id="使用anaconda">使用Anaconda</h3>
+
+<p>列出已有的环境</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env </span>list 
+</code></pre></div></div>
+
+<p>基于<strong>python2</strong>创建一个名为<strong>tensorflow</strong>的环境</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda create <span class="nt">-n</span> tensorflow <span class="nv">python</span><span class="o">=</span>2 
+</code></pre></div></div>
+
+<p>进入环境<strong>tensorflow</strong>（source可用conda替换）</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">source </span>activate tensorflow
+</code></pre></div></div>
+
+<p>列出此<strong>python</strong>环境下已有的包</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda list
+</code></pre></div></div>
+
+<p>此<strong>python</strong>环境下安装<strong>tensorflow</strong>（其他包类似）（也可以用<strong>pip</strong>安装）</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">install </span>tensorflow 
+</code></pre></div></div>
+
+<p>卸载包</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda remove tensorflow
+</code></pre></div></div>
+
+<p>离开<strong>tensorflow</strong>环境（source可用conda替换）</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">source </span>deactivate
+</code></pre></div></div>
+
+<p>删除<strong>tensorflow</strong>环境</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env </span>remove <span class="nt">-n</span> tensorflow
+</code></pre></div></div>
+
+<p>如果换了一台新电脑，想要将旧电脑上配置的这个<strong>tensorflow</strong>环境搬过去，先将此环境下的配置信息导出到一个<code class="highlighter-rouge">.yaml</code>文件中</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env export</span> <span class="o">&gt;</span> ~/environment.yaml 
+</code></pre></div></div>
+
+<p>然后在新电脑上新建<strong>tensorflow</strong>环境，然后根据<code class="highlighter-rouge">.yaml</code>文件更新环境</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env </span>update <span class="nt">-f</span> /path/to/environment.yml 
+</code></pre></div></div>
+
+<h3 id="anaconda的小毛病">anaconda的小毛病</h3>
+<ul>
+  <li>
+    <p>anaconda并不是完美的，虽然anaconda提供conda与pip方式在独立的env下安装Python包，但是我们知道有些包一般是用apt安装的。比如说pillow包是一个常用的Python图像处理包。但是一般安装这个包是用<code class="highlighter-rouge">sudo apt-get install python-imaging</code>命令安装。而apt安装的Python包默认安装在系统Python目录下，所以在anaconda的此env下的	Python并不能import到（当然你可以在import时指定路径我猜测），于是就很烦，查了一下原来这种情况也是可以安装的，虽然直接Pip和conda都找不到python-imaging包，但是可以用命令<code class="highlighter-rouge">conda install -c anaconda pillow </code>安装。（可以google下anaconda如何安装××包，前提你得知道包名）</p>
+  </li>
+  <li>
+    <p>如果你用pip安装的包发现也装在了系统Python下，是因为使用了系统python的pip，指定路径就好了<code class="highlighter-rouge">/home/xhy/anaconda3/bin/pip install 包名 </code></p>
+  </li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=Anaconda简要教程&url=http://localhost:4000/anaconda-simple/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/anaconda-simple/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/anaconda-simple/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#tools" class="tag">tools</a>
+          
+          <a href="/tags#python" class="tag">python</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

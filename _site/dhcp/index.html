@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>DHCP 实现动态 IP 上网简析 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/DHCP.jpg alt="DHCP 实现动态 IP 上网简析">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Jun 22</p>
+        <h1 class="post_title">DHCP 实现动态 IP 上网简析</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>首先，我们需要知道计算机是如何上网的。</p>
+
+<p>计算机之间的通信是建立在五层架构上的，一台计算机要想实现与互联网中另外一台台计算机之间的通信，计算机至少需要知道下面四个参数：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*本机的IP地址
+*子网掩码
+*网关的IP地址
+*DNS服务器的IP地址
+</code></pre></div></div>
+
+<p><strong>其中本机的 IP 地址和子网掩码</strong>的作用与来历已经在<a href="https://xhy3054.github.io/computer-network-overview/">互联网分层结构实现</a>博客中说明了。</p>
+
+<p><strong>网关的 IP 地址</strong>也是必须知道的，这个是因为一般情况下我们访问的主机都和我们不在一个子网中。所以需要把数据包先发给本机所处子网的网关，再由网关转发给目标主机（一般情况一次通信会转发很多次，直到抵达目标主机）。大致如下图示：
+<img src="/assets/img/dhcp/gateway.jpg" alt="gateway" /></p>
+
+<p><strong>DNS 服务器的 IP 地址</strong>也是必须知道的，因为我们一般直接获得的都是域名，比如（www.google.com）。DNS （域名系统）协议的作用是将域名转换成 IP 地址，我们向 DNS 服务器发送 DNS 数据包， DNS 服务器会做出响应告知我们该域名对应的 IP 地址是多少。</p>
+
+<p>知道了上述四个参数，一台计算机就可以上网了。</p>
+
+<h2 id="静态-ip-上网">静态 IP 上网</h2>
+<p>大家都用过 Windows 系统，想必对于这个界面应该不会陌生</p>
+
+<p><img src="/assets/img/dhcp/static.png" alt="static" /></p>
+
+<p>这是windows系统的一个设置窗口，可以指定上网必需的四个参数。指定以后，每次开机都会固定同样的 IP 地址，因此这种上网方式被称为<strong>静态 IP 上网</strong>。</p>
+
+<p>但是，我们可以发现这种设置是具备一定专业性的。连上网线，我们还需要知道所处子网的网关 IP、子网掩码、固定可用不会被占用的本机 IP、还有可访问的 DNS 服务器 IP。可以说相当专业了。而且这样做了以后，此台电脑的 IP 地址会保持不变，其他电脑就不能使用了，会使得资源利用不够灵活。所以现在基本上大家都是采用动态 IP 上网。</p>
+
+<h2 id="动态-ip-上网">动态 IP 上网</h2>
+<p>所谓的动态 IP 上网，就是开机连上网线后，会自动分配到一个可用的 IP 地址，不需要再认为设定，这样就方便了好多。它使用了 DHCP 协议。</p>
+
+<h3 id="dhcp-协议dynamic-host-configuration-protocol">DHCP 协议（Dynamic Host Configuration Protocol）</h3>
+<p>这是一种应用层协议，建立在 UDP 协议之上，整个数据包如下：
+<img src="/assets/img/dhcp/dhcp.png" alt="dhcp" /></p>
+
+<p>其中协议规定：</p>
+<ol>
+  <li>最前面的以太网标头，设置发出方（本机）的 MAC 地址和接收方（DHCP服务器）的 MAC 地址。前者是本地网卡的 MAC 地址，后者此时尚不知，就填入一个广播地址：<code class="highlighter-rouge">FF-FF-FF-FF-FF-FF</code>。</li>
+  <li>接下来的 IP 标头，设置发出方的 IP 地址与接收方的 IP 地址。这是，这些都还不知道，于是发出方的 IP 地址设置为<code class="highlighter-rouge">0.0.0.0</code>，接收方的 IP 地址设置为<code class="highlighter-rouge">255.255.255.255</code>。</li>
+  <li>最后的 UDP 标头，设置发出方的端口和接收方的端口。这一部分 DHCP 协议规定好的是，发出方是68端口，接收方是67端口。</li>
+</ol>
+
+<p>数据包构造完成后便可以发出了。这是是以太网广播发送，同一个子网络的每台计算机都会收到这个包。因为接收方地址为<code class="highlighter-rouge">FF-FF-FF-FF-FF-FF</code>，看不出是发给谁的，于是每台收到此包的计算机还必须再分析这个包的 IP 地址。当看到发出方为<code class="highlighter-rouge">0.0.0.0</code>，接收方为<code class="highlighter-rouge">255.255.255.255</code>时， DHCP 服务器便知道是发给自己的包，而其他计算机会丢弃这个包。</p>
+
+<p>然后，DHCP 服务器读出这个包，履行自己的职能，分配好一个 IP 地址，并发送一个 DHCP 响应包。这个响应包的相关设置类似，以太网标头为双方 MAC 地址， IP 标头 发送方为 DHCP 服务器 IP 地址，接收方为<code class="highlighter-rouge">255.255.255.255</code>。 UDP 端口为 67 （发出方）和 68 （接收方），<strong>分配给请求项的 IP 地址和本网路的具体参数</strong>包含在数据部分。</p>
+
+<h3 id="动态上网全流程总结">动态上网全流程总结</h3>
+<ol>
+  <li>电脑开机，接上网线，连入网络;</li>
+  <li>利用 DHCP 协议动态获取本机 IP 与本网络参数（子网掩码、网关IP、DNS的IP等）;</li>
+  <li>打开浏览器，输入<code class="highlighter-rouge">www.google.com</code>并回车;</li>
+  <li>利用 DNS 协议获得<code class="highlighter-rouge">www.google.com</code>的 IP ;</li>
+  <li>将数据包依次通过互联网的五层架构发送出去，并接收返回数据屏幕显示，完成一次网络通信。
+<img src="/assets/img/dhcp/surf.jpg" alt="surf" /></li>
+</ol>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=DHCP 实现动态 IP 上网简析&url=http://localhost:4000/dhcp/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/dhcp/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/dhcp/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#计算机网络" class="tag">计算机网络</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/extern.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-static/" class="recent_item" style="background-image: url( /assets/img/tu.jpg )"><span>c语言与c++语言中关键字static的使用</span></a>
+          
+        
+          
+            <a href="/register-cache-memory/" class="recent_item" style="background-image: url( /assets/img/memory.jpg )"><span>计算机中register、cache、memory的区别</span></a>
+          
+        
+          
+            <a href="/resnet/" class="recent_item" style="background-image: url( /assets/img/resnet.png )"><span>ResNet论文笔记</span></a>
+          
+        
+          
+            <a href="/dhcp/" class="recent_item" style="background-image: url( /assets/img/DHCP.jpg )"><span>DHCP 实现动态 IP 上网简析</span></a>
+          
+        
+          
+            <a href="/computer-network-overview/" class="recent_item" style="background-image: url( /assets/img/network.jpg )"><span>互联网分层结构实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//discus_identifier.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'analytics', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
