@@ -2,7 +2,7 @@
 layout: post
 title: CNN基础回顾
 date: 2018-06-20 10:07:24.000000000 +09:00
-img:   cnn.jpg # Add image post (optional)
+img:   rabbit.jpg # Add image post (optional)
 tags: [机器学习]
 ---
 ## 从神经网络到卷积神经网络（cnn）

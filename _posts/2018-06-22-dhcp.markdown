@@ -2,7 +2,7 @@
 layout: post
 title: DHCP 实现动态 IP 上网简析
 date: 2018-06-22 10:07:24.000000000 +09:00
-img:   DHCP.jpg # Add image post (optional)
+img:   net.jpg # Add image post (optional)
 tags: [计算机网络]
 ---
 首先，我们需要知道计算机是如何上网的。

@@ -2,7 +2,7 @@
 layout: post
 title: shell脚本快速入门
 date: 2018-04-20 10:07:24.000000000 +09:00
-img: bash.jpg # Add image post (optional)
+img: pearl.jpg # Add image post (optional)
 tags: [linux]
 ---
 

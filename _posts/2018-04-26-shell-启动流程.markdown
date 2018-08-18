@@ -2,7 +2,7 @@
 layout: post
 title: shell启动流程
 date: 2018-04-26 10:07:24.000000000 +09:00
-img:   workflow.jpg # Add image post (optional)
+img:   wheel.jpg # Add image post (optional)
 tags: [linux]
 ---
 

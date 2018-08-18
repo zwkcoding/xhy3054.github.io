@@ -2,7 +2,7 @@
 layout: post
 title: SSH简要教程
 date: 2018-04-16 10:07:24.000000000 +09:00
-img: ssh.jpg # Add image post (optional)
+img: meteor.jpg # Add image post (optional)
 tags: [linux]
 ---
 

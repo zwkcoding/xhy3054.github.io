@@ -1,40 +1,15 @@
-# Bef is a responsive jekyll theme
+# This is my first blog
 
-Forever - Blog Enjoy Freedom is a responsive jekyll theme which created to be simple and freedom.
+以前的很多学习和工作没有记录下来，即便记了下来，换电脑重装系统也都丢了。都说温故而知新，写在博客上不会有丢的烦恼，而且看起来要美观好多。遂为之。
 
-## Demo
+## 模板
+Bef - Blog Enjoy Freedom is a responsive jekyll theme which created to be simple and freedom.
 
 Check the theme in action [Demo](https://artemsheludko.github.io/bef/)
 
-The main page would look like this:
-
-![Main page preview](https://github.com/artemsheludko/bef/blob/master/assets/img/bef_main_page.jpg?raw=true)
-
-The post page would look like this:
-
-![Post page preview](https://github.com/artemsheludko/bef/blob/master/assets/img/bef_post.jpg?raw=true)
-
-## Features
-
-- [Google Fonts](https://fonts.google.com/)
-- [Font Awesome](http://fontawesome.io/)
-- [Vide](http://vodkabears.github.io/vide/)
-- [Disqus](https://disqus.com/)
-- [MailChimp](https://mailchimp.com/)
-- [Formspree!](https://formspree.io/)
-- [Analytics](https://analytics.google.com/analytics/web/)
-- Share Buttons, Recent Post, Section Author, Contact and more...
-
-## Installation:
-
-Fork the ``master`` branch and delete ``gh-pages`` branch in it. This is important because ``gh-pages`` branch is used here only to host the blog. You should be using the master branch as the source and create a fresh ``gh-pages`` branch.
 
 ## License
 
 GNU General Public License v3.0
 
-## Donate
 
-<p>If you want to show your appreciation, buy me one <a href="https://www.buymeacoffee.com/artemsheludko" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a> ! Every five cups of coffee and a new theme for Jekyll is ready 😋</p>
-<p>Either way, your support is a way to thank me ❤️</p>
-<p align="center"><b>Thank you for your support!</b></p>

@@ -2,7 +2,7 @@
 layout: post
 title: 简单理解应用AWK
 date: 2018-04-22 08:07:24.000000000 +09:00
-img: how-to-start.jpg # Add image post (optional)
+img: AWK.jpg # Add image post (optional)
 tags: [linux, 文本处理]
 ---
 

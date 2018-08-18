@@ -2,7 +2,7 @@
 layout: post
 title: Anaconda简要教程
 date: 2018-04-12 11:07:24.000000000 +09:00
-img: anaconda.png # Add image post (optional)
+img: anaconda.jpg # Add image post (optional)
 tags: [tools, python]
 ---
 

@@ -2,7 +2,7 @@
 layout: post
 title: ResNet论文笔记
 date: 2018-06-25 10:07:24.000000000 +09:00
-img:   resnet.png # Add image post (optional)
+img:   pier.jpg # Add image post (optional)
 tags: [机器学习]
 ---
 ## 退化问题

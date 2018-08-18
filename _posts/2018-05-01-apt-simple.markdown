@@ -2,7 +2,7 @@
 layout: post
 title: APT包管理简析
 date: 2018-05-01 10:07:24.000000000 +09:00
-img:   APT.png # Add image post (optional)
+img:   your_name.jpg # Add image post (optional)
 tags: [linux]
 ---
 ## Advanced Packaging Tool(APT)
