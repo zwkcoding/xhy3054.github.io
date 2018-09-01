@@ -84,20 +84,24 @@
 </blockquote>
 
 <h1 id="c语言中的零长数组">c语言中的零长数组</h1>
-<ul>
-  <li>首先说明，在ISO C与C++的规格说明书中是不允许的，但是在ｃ99的标准中有说明，所以会有很多编译器对其扩展支持，比如 gcc。</li>
-</ul>
+<blockquote>
+  <p>首先说明，零长数组在ISO C与C++的规格说明书中是不允许的，gcc 为了预先支持C99的这种玩法，所以，让“零长度数组”这种玩法合法了。关于GCC对于这个事的文档在这里：“<a href="https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html">Arrays of Length Zero</a>”。</p>
+</blockquote>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">line</span><span class="p">{</span>
 	<span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
 	<span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
 <span class="p">}</span>
 </code></pre></div></div>
-<p>如上定义了一个结构体，其中第二个元素为一个长度为零的数组。学习过ｃ语言的同学都知道数组，但是长度为０的数组你们可能很少看到。这样有什么用处呢？其实这样做是为了使得这个结构体的长度可以随着程序动态的变化，十分的灵活，比如如下形式使用这个结构体：</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">line</span> <span class="o">*</span><span class="n">exa</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">line</span><span class="p">)</span><span class="o">+</span><span class="mi">10</span><span class="p">);</span>
+<p>如上定义了一个结构体，其中第二个元素为一个长度为零的数组。</p>
+
+<p>学习过ｃ语言的同学都知道数组，但是长度为０的数组你们可能很少看到。这样有什么用处呢？其实这样做是为了使得这个结构体的长度可以随着程序动态的变化，十分的灵活，比如如下形式使用这个结构体：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">line</span> <span class="o">*</span><span class="n">exa</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">line</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">line</span><span class="p">)</span><span class="o">+</span><span class="mi">10</span><span class="p">);</span>
 <span class="n">exa</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
 </code></pre></div></div>
-<p>其中，第一个元素<code class="highlighter-rouge">length</code>	标志着下面数据的长度。<code class="highlighter-rouge">sizeof(struct line)</code>的结果为<code class="highlighter-rouge">sizeof(int)</code>，因为另一个元素零长数组不占空间，<strong>数组名data是一个指针常量，标识着成员变量<code class="highlighter-rouge">length</code>后面的那个地址，但其本身并不占空间</strong>。这与下面这种形式的结构体是有区别的。</p>
+<p>其中，第一个元素<code class="highlighter-rouge">length</code>	标志着下面数据的长度。<code class="highlighter-rouge">sizeof(struct line)</code>的结果为<code class="highlighter-rouge">sizeof(int)</code>，因为另一个元素零长数组不占空间，<strong>数组名data是一个指针常量，标识着成员变量<code class="highlighter-rouge">length</code>后面的那个地址，但其本身并不占空间</strong>。</p>
+
+<p>这与下面这种形式的结构体是有区别的。</p>
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">line</span><span class="p">{</span>
 	<span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
 	<span class="kt">char</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
@@ -110,6 +114,25 @@
   <li>方便内存释放。比如在我们为别人提供的函数接口中返回了一个结构体。如果是第二种结构体，其实在结构体的构造中是进行了两次的内存分配的，一次是为line这个结构体进行的内存申请，一次是为<code class="highlighter-rouge">line-&gt;data</code>这个指针指向的内存进行的内存申请。这时我们如果要进行这部分的内存释放，其实是需要分先后进行两次内存释放的。但是如果是第一种结构体，只需要释放(free)一次就行。本来对于这个结构体的构建者来说，这不是什么问题，但是对于仅仅是调用这个函数获取一个结构体的人来说，他们会方便很多。而且我们也不能指望着用户自己发现需要对这个数据结构进行两次free。</li>
   <li>这样有利于访问速度。连续的内存有益于提高访问速度，也有益于减少内存碎片。（其实，我个人觉得也没多高了，反正你跑不了要用做偏移量的加法来寻址）</li>
 </ol>
+
+<p>最后附一个完整代码：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+</span> 
+<span class="k">struct</span> <span class="n">line</span> <span class="p">{</span>
+   <span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+   <span class="kt">char</span> <span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// C99的玩法是：char contents[]; 没有指定数组长度</span>
+<span class="p">};</span>
+ 
+<span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="kt">int</span> <span class="n">this_length</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">line</span> <span class="o">*</span><span class="n">thisline</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">line</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span> <span class="p">(</span><span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span> <span class="n">this_length</span><span class="p">);</span>
+    <span class="n">thisline</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">this_length</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">thisline</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">,</span> <span class="sc">'a'</span><span class="p">,</span> <span class="n">this_length</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>上面这段代码的意思是：我想分配一个不定长的数组，于是我有一个结构体，其中有两个成员，一个是length，代表数组的长度，一个是contents，代表数组的内容。后面代码里的this_length（长度是10）代表是我想分配的数据的长度。（这看上去是不是像一个C++的类？）这种玩法英文叫：Flexible Array，中文翻译叫：<strong>柔性数组</strong>。</p>
 
 
     </div>
