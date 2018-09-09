@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>c与ｃ++中函数参数的传递 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/grassland.jpg alt="c与ｃ++中函数参数的传递">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Sep 09</p>
+        <h1 class="post_title">c与ｃ++中函数参数的传递</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>其实关于函数参数的传递，我一直以来的理解还算到位的。但是经常会有一些稀奇古怪的写法会让我有点懵圈，仔细想清楚了，就会发现都是一样的道理，不过要是我来写我可能会那样写，而不这样写，在这里稍微吐槽一下ｃ语言关于数组指针的很多写法，真是很难理解了。写这个博客希望自己从此不要被很多拗口的写法吓住，抓住本质的东西，写自己的代码。</p>
+
+<h1 id="函数参数传递的本质">函数参数传递的本质</h1>
+<p>在调用一个函数时进行参数传递，本质上进行的工作十分简单，即<strong>使用实参初始化形参</strong>。</p>
+
+<p>注意：正是因为实参与形参是两个完全不同的变量，才能更好的解释它们之间并没有更深入的联系，仅仅只是变量与初始值的关系而已。</p>
+
+<h2 id="传值参数包括传指针">传值参数（包括传指针）</h2>
+<p>很普通的那种，大家都了解的差不多。</p>
+
+<h2 id="传引用参数">传引用参数</h2>
+<p>引用的概念在ｃ语言中是不存在的，c++中提出引用的概念来替代部分复杂难懂的指针操作。与传值参数很不同，本质是使用引用类型建立形参与实参的联系。一个经典的例子如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">void</span> <span class="n">reset</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">){</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>
+    <span class="n">reset</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"j="</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>如上例，在调用<code class="highlighter-rouge">reset</code>函数时，使用实参初始化形参实际相当于<code class="highlighter-rouge">int j=42; int &amp;i=j;</code>因为形参为一个引用，并且被绑定到变量<code class="highlighter-rouge">j</code>上，因此可以通过<code class="highlighter-rouge">i</code>对变量<code class="highlighter-rouge">j</code>的值进行修改。这样就可以替代指针的部分作用了，而且更简单。　</p>
+
+<p>同时，使用传引用调用还有其他一些好处：</p>
+<ol>
+  <li>
+    <p>使用引用避免拷贝，提高效率（进行大的类类型对象的拷贝很低效）；因为引用类型不是一个对象，而仅仅是一种绑定关系，为已存对象另取了一个名字而已。</p>
+  </li>
+  <li>
+    <p>可以传递额外信息，因为引用参数可以改变原变量值，所以并不是只有返回值可以传递信息了，参数也可以（这点指针形参也可以做到）。</p>
+  </li>
+</ol>
+
+<p>注意的问题：</p>
+
+<ol>
+  <li>
+    <p>如上<code class="highlighter-rouge">int &amp;i</code>类型的形参在传入实参时只能是变量，不能是字面值常量，因为其不能用字面值常量初始化；</p>
+  </li>
+  <li>
+    <p>如果想要使得函数实参可以传入字面值常量，形参需要改成<code class="highlighter-rouge">const int &amp;i</code>形式，底层const的引用类型可以使用字面值常量初始化，一般只要不会对参数进行修改，就将其设置成底层const的引用；</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>科普一下，const可以分为顶层const与底层const两种。一般对象只会有顶层const，表示对象本身是常量不能修改；而对于指针与引用变量除了顶层const外（表示自身是常量，一般只对指针而言，引用一般只关心底层const），还有底层const，表示自身指向或者引用的对象是常量。</p>
+</blockquote>
+
+<p>例子：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">;</span>	<span class="c1">//不能改变p1的值，顶层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">ci</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>	<span class="c1">//顶层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ci</span><span class="p">;</span>	<span class="c1">//底层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>	<span class="c1">//底层const,不能通过r1改变i的值</span>
+</code></pre></div></div>
+
+<h2 id="main函数参数处理命令行选项">main函数参数：处理命令行选项</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argc = "</span><span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argv["</span><span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span><span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>如上，是主函数的带参数形式，此时在将源文件编译生成可执行文件后，运行时可以带参数。举个例子，比如编译生成的可执行文件叫做<code class="highlighter-rouge">main_arg</code>，则可以输入如下命令执行：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./main_arg -o -d data0
+</code></pre></div></div>
+
+<p>输出如下结果</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>./main_arg <span class="nt">-o</span> <span class="nt">-d</span> data0
+argc <span class="o">=</span> 4
+argv[0] <span class="o">=</span> ./main_arg
+argv[1] <span class="o">=</span> <span class="nt">-o</span>
+argv[2] <span class="o">=</span> <span class="nt">-d</span>
+argv[3] <span class="o">=</span> data0
+xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
+ 
+</code></pre></div></div>
+<p>如上可以知道，其中第一个参数<code class="highlighter-rouge">int　argc</code>为命令行中字符串的数量，后面<code class="highlighter-rouge">char *argv[]</code>为一个数组，数组元素为一个指向<code class="highlighter-rouge">char *</code>类型的指针，指向一个ｃ风格的字符串。最后一个指针之后的元素值保证为０（因此不需要argc其实也能确定是否读完了参数）。</p>
+
+<p>在这里了要科普一下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">matrix</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>	<span class="c1">//10个指针组成的数组</span>
+<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">10</span><span class="p">]</span>	<span class="c1">//一个指向含有十个整数的数组的指针</span>
+</code></pre></div></div>
+<p>这两种书写形式含义是不一样的。因此上述main函数其实还有一种写法是：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
+</code></pre></div></div>
+<p>并且一般情况下，我写这第二种形式比较习惯一点。</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=c与ｃ++中函数参数的传递&url=http://localhost:4000/c-cpp-argu-passing/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/c-cpp-argu-passing/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/c-cpp-argu-passing/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/c-cpp-argu-passing/" class="recent_item" style="background-image: url( /assets/img/grassland.jpg )"><span>c与ｃ++中函数参数的传递</span></a>
+          
+        
+          
+            <a href="/c-cpp-type-convert/" class="recent_item" style="background-image: url( /assets/img/grassland1.jpg )"><span>c与ｃ++中的类型转换</span></a>
+          
+        
+          
+            <a href="/c-cpp-operator/" class="recent_item" style="background-image: url( /assets/img/grassland2.jpg )"><span>c与ｃ++中的几种运算符</span></a>
+          
+        
+          
+            <a href="/c-ArrayOfVariableLength/" class="recent_item" style="background-image: url( /assets/img/vally.jpg )"><span>c语言中的变长数组与零长数组</span></a>
+          
+        
+          
+            <a href="/auto-c-cpp/" class="recent_item" style="background-image: url( /assets/img/lavender2.jpg )"><span>c语言与c++语言中关键字auto的使用</span></a>
+          
+        
+          
+            <a href="/c-cpp-extern/" class="recent_item" style="background-image: url( /assets/img/lavender1.jpg )"><span>c语言与c++语言中关键字extern的使用</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "c语言与c++语言中关键字auto的使用"
+title: c语言与c++语言中关键字auto的使用
 date: 2018-08-26 10:07:24.000000000 +09:00
 img:  lavender2.jpg # Add image post (optional)
 tag: [c与c++]

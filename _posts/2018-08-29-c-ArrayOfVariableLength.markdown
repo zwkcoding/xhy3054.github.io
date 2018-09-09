@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "c语言中的变长数组与零长数组"
+title: c语言中的变长数组与零长数组
 date: 2018-08-29 10:07:24.000000000 +09:00
 img:  vally.jpg # Add image post (optional)
 tag: [c与c++]

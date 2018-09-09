@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>shell启动流程 - line - 千里之行</title>
+	<title>c与ｃ++中的类型转换 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,101 +39,57 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/wheel.jpg alt="shell启动流程">
+        <img src=/assets/img/grassland1.jpg alt="c与ｃ++中的类型转换">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Apr 26</p>
-        <h1 class="post_title">shell启动流程</h1>
+        <p class="post_meta">2018, Sep 08</p>
+        <h1 class="post_title">c与ｃ++中的类型转换</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <h2 id="什么是shell">什么是shell</h2>
+      <p>关于类型转换的问题，本来我并没有如何在意。因为一直都是写的ｃ的代码比较多一点嘛，而ｃ这方面的内容并不多，形式也很简单。所以一直以来都会有一点错觉，觉得这方面自己应该了解的差不多，够用了。偶尔写代码有些关于这部分的内容老是出错，我也都是尽量“绕”过去，没想过深究原因。这段时间的基础学习，真的是学到了很多，也让我意识到自己很多错误的观点。其中关于类型转换，我以前的理解确实是很肤浅的，直到现在我可能了解的也不是那么的到位，所以今天打算写一个这方面的博客，一是总结归纳，免得自己这几天刚刚有的一些了解又丢了；二是加深理解，写的时候也许会有一些收获；三是开启一个这方面的文章，以后如果我有了更深的理解，会在这篇文章里进行更正，希望使得此树之根须越扎越深。</p>
 
-<blockquote>
-  <p>在计算机科学中，<strong>壳层</strong>（英语：shell）指“为用户提供用户界面”的软件，通常指的是命令行界面的解析器。一般来说，这个词是指操作系统中，提供访问内核所提供之服务的程序。——维基百科</p>
-</blockquote>
+<p>类型转换主要可以笼统的分为两大类：<strong>隐式类型转换</strong>与<strong>显式类型转换</strong>。</p>
 
-<p>shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(<strong>CLI-Shell</strong>)和图形界面的shell(<strong>GUI-Shell</strong>)。<strong>CLI-Shell</strong>最典型的就是linux的bash与windows的cmd，<strong>GUI-Shell</strong>最常见的就是Windows Explorer。</p>
-
-<p>我会写出来的肯定是<strong>CLI-Shell</strong>,以我的这个Ubuntu为例，可以通过<code class="highlighter-rouge">cat /etc/shells</code>查看现有的shell种类：</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># /etc/shells: valid login shells
-/bin/sh
-/bin/dash
-/bin/bash
-/bin/rbash
-</code></pre></div></div>
-
-<p>在各个Linux的发行版中，默认的都是bash，所以以下讲解都是基于<strong>bash</strong>（一种CLI-Shell）。</p>
-
-<h2 id="shell的运行模式">shell的运行模式</h2>
-<h3 id="交互式shell与非交互式shell">交互式shell与非交互式shell</h3>
-
-<p>这个很简单，直接按照字面理解便可以想清楚。交互式shell就是terminal。非交互式shell就是<code class="highlighter-rouge">shell script</code>。</p>
-
-<p>检验：</p>
-
-<ol>
-  <li>命令行输入<code class="highlighter-rouge">echo $-</code>
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ echo $-
- himBH #代表是交互式shell
-</code></pre></div>    </div>
-  </li>
-  <li>在一个shell脚本中写入<code class="highlighter-rouge">echo $-</code>,然后运行这个脚本
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ ./test.sh
- hB #代表是非交互式shell
-</code></pre></div>    </div>
-  </li>
-</ol>
-
-<h3 id="登录shell与非登录shell">登录shell与非登录shell</h3>
-<p>其实我们平时用到的都是非登录shell，比如在Linux桌面里<code class="highlighter-rouge">Ctrl+Alt+T</code>打开的bash终端，就是非登录的shell，包括你在这个终端里进行用户切换，比如说切换到root账户，其实还是非登录shell。那什么时候才是登录shell呢？</p>
-
-<p>很简单，判断是登录shell，还是非登录shell是通过启动bash时的命令选项决定的。<code class="highlighter-rouge">Ctrl+Alt+T</code>其实就是执行了一个<code class="highlighter-rouge">bash</code>命令，没有参数，默认是非登录shell。而登录shell在启动时执行的是<code class="highlighter-rouge">bash -login</code>。</p>
-
-<p>怎么判断是登录shell还是非登录shell呢？首先<code class="highlighter-rouge">Ctrl+Alt+T</code>打开bash终端，通过下面两个办法检验非登录shell的结果；再在bash终端里输入<code class="highlighter-rouge">bash -login</code>进入登录shell，再试一次。查看区别。</p>
+<h1 id="隐式类型转换">隐式类型转换</h1>
+<p>隐式类型转换不需要程序员介入，是自动进行的。通常我们注意的比较多的换转换通常是算数类型的隐式类型转。</p>
+<h2 id="算数类型的隐式类型转换">算数类型的隐式类型转换</h2>
+<p><strong>在表达式求值时</strong>，算数转换的规则定义了一套类型转换的层次，其中的大方向是将运算对象转换成最宽的类型。具体规则如下：</p>
 
 <ol>
   <li>
-    <p>可以通过<code class="highlighter-rouge">echo $0</code>命令查看</p>
+    <p>首先会进行整形提升，如果运算对象双方是<code class="highlighter-rouge">bool、char、signed char、unsigned char、short、与unsigned short</code>等可以不损失精度的放入int类型中，它们就会提升为int类型。如果它们中有不能用int类型无损存储的，比如<code class="highlighter-rouge">unsigned int、long</code>等类型，则会将较小的一方提升为精度较高一方的类型。</p>
   </li>
   <li>
-    <p><code class="highlighter-rouge">logout</code>命令可以退出登录shell，不能退出登录shell，<code class="highlighter-rouge">exit</code>命令都可以退出</p>
+    <p>如果运算对象双方一个为无符号类型，一个为有符号类型，并且无符号类型不小于有符号类型，则将带符号的运算对象转换成无符号的。</p>
+  </li>
+  <li>
+    <p>如果带符号类型大于无符号类型，则结果需要依赖机器。如果此带符号类型可以无损存储此无符号类型，则将无符号类型转换成带符号类型。否则，结果反之。比如两个运算对象分别是<code class="highlighter-rouge">long</code>与<code class="highlighter-rouge">unsigned int</code>类型，则怎么转换就需要依赖机器中<code class="highlighter-rouge">long</code>类型占用空间是否比<code class="highlighter-rouge">int</code>多。</p>
   </li>
 </ol>
 
-<p>说了半天，知道这些有什么用呢？额其实作用就是为下面讲的做铺垫。</p>
+<p>总结：表达式求值在根据<code class="highlighter-rouge">double&gt;float&gt;int</code>之类的隐式类型转换后求出来的值在<strong>赋值时</strong>还会再进行一次隐式类型转换。例如：<code class="highlighter-rouge">int c=5; char d='0'; char a = c + d;</code></p>
 
-<h2 id="shell启动时的脚本读取情况">shell启动时的脚本读取情况</h2>
-<p>其实在Linux系统启动时（开机）以图形模式登录时是以<code class="highlighter-rouge">bash -login</code>模式的。随后我们打开终端的都是<code class="highlighter-rouge">bash</code>模式。</p>
+<h2 id="其他隐式类型转换">其他隐式类型转换</h2>
+<ol>
+  <li>
+    <p>数组名转成指针：例如<code class="highlighter-rouge">int a[10]; int *p=a;</code>中将数组名转成指针，但是当数组被用作<code class="highlighter-rouge">decltype</code>关键字的参数或者作为取地址符（&amp;）、<code class="highlighter-rouge">sizeof</code>以及<code class="highlighter-rouge">typeid</code>等运算符的运算对象时，上述转换不会发生；</p>
+  </li>
+  <li>
+    <p>指针的转换：比如，第一、常量正数值０或者字面值常量nullptr能转换成任意指针类型；第二、指向任意非常量的指针能转换成<code class="highlighter-rouge">void *</code>；第三、指向任意对象的指针能转换成<code class="highlighter-rouge">const void*</code>;</p>
+  </li>
+  <li>
+    <p>转成<code class="highlighter-rouge">bool</code>类型（通常在判断表达式中）；</p>
+  </li>
+  <li>
+    <p>转换成常量：允许将非常量类型赋值给常量；</p>
+  </li>
+</ol>
 
-<p>登录shell在启动时会进行如下初始化读取操作：</p>
+<h1 id="显式类型转换">显式类型转换</h1>
+<p>显式类型转换也叫作强制类型转换，除非必须，否则不建议使用。并且在这方面，ｃ语言提供的强制类型转换是及其不完善的，c++对与强制类型转换比之要完善很多，不过依然不建议使用。</p>
 
-<blockquote>
-  <ol>
-    <li>首先执行 /etc/profile</li>
-    <li>然后<strong>依次</strong>查找 ~/.bash_profile, ~/.bash_login, ~/.profile 三个文件，找到第一个存在且可读的文件来执行。</li>
-    <li>如果存在 ~/.bash_logout，退出时会执行这个脚本。</li>
-  </ol>
-</blockquote>
-
-<blockquote>
-  <p>我们知道，~/目录下的是用户配置文件（每个用户不一定相同），是可以覆盖 /etc/profile 中的全局设置的。这几个配置文件如果修改了，只有重启才会在接下来所有新开的bash终端中生效，source只会在当前终端中生效。</p>
-</blockquote>
-
-<p>非登录shell在启动时进行如下初始化操作</p>
-
-<blockquote>
-  <ol>
-    <li>先执行 /etc/bash.bashrc</li>
-    <li>后执行 ~/.bashrc</li>
-  </ol>
-</blockquote>
-
-<blockquote>
-  <p>这个配置文件如果修改了，对接下来新开的终端都会有效果，source一下对当前终端也生效。</p>
-</blockquote>
 
     </div>
     
@@ -141,14 +97,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=shell启动流程&url=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=c与ｃ++中的类型转换&url=http://localhost:4000/c-cpp-type-convert/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/c-cpp-type-convert/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/c-cpp-type-convert/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#linux" class="tag">linux</a>
+          <a href="/tags#c与c++" class="tag">c与c++</a>
           
         </div>
       </footer>

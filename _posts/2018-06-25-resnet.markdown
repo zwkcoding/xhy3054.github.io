@@ -3,7 +3,7 @@ layout: post
 title: ResNet论文笔记
 date: 2018-06-25 10:07:24.000000000 +09:00
 img:   pier.jpg # Add image post (optional)
-tags: [机器学习]
+tags: [深度学习]
 ---
 ## 退化问题
 2013年以来cnn飞速发展，从比较简单的LeNet、AlexNet,到结构对称美观的VGGNet（经典结构之一，SegNet、SSD等都使用它作为基础网络），再到可以大量减少参数的GoogleNet（Inception），一直到本文主角ResNet的出现，它们都有一个共同的特点：网络层数在不断加深。

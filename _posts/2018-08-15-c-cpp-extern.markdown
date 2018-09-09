@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "c语言与c++语言中关键字extern的使用"
+title: c语言与c++语言中关键字extern的使用
 date: 2018-08-15 10:07:24.000000000 +09:00
 img:  lavender1.jpg # Add image post (optional)
 tag: [c与c++]

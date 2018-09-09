@@ -3,7 +3,7 @@ layout: post
 title: Inception概念解析
 date: 2018-06-20 15:07:24.000000000 +09:00
 img:   inception.jpg # Add image post (optional)
-tags: [机器学习]
+tags: [深度学习]
 ---
 ## Inception 由来
 2014年，**GoogLeNet**在ImageNet竞赛上击败**VGGNet**一举夺魁。其中，GooLeNet首次提出Iception结构，早期的Iception-v1结构借鉴了NIN（Network in Network）的设计思想，对网络的传统卷积层进行了修改，并一直改进到v4,改进过程中主要是针对以下限制神经网络性能的主要问题：
