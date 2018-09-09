@@ -139,10 +139,37 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">matrix</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>	<span class="c1">//10个指针组成的数组</span>
 <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">10</span><span class="p">]</span>	<span class="c1">//一个指向含有十个整数的数组的指针</span>
 </code></pre></div></div>
-<p>这两种书写形式含义是不一样的。因此上述main函数其实还有一种写法是：</p>
+<p>这两种书写形式含义是不一样的。其中<code class="highlighter-rouge">*</code>优先级小于<code class="highlighter-rouge">[]</code>，对于<code class="highlighter-rouge">int (*matrix)[10]</code>可以按如下顺序来理解该声明的含义：</p>
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">*matrix</code>表示对变量<code class="highlighter-rouge">matrix</code>进行解引用操作；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">(*matrix)[10]</code>表示解引用后将得到一个大小为１０的数组；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">int (*matrix)[10]</code>表示数组中的元素是int类型。</p>
+  </li>
+</ol>
+
+<p>同理，对于<code class="highlighter-rouge">int *matrix[10]</code>可以按如下顺序来理解该声明的含义：</p>
+
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">matrix[10]</code>表示matrix是一个大小为１０的数组；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">*matrix[10]</code>表示数组元素是指针类型；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">int *matrix[10]</code>表示数组元素时候int的指针类型。</p>
+  </li>
+</ol>
+
+<p>其实这么写可能比较易读，但是不方便，上述main函数其实还有一种写法是：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
 </code></pre></div></div>
-<p>并且一般情况下，我写这第二种形式比较习惯一点。</p>
+<p>并且一般情况下，我写这第二种形式比较习惯一点。指针的指针。</p>
 
 
     </div>
