@@ -7,11 +7,11 @@ tags: [linux]
 ---
 
 
-### what's SSH
+## what's SSH
 通俗来讲，**SSH**是一种网络协议，主要用于远程登陆。由于这种登陆中信息是加密的，所以即使被中途拦截，也不会泄露密码。
 
 
-### SSH基本用法
+## SSH基本用法
 **username**为你登陆的远程主机用户名（若本地用户名与远程用户名一致，可省略`username@`），**host**为你登陆的远程主机ip，此命令默认使用远程主机的**22**端口进行登陆。
 ```bash
 $ ssh username@host
@@ -23,7 +23,7 @@ $ ssh -p 33 username@host
 ```
 
 
-### SSH免密登陆
+## SSH免密登陆
 每次登陆都需要输入密码会比较麻烦，可以设置免密登陆。
 
 免密登陆的原理是：
@@ -54,7 +54,7 @@ $ service ssh restart
 大功告成!
 
 
-### 本机与远程主机之间文件传输
+## 本机与远程主机之间文件传输
 由本机往远程主机路径`~/picture/`传输文件**a**
 ```bash
 $ scp a username@host:~/picture/
@@ -65,9 +65,22 @@ $ scp a username@host:~/picture/
 $ scp b localusername@localhost:~/picture/
 ```
 
+## 配置`config`便捷登录
+在目录`~/.ssh/`下新建`config`文件，输入如下信息
+```config
+Host s1
+HostName 10.20.41.20
+User xhy
+Port 25000
 
+Host s2
+HostName 10.20.41.21
+User xhy
+Port 25000
+```
+则再使用`ssh`命令登录服务器s1时只需要输入`ssh s1`即可。
 
-### SSH登陆知识常识
+## SSH登陆知识常识
 SSH之所以能够保证安全，原因在于它采用了公钥加密。
 
 整个过程是这样的：
@@ -79,7 +92,7 @@ SSH之所以能够保证安全，原因在于它采用了公钥加密。
 
 可以设想，如果攻击者插在用户与远程主机之间（比如在公共的wifi区域），用伪造的公钥，获取用户的登录密码。再用这个密码登录远程主机，那么SSH的安全机制就荡然无存了。这种风险就是著名的"中间人攻击"（Man-in-the-middle attack）。
 
-其实到目前为止并没有有效阻止“中间人攻击的方法”，因此在用户首次尝试登陆远程主机时，SSH会做出如下提示：
+其实到目前为止并没有有效阻止“中间人攻击的方法”，因此在用户尝试登陆远程主机时，SSH会做出如下提示（非免密登录）：
 ```
 $ ssh user@host
 
