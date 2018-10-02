@@ -74,7 +74,7 @@
     <p>移位运算符的操作对象为无符号数时，程序是可移植的。此时无论右移还是左移都是补零。</p>
   </li>
   <li>
-    <p>移位运算符的操作对象为有符号数时，此时程序是不可移植的。在不同的机器上有可能会出现不同的结果，其中有的机器上使用的是<code class="highlighter-rouge">逻辑移位</code>，也就是不考虑符号位，移位时另一边直接补零。还有一种是<code class="highlighter-rouge">算数移位</code>，此时考虑符号位，比如说右移时左边会补与符号位相同的值。（尽量保持只对无符号数进行移位操作）</p>
+    <p>移位运算符的操作对象为有符号数时，此时程序是不可移植的。在不同的机器上有可能会出现不同的结果，其中有的机器上使用的是<code class="highlighter-rouge">逻辑移位</code>，也就是不考虑符号位，移位时另一边直接补零。还有一种是<code class="highlighter-rouge">算术移位</code>（尽量保持只对无符号数进行移位操作）。注意：逻辑移位的话不需多讲，算术移位在做左移时其实与逻辑移位操作一样，但是它在右移时会在最高位补与符号位相同的值。</p>
   </li>
   <li>
     <p>移位运算符（包括重载的ＩＯ运算符），满足左结合律，且本身优先级不高不低。比算数运算符低，但比关系运算符、赋值运算符还有条件运算符优先级高。</p>
@@ -167,11 +167,15 @@
       <div class="recent_list">
         
           
+            <a href="/gdb/" class="recent_item" style="background-image: url( /assets/img/cartoon3.jpg )"><span>命令行调试工具gdb小结</span></a>
+          
+        
+          
             <a href="/visual-slam-orb/" class="recent_item" style="background-image: url( /assets/img/village1.jpg )"><span>ORB特征详解</span></a>
           
         
           
-            <a href="/c-cpp-struct-class/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++关键字struct与class的区别</span></a>
+            <a href="/c-cpp-common/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++的几个常识问题</span></a>
           
         
           
@@ -184,10 +188,6 @@
         
           
             <a href="/c-cpp-operator/" class="recent_item" style="background-image: url( /assets/img/grassland2.jpg )"><span>c与ｃ++中的几种运算符</span></a>
-          
-        
-          
-            <a href="/c-ArrayOfVariableLength/" class="recent_item" style="background-image: url( /assets/img/vally.jpg )"><span>c语言中的变长数组与零长数组</span></a>
           
         
       </div>

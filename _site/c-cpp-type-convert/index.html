@@ -52,6 +52,18 @@
 
 <p>类型转换主要可以笼统的分为两大类：<strong>隐式类型转换</strong>与<strong>显式类型转换</strong>。</p>
 
+<blockquote>
+  <p>注意：不论是隐式类型转换还是显式类型转换，在进行算术类型转换时，高精度转为低精度都会有精度损失，低精度转为高精度是没有。比如在<strong>有符号的char类型</strong>在与<strong>int类型</strong>进行转换时。将有符号char类型转换成int类型时，值是无损失的（不会发生变化的）。而int类型赋值给有符号char类型时其实进行的是截断式赋值。
+例子：</p>
+  <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">signed</span> <span class="kt">char</span> <span class="n">sc1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+<span class="c1">//结果i1值为-128，将10000000自动扩展为111...10000000</span>
+<span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">sc1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1073741823</span><span class="p">;</span>
+<span class="c1">//结果sc2值为１，发生了截断式赋值，将11000...00000001截断为00000001</span>
+<span class="kt">signed</span> <span class="kt">char</span> <span class="n">sc2</span> <span class="o">=</span> <span class="n">i2</span><span class="p">;</span>
+</code></pre></div>  </div>
+</blockquote>
+
 <h1 id="隐式类型转换">隐式类型转换</h1>
 <p>隐式类型转换不需要程序员介入，是自动进行的。通常我们注意的比较多的换转换通常是算数类型的隐式类型转。</p>
 <h2 id="算数类型的隐式类型转换">算数类型的隐式类型转换</h2>
@@ -142,11 +154,15 @@
       <div class="recent_list">
         
           
+            <a href="/gdb/" class="recent_item" style="background-image: url( /assets/img/cartoon3.jpg )"><span>命令行调试工具gdb小结</span></a>
+          
+        
+          
             <a href="/visual-slam-orb/" class="recent_item" style="background-image: url( /assets/img/village1.jpg )"><span>ORB特征详解</span></a>
           
         
           
-            <a href="/c-cpp-struct-class/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++关键字struct与class的区别</span></a>
+            <a href="/c-cpp-common/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++的几个常识问题</span></a>
           
         
           
@@ -159,10 +175,6 @@
         
           
             <a href="/c-cpp-operator/" class="recent_item" style="background-image: url( /assets/img/grassland2.jpg )"><span>c与ｃ++中的几种运算符</span></a>
-          
-        
-          
-            <a href="/c-ArrayOfVariableLength/" class="recent_item" style="background-image: url( /assets/img/vally.jpg )"><span>c语言中的变长数组与零长数组</span></a>
           
         
       </div>

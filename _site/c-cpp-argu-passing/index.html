@@ -58,7 +58,7 @@
 <h2 id="11-传值参数包括传指针">1.1 传值参数（包括传指针）</h2>
 <p>很普通的那种，大家都了解的差不多。</p>
 <blockquote>
-  <p>在此处需要强调一下，所谓<strong>传值</strong>，其实是指在使用实参初始化形参时，将实参的值拷贝一份到形参。此处我将传指针也归纳到了传值这边，因为都有拷贝操作。但是此处需要稍微提一下，有两种类型（也许还有其他？以后遇到会补充）是不能通过这种形式进行拷贝的（也就是<strong>不能进行真正意义上的传值操作</strong>），那就是<strong>数组与函数</strong>。所以当参数列表或者返回值类型中如果出现数组名与函数名（只要参数类型不是引用），编译器会自动将其转换成常量指针类型，然后再使用这个常量指针进行传值操作。</p>
+  <p>在此处需要强调一下，所谓<strong>传值</strong>，其实是指在使用实参初始化形参时，将实参的值拷贝一份到形参。此处我将传指针也归纳到了传值这边，因为都有拷贝操作。但是此处需要稍微提一下，有几种类型（也许还有其他？以后遇到会补充）是不能通过这种形式进行拷贝的（也就是<strong>不能进行真正意义上的传值操作</strong>），那就是<strong>数组与函数（还有IO对象如cin、cout等）</strong>。所以当参数列表或者返回值类型中如果出现数组名与函数名（只要参数类型不是引用），编译器会自动将其转换成常量指针类型，然后再使用这个常量指针进行传值操作。</p>
 </blockquote>
 
 <p>例子（函数指针）：</p>
@@ -81,7 +81,7 @@
 
 <h2 id="12-传引用参数">1.2 传引用参数</h2>
 <blockquote>
-  <p><strong>传引用</strong>的方式也是<strong>使用实参初始化形参</strong>，但是它与<strong>传值</strong>完全不同，它并没有拷贝操作，而是利用引用的特点，将引用类型的形参绑定到实参上。从而达到可以直接操作实参的效果。c语言中不存在引用，所以需要使用指针来完成类似的操作。</p>
+  <p><strong>传引用</strong>的方式也是<strong>使用实参初始化形参</strong>，但是它与<strong>传值</strong>完全不同，它并没有拷贝操作，而是利用引用的特点，将引用类型的形参绑定到实参上。从而达到可以直接操作实参的效果。c语言中不存在引用，所以需要使用指针来完成类似的操作。(多嘴一句，引用在编译器底层其实是通过常量指针实现的)</p>
 </blockquote>
 
 <p>一个经典的例子如下：</p>
@@ -248,11 +248,15 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
       <div class="recent_list">
         
           
+            <a href="/gdb/" class="recent_item" style="background-image: url( /assets/img/cartoon3.jpg )"><span>命令行调试工具gdb小结</span></a>
+          
+        
+          
             <a href="/visual-slam-orb/" class="recent_item" style="background-image: url( /assets/img/village1.jpg )"><span>ORB特征详解</span></a>
           
         
           
-            <a href="/c-cpp-struct-class/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++关键字struct与class的区别</span></a>
+            <a href="/c-cpp-common/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++的几个常识问题</span></a>
           
         
           
@@ -265,10 +269,6 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
         
           
             <a href="/c-cpp-operator/" class="recent_item" style="background-image: url( /assets/img/grassland2.jpg )"><span>c与ｃ++中的几种运算符</span></a>
-          
-        
-          
-            <a href="/c-ArrayOfVariableLength/" class="recent_item" style="background-image: url( /assets/img/vally.jpg )"><span>c语言中的变长数组与零长数组</span></a>
           
         
       </div>
