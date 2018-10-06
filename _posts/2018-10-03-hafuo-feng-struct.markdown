@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 哈佛体系结构与冯诺依曼体系结构的区别
-date: 2018-10-01 10:07:24.000000000 +09:00
+date: 2018-10-03 10:07:24.000000000 +09:00
 img:  village.jpg # Add image post (optional)
 tag: [计算机基础]
 ---
