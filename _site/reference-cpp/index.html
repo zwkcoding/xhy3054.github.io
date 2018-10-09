@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>ResNet论文笔记 - line - 千里之行</title>
+	<title>c++的引用使用中需要注意的几个问题 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,60 +39,73 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/pier.jpg alt="ResNet论文笔记">
+        <img src=/assets/img/cartoon1.jpg alt="c++的引用使用中需要注意的几个问题">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Jun 25</p>
-        <h1 class="post_title">ResNet论文笔记</h1>
+        <p class="post_meta">2018, Oct 09</p>
+        <h1 class="post_title">c++的引用使用中需要注意的几个问题</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <h2 id="退化问题">退化问题</h2>
-<p>2013年以来cnn飞速发展，从比较简单的LeNet、AlexNet,到结构对称美观的VGGNet（经典结构之一，SegNet、SSD等都使用它作为基础网络），再到可以大量减少参数的GoogleNet（Inception），一直到本文主角ResNet的出现，它们都有一个共同的特点：网络层数在不断加深。</p>
+      <p>在c++中，为了改变c语言中指针使用的种种麻烦与困难，定义了一种新的复合类型－－－引用。</p>
 
-<p>按理说，深度cnn网络集成了特征提取器与特征分类器，并且特征水平可以通过层数的堆砌来提升。层数越深，网络的学习能力应该越强，网络的准确度也应该越高，那只要不断加深cnn网络的层数不就好了？确实是这样的，但是，总归没有那么简单。
-<img src="/assets/img/resnet/issue.png" alt="issue" /></p>
+<h2 id="普通引用">普通引用</h2>
+<p>引用为对象起了另外一个名字，引用类型引用（refers to）另外一种类型。通过将声明符写成<code class="highlighter-rouge">&amp;d</code>的形式来定义引用类型，其中d是声明的变量名。如下：</p>
 
-<p>从上图我们可以看到，56层网络的训练错误率与测试错误率反而比20层的（在CIFAR-10上）要高。没错，<strong>传统cnn网络随心所欲的增加层数是不行的,当更深的网络开始收敛时，会出现退化问题。（层数增多，准确率反而下降，因为深层网络会出现梯度消失）</strong></p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">i1</span><span class="p">;</span>	<span class="c1">//r1是i1的引用（也就是i1的别名）</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r2</span><span class="p">;</span>	<span class="c1">//错误！引用必须初始化，引用是无法复制的，因为对引用赋值其实是对引用绑定的变量赋值。</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r3</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>	<span class="c1">//错误！普通引用不能绑定常量</span>
+</code></pre></div></div>
 
-<h2 id="resnet的做法">ResNet的做法</h2>
-<p>ResNet为了解决cnn网络层数增加，学习能力反而下降的问题，提出了一种 residual 结构。
-<img src="/assets/img/resnet/residual.png" alt="residual" /></p>
-
-<p>如上图，增加了一个恒等映射（identity mapping），将原始需要学习的函数<code class="highlighter-rouge">H(X)</code>转换成<code class="highlighter-rouge">F(x)+x</code>。作者认为对残差<code class="highlighter-rouge">F(x)</code>做优化会比直接对<code class="highlighter-rouge">H(x)</code>做优化要简单很多。这个公式的实现是通过上图的<code class="highlighter-rouge">shortcut connections</code>，这并不会增加额外参数和计算复杂性。</p>
-
-<p>其中，<code class="highlighter-rouge">H(x) = y = F(x)+x</code>,<code class="highlighter-rouge">F(x)</code>为要学习的残差映射。但是，我们都知道输入与输出的维度很有可能会发生变化，因此<code class="highlighter-rouge">shortcut</code>的方式，需要认真考虑。针对深度增加的情况，论文中提出了两种解决方法：</p>
+<p>如下是几个注意问题：</p>
 <ol>
-  <li>zero_padding:依然是恒等映射，对于增加的层填充0,这样不会有额外的参数;</li>
-  <li>projection:采用<code class="highlighter-rouge">1×1</code>卷积核来增加维度。</li>
+  <li>
+    <p>引用<strong>必须初始化</strong>！因为引用是无法赋值的，对引用赋值其实是对引用绑定的变量赋值。</p>
+  </li>
+  <li>
+    <p>普通引用（非常量引用）是<strong>不能绑定常量</strong>的！因为可以使用引用对绑定的变量进行赋值，所以如果引用绑定了常量，就会有改变常量的操作发生的可能。</p>
+  </li>
+  <li>
+    <p><strong>不能定义引用的引用</strong>。因为引用本身只是一个别名，不是一个对象，所以不能定义引用的引用。</p>
+  </li>
+  <li>
+    <p>引用的<strong>类型必须与绑定的对象严格匹配</strong>。</p>
+  </li>
+  <li>
+    <p>引用只能绑定在对象上，<strong>不能与字面值或者某个表达式的计算结果绑定</strong>。</p>
+  </li>
 </ol>
 
-<h2 id="实际效果">实际效果</h2>
-<p>如下图，为普通 VGG-19 网络与34层普通cnn网络还有34层的残差网络结构图：
-<img src="/assets/img/resnet/net.png" alt="net" /></p>
+<h2 id="常量引用">常量引用</h2>
+<blockquote>
+  <p>科普一下，const可以分为顶层const与底层const两种。一般对象只会有顶层const，表示对象本身是常量不能修改；而对于指针与引用变量除了顶层const外（表示自身是常量，一般只对指针而言，引用一般只关心底层const），还有底层const，表示自身指向或者引用的对象是常量。</p>
+</blockquote>
 
-<p>结果对比</p>
+<p>此处常量引用指的是底层const，即不能通过此引用改变绑定的对象。常量引用有几个特殊的地方：</p>
 
-<p><img src="/assets/img/resnet/result.png" alt="result" /></p>
+<ol>
+  <li>
+    <p>常量引用可以<strong>绑定常量，也可以绑定非常量</strong>（但是不能通过此引用改变这个非常量的值）；</p>
+  </li>
+  <li>
+    <p>常量引用的<strong>类型不必与绑定的对象严格一致</strong>，只要可以转换成常量引用的类型即可；</p>
+  </li>
+  <li>
+    <p>常量引用<strong>可与字面值或者某个表达式的计算结果绑定</strong>；</p>
+  </li>
+</ol>
 
-<h2 id="改进">改进</h2>
-<p>我们可以发现， ResNet 确实有效的解决了深度网络的退化问题。</p>
+<p>其中第一条很容易理解，第二条、第三条的原因可由下面例子知道原因：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">double</span> <span class="n">d1</span> <span class="o">=</span> <span class="mf">3.14</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//正确！</span>
+<span class="c1">//上式等价于如下：</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//先生成一个临时变量（与常量引用类型一致）</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>	<span class="c1">//让r1绑定这个临时量</span>
+</code></pre></div></div>
+<p>当所要绑定的对象与常量引用类型不一样时，编译器便会创建一个临时变量，并将原变量转换类型赋值给这个临时变量，常量引用最终绑定的是这个临时变量。当绑定对象是某个表达式时执行操作一样。注意！这种操作只在必要时发生，如果绑定的是一个类型相符的变量，则直接进行绑定操作，不会有什么临时变量。</p>
 
-<p>但是虽然 ResNet 在深度网络的退化问题上取得了一定的效果，但是参数数量是不变的。这使得 ResNet 工作在更高的层数时依然吃力。为了减少参数数量，提高效率，作者又提出了以下结构：</p>
-
-<p><img src="/assets/img/resnet/newres.png" alt="newres" /></p>
-
-<p>使用<code class="highlighter-rouge">1×1</code>卷积核来分别进行降维与升维，使得<code class="highlighter-rouge">3×3</code>卷积核工作在较低维度，大大减少参数数量，作者基于此又提出了 ResNet 的50、101、152层网络。</p>
-
-<h2 id="resnet原理探讨">ResNet原理探讨</h2>
-<p>纵观全文，作者在引入新的结构时几乎没有进行原理上的分析，用到最多的词反而是：实验结果表明。ResNet是不可解释的吗？其实不然，下面就将尝试进行解释。</p>
-
-<p>深层网络会出现梯度消失的问题，进而导致退化现象的产生。梯度消失的出现主要是由神经网络的求解方式—梯度下降法导致的，在进行梯度链式求导时，由于每一层梯度求导的值都会很小，当层数很深依次链式求导时，就会出现梯度消失。</p>
-
-<p>而残差网络中，会有一条identity分支。<code class="highlighter-rouge">H(x) = F(x) + x</code>在反向传播求导(此处是对x求导)时，会得到<code class="highlighter-rouge">(1 + F'(x)) d H(x)</code>，此式可以保证与<code class="highlighter-rouge">d H(x)</code>保持在一个数量级，从而有效的减小了梯度消失。</p>
-
-<p>另外，有一篇论文认为残差网络就是大量的不同长度的神经网络组成的组合函数，从而可以有效缓解梯度消失。</p>
 
     </div>
     
@@ -100,14 +113,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=ResNet论文笔记&url=http://localhost:4000/resnet/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/resnet/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/resnet/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=c++的引用使用中需要注意的几个问题&url=http://localhost:4000/reference-cpp/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/reference-cpp/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/reference-cpp/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#深度学习" class="tag">深度学习</a>
+          <a href="/tags#c与c++" class="tag">c与c++</a>
           
         </div>
       </footer>
