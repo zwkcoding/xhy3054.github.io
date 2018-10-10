@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>opencv中的Mat类讲解 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/cartoon4.jpg alt="opencv中的Mat类讲解">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Oct 10</p>
+        <h1 class="post_title">opencv中的Mat类讲解</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h1 id="mat类">Mat类</h1>
+
+<p>很久以前（大概两千年左右），opencv还只是提供ｃ接口的一个库。那时它使用一种ｃ语言的结构体叫做<code class="highlighter-rouge">IplImage</code>来存储图像。后来实在是受不了了，因为使用ｃ语言接口的用户需要自己来管理内存，实在特别麻烦并且容易出错。opencv维护者们就使用c++又翻新了一遍opencv库。新版本中（2.0往后）支持使用Mat来存储图像。</p>
+
+<h2 id="mat的组成">Mat的组成</h2>
+<p>Mat主要由两部分组成：</p>
+<ol>
+  <li>
+    <p>矩阵头信息：主要是矩阵大小、矩阵存储方法、矩阵地址等，矩阵头大小是固定的；</p>
+  </li>
+  <li>
+    <p>图像像素矩阵的指针对象，使用类似智能指针<code class="highlighter-rouge">shared_ptr</code>的方法来管理内存；</p>
+  </li>
+</ol>
+
+<h2 id="mat对象的拷贝问题">Mat对象的拷贝问题</h2>
+<p>Mat对象的拷贝构造函数、拷贝赋值运算符（重载的<code class="highlighter-rouge">=</code>）都是使用的浅拷贝，即只拷贝了指针的值，但是它们指向共同的一片区域。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mat</span> <span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">;</span>                          <span class="c1">// creates just the header parts</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">IMREAD_COLOR</span><span class="p">);</span> <span class="c1">// here we'll know the method used (allocate matrix)</span>
+<span class="n">Mat</span> <span class="n">B</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>                                 <span class="c1">// Use the copy constructor</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">A</span><span class="p">;</span>                                    <span class="c1">// Assignment operator</span>
+<span class="n">Mat</span> <span class="n">D</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Rect</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="p">);</span> <span class="c1">// using a rectangle　Ｄ中的指针指向Ａ指针指向矩阵的一片长方形区域</span>
+<span class="n">Mat</span> <span class="n">E</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="n">Range</span><span class="o">::</span><span class="n">all</span><span class="p">(),</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">));</span> <span class="c1">// using row and column boundaries　也是指向一部分区域，第一个参数代表行（全部行），第二个参数代表列（１～３列）</span>
+</code></pre></div></div>
+
+<p>如上，A、B、C三个对象最终指向的都是同一片内存区域。即对它们三个任何一个的图像进行修改，另外两个也修改了。如果想要进行深拷贝，可以使用Mat类自带的两个函数：<code class="highlighter-rouge">cv::Mat::clone()</code>与<code class="highlighter-rouge">cv::Mat::copyTo()</code>，使用方法如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mat</span> <span class="n">F</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+<span class="n">Mat</span> <span class="n">G</span><span class="p">;</span>
+<span class="n">A</span><span class="p">.</span><span class="n">copyTo</span><span class="p">(</span><span class="n">G</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>现在，Ａ、Ｆ、Ｇ三个Mat对象分别管理属于自己的图像矩阵内存，不会互相干扰。</p>
+
+<h2 id="mat对象的存储方法">Mat对象的存储方法</h2>
+<p>存储方法主要受两个参数影响：</p>
+<ol>
+  <li>
+    <p>颜色空间：决定了使用何种方法编码一个像素的颜色，比如灰度空间单通道描述、RGB三通道红绿蓝描述、RGBD四通道红绿蓝透明度四通道描述等等；</p>
+  </li>
+  <li>
+    <p>数据类型：使用何种数据类型来描述一个通道，如unsigned char(8位0~255)、signed char(8位-128~127)、float(32位)、double(64位)等，越大则图像占用内存越大，可描述的色彩越细微；</p>
+  </li>
+</ol>
+
+<p>颜色空间主要有RGB、HSV、HLS、YCrCb等，想了解自己再查书吧。值得一提的是<strong>opencv标准显式中使用的RGB其实是BGR</strong>，即翻转了一下顺序。同时，RGB转灰度空间使用了如下公式：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Gray = R*0.299 + G*0.587 + B*0.114
+</code></pre></div></div>
+
+<blockquote>
+  <p>无论Mat是几通道的颜色空间，其矩阵都是两维的。只是两维矩阵的每一个元素的大小是<code class="highlighter-rouge">通道数*数据类型的大小</code>，即在一个元素中，各通道依次存储。</p>
+</blockquote>
+
+<h2 id="mat对象的创建与显示">Mat对象的创建与显示</h2>
+<p>Mat的创建有好多方式，同时它重载了<code class="highlighter-rouge">&lt;&lt;</code>，使得可以直接用<code class="highlighter-rouge">cout</code>进行输出显示，<a href="https://github.com/xhy3054/myopencv/blob/master/004_Mat/mat_creat_print.cpp">mat_creat_print.cpp</a>中实现了各种创建与显示的方法，可以查看代码或者直接运行查看结果。</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=opencv中的Mat类讲解&url=http://localhost:4000/opencv-mat/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/opencv-mat/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/opencv-mat/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#opencv" class="tag">opencv</a>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/opencv-mat/" class="recent_item" style="background-image: url( /assets/img/cartoon4.jpg )"><span>opencv中的Mat类讲解</span></a>
+          
+        
+          
+            <a href="/reference-cpp/" class="recent_item" style="background-image: url( /assets/img/cartoon1.jpg )"><span>c++的引用使用中需要注意的几个问题</span></a>
+          
+        
+          
+            <a href="/hafuo-feng-struct/" class="recent_item" style="background-image: url( /assets/img/village.jpg )"><span>哈佛体系结构与冯诺依曼体系结构的区别</span></a>
+          
+        
+          
+            <a href="/gdb/" class="recent_item" style="background-image: url( /assets/img/cartoon3.jpg )"><span>命令行调试工具gdb小结</span></a>
+          
+        
+          
+            <a href="/visual-slam-orb/" class="recent_item" style="background-image: url( /assets/img/village1.jpg )"><span>ORB特征详解</span></a>
+          
+        
+          
+            <a href="/c-cpp-common/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++的几个常识问题</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

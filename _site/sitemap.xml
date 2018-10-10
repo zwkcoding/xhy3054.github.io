@@ -109,6 +109,10 @@
 <lastmod>2018-10-09T09:07:24+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/opencv-mat/</loc>
+<lastmod>2018-10-10T09:07:24+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
@@ -125,6 +129,9 @@
 </url>
 <url>
 <loc>http://localhost:4000/page3/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/page4/</loc>
 </url>
 <url>
 <loc>http://localhost:4000/assets/img/gdb/GDB%E6%89%8B%E5%86%8C%E4%B8%AD%E6%96%87%E7%89%88.pdf</loc>
