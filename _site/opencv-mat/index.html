@@ -99,8 +99,15 @@
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Gray = R*0.299 + G*0.587 + B*0.114
 </code></pre></div></div>
 
+<h3 id="mat中指针指向的矩阵中像素的组织形式">Mat中指针指向的矩阵中像素的组织形式</h3>
+<p>像素的组织形式主要依赖于颜色空间类型的选择，下图是<strong>灰度空间</strong>下像素的组织形式：
+<img src="/assets/img/opencv-mat/tutorial_how_matrix_stored_1.png" alt="tutorial_how_matrix_stored_1" /></p>
+
+<p>下面这张图是<strong>BGR颜色空间</strong>的组织形式，每个大列下会有三个小列依次代表着三种颜色通道（分别是B、G、R），其实就是每个像素由三个<code class="highlighter-rouge">uchar</code>组成（假设<code class="highlighter-rouge">data_type</code>是<code class="highlighter-rouge">uchar</code>）：
+<img src="/assets/img/opencv-mat/tutorial_how_matrix_stored_2.png" alt="tutorial_how_matrix_stored_2" /></p>
+
 <blockquote>
-  <p>无论Mat是几通道的颜色空间，其矩阵都是两维的。只是两维矩阵的每一个元素的大小是<code class="highlighter-rouge">通道数*数据类型的大小</code>，即在一个元素中，各通道依次存储。</p>
+  <p>无论Mat是几通道的颜色空间，其矩阵都是两维的。只是两维矩阵的每一个元素的大小是<code class="highlighter-rouge">通道数*数据类型的大小</code>，即在一个元素中，各通道依次存储。同时有一点需要说明，如果内存足够大，在载入图像时，便会将下一行紧随着上一行存储，所以最后有可能<strong>整幅图像存成了一行</strong>。这种情况是可以帮我们提升扫描速度的（按照一维方式扫描只需要获得一次行首指针），我们可以使用opencv提供的<code class="highlighter-rouge">cv::Mat::isContinuous()</code>函数来确定是否是连续存储的。</p>
 </blockquote>
 
 <h2 id="mat对象的创建与显示">Mat对象的创建与显示</h2>
