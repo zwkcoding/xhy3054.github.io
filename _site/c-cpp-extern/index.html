@@ -98,11 +98,24 @@
 <p>如上我们可以发现，1与2两种声明方式其实效果是一样的，都是可以达到我们想要的结果的。</p>
 
 <h3 id="c中的extern-1">c++中的extern</h3>
-<p>这里需要指出的是，在c++中，与c语言对于变量链接属性是有很大的区别的，我甚至感觉，在用c++进行编程时，链接属性的区分已经不是那么重要了。</p>
 
-<p>首先，c++中希望每一份代码的作用尽量清晰。所以c++中规定，定义与声明是不一样的。一个变量可以在多个文件中声明，被使用，但是，定义它的举动只能出现在一个源文件中。c++作者认为这样可以更好地支持分离式编译。</p>
+<p>首先，c++中希望每一份代码的作用尽量清晰。所以c++中规定，定义与声明是不一样的。一个<strong>变量</strong>可以在多个文件中声明，被使用，但是，定义它的举动只能出现在一个源文件中。c++作者认为这样可以更好地支持分离式编译。</p>
 
-<p>在c++中，<strong>声明</strong>使得名字为程序所知，一个文件如果想要使用别处定义的名字必须包含对那个名字的声明。而<strong>定义</strong>则负责与名字关联的实体的创建和改动。</p>
+<p>在c++中，<strong>声明</strong>使得名字为程序所知，一个文件如果想要使用别处定义的名字必须包含对那个名字的声明。而<strong>定义</strong>则负责与名字关联的实体的创建和改动。所以如果我们想要在文件之间共享一个变量，记得一定要在声明这个变量时加上<code class="highlighter-rouge">extern</code>关键字，告诉编译器，这个变量已经在别处定义好了，定义变量时加与不加const关键字都可以。</p>
+
+<p>当然会有例外：</p>
+<ol>
+  <li>
+    <p>如果想要在多个文件间共享一个const常量，并且这个常量的初始值不是一个常量表达式，则不论是定义还是声明，都需要加上extern关键字。</p>
+  </li>
+  <li>
+    <p>因为函数的声明与定义形式上是有区别的(有无函数体)，所以可以将<code class="highlighter-rouge">extern</code>关键字省去，但是不省当然也不会有问题。同时，如果函数返回值是const类型的，则不论是声明还是定义，都需要加上<code class="highlighter-rouge">extern</code>。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>总结一下，如果你拿不准，加上<code class="highlighter-rouge">extern</code>关键字就行，肯定不会出错。</p>
+</blockquote>
 
 <p>所以可以参考一下如下代码，首先是<code class="highlighter-rouge">a.cpp</code>文件：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include &lt;stdio.h&gt;
@@ -127,7 +140,7 @@
 
 <ol>
   <li>第一个错误是<code class="highlighter-rouge">msg这个函数未在此作用域内声明</code>，没错，c++就是这么严格，c语言的隐式声明在c++中是不存在的。</li>
-  <li>第二个错误是<code class="highlighter-rouge">变量a被多次定义</code>！怎么会呢，原来c++规定，如果想要声明一个变量而不是定义一个变量，一定要在变量名前添加关键字extern。必须加extern，否则就是又定义了一个a，extern关键字告诉编译器a在别处已经定义，此处只是声明。否则就是在一个程序中同时定义两个外部链接的变量<code class="highlighter-rouge">a</code>，就会报错。</li>
+  <li>第二个错误是<code class="highlighter-rouge">变量a被多次定义</code>！怎么会呢，原来c++规定，如果想要声明一个变量而不是定义一个变量，一定要在变量名前添加关键字extern。必须加extern，否则就是又定义了一个a，extern关键字告诉编译器a在别处已经定义，此处只是声明。否则就是在一个程序中同时<strong>定义两个外部链接的变量</strong><code class="highlighter-rouge">a</code>，就会报错。</li>
 </ol>
 
 <p>然后我们将<code class="highlighter-rouge">main.cpp</code>文件改为如下形式：</p>
@@ -153,6 +166,10 @@
   <li>在头文件中只进行声明，不进行定义。这个原因是因为，包含头文件其实就是把头文件内容复制到包含的地方，如果在头文件中有定义，那每包含一次，就会定义一次，铁定炸。</li>
   <li>一个文件如果因为需要使用某个变量而声明了它，在这个文件中千万不要对这个变量进行改动（对同一个变量的改动只能出现在一个文件中）！比如一个文件中如果有对这个赋值操作，其实就是对这个变量进行重新定义，也铁定炸。</li>
 </ol>
+
+<blockquote>
+  <p>注意！这里extern是用来进行变量的声明的，变量是一个类型的实例。因此在进行跨文件的声明时，类定义与声明并不需要用extern关键字，而一个对象的声明需要用到。</p>
+</blockquote>
 
     </div>
     
@@ -205,27 +222,27 @@
       <div class="recent_list">
         
           
+            <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
+          
+        
+          
+            <a href="/cpp-unique-ptr/" class="recent_item" style="background-image: url( /assets/img/cute2.jpg )"><span>c++智能指针－－unique_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
+          
+        
+          
             <a href="/opencv-mat/" class="recent_item" style="background-image: url( /assets/img/cartoon4.jpg )"><span>opencv中的Mat类讲解</span></a>
           
         
           
             <a href="/reference-cpp/" class="recent_item" style="background-image: url( /assets/img/cartoon1.jpg )"><span>c++的引用使用中需要注意的几个问题</span></a>
-          
-        
-          
-            <a href="/hafuo-feng-struct/" class="recent_item" style="background-image: url( /assets/img/village.jpg )"><span>哈佛体系结构与冯诺依曼体系结构的区别</span></a>
-          
-        
-          
-            <a href="/gdb/" class="recent_item" style="background-image: url( /assets/img/cartoon3.jpg )"><span>命令行调试工具gdb小结</span></a>
-          
-        
-          
-            <a href="/visual-slam-orb/" class="recent_item" style="background-image: url( /assets/img/village1.jpg )"><span>ORB特征详解</span></a>
-          
-        
-          
-            <a href="/c-cpp-common/" class="recent_item" style="background-image: url( /assets/img/town1.jpg )"><span>c与ｃ++的几个常识问题</span></a>
           
         
       </div>

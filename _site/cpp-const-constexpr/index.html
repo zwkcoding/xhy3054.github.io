@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>c++中const与constexpr关键字 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/cute3.jpg alt="c++中const与constexpr关键字">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Oct 20</p>
+        <h1 class="post_title">c++中const与constexpr关键字</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>本文主要讨论const变量与constexpr变量的初始化时刻与constexpr函数的编译期计算问题。<a href="http://senlinzhan.github.io/2015/05/01/%E8%B0%88%E8%B0%88C-%E7%9A%84%E7%BC%96%E8%AF%91%E5%99%A8%E8%AE%A1%E7%AE%97/">转载</a></p>
+
+<h1 id="const变量的初始化时刻">const变量的初始化时刻</h1>
+<p><code class="highlighter-rouge">const</code>修饰变量，表示这个变量是不可修改的，因此const变量必须初始化，一经初始化就不可修改。</p>
+<ol>
+  <li>
+    <p>如果const变量的初始化值是在编译时就可以确定，则在编译时初始化；</p>
+  </li>
+  <li>
+    <p>如果const变量的初始化值是在运行时才确定，则在运行时初始化；</p>
+  </li>
+</ol>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">SIZE</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>由于SIZE的值是在编译时就已经确定的，编译器会使用常量 100 来替代程序中出现的SIZE。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</code></pre></div></div>
+<hr />
+
+<p>运行时初始化。</p>
+
+<h1 id="constexpr">constexpr</h1>
+<h2 id="constexpr函数的编译期计算">constexpr函数的编译期计算</h2>
+<blockquote>
+  <p>constexpr函数则与编译期计算有关，要是constexpr函数所使用的变量其值能够在编译时就确定，那么constexpr函数就能在编译时执行计算。另一方面，要是constexpr函数所使用的变量其值只能在运行时确定，那么constexpr就和一般的函数没区别。</p>
+</blockquote>
+
+<p>C++11 要求constexpr函数不能多于一条语句，但是碰到 if-else 语句时，但可以巧妙地使用条件操作符来替代：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">fib</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">n</span> <span class="p">)</span> <span class="k">noexcept</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">?</span> <span class="n">n</span> <span class="o">:</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>C++14 中则放松了这个要求：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nf">fib</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">n</span> <span class="p">)</span> <span class="k">noexcept</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">);</span>   
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>要是我们传递一个编译时常量给fib()，那么fib()在程序编译的时候就已经执行好了。代价是增加编译时间，但程序能执行得更高效。</p>
+
+<h2 id="constexpr变量">constexpr变量</h2>
+<p>const变量的值可以在编译时或运行时确定，与const相比，constexpr的限制更多，因为<strong>constexpr变量的值必须在编译时就能确定</strong>。</p>
+
+<p>在一些场合之下，变量的值要求是编译期就必须确定的，constexpr变量正好满足要求。比如数组的大小、<code class="highlighter-rouge">std::array</code>的大小、<code class="highlighter-rouge">std::bitset</code>的大小等。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="k">auto</span> <span class="n">SIZE</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">SIZE</span><span class="o">&gt;</span> <span class="n">arr</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>定义constexpr变量的时候，变量的类型<strong>只能是基本数据类型</strong>、指针和引用，而不能是其它标准库类型。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// error: constexpr variable cannot have non-literal type</span>
+<span class="k">constexpr</span> <span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="s">"hello"</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>不过，对于我们自己定义的类型没有这个限制，因为 constructor 和成员函数可以是constexpr函数：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">constexpr</span> <span class="n">Point</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="o">:</span> <span class="n">x_</span><span class="p">(</span> <span class="n">x</span> <span class="p">),</span> <span class="n">y_</span><span class="p">(</span> <span class="n">y</span> <span class="p">)</span>
+    <span class="p">{</span>  <span class="p">}</span>
+    
+    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">x</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">x_</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">y</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">y_</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">set_x</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">x_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">set_y</span><span class="p">(</span> <span class="kt">double</span> <span class="n">y</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>  <span class="p">}</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">double</span> <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<hr />
+
+<p>要是我们使用编译期常量来初始化Point对象，那么，在编译的时候编译器就已经创建了这个对象：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="n">Point</span> <span class="n">pt</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span> <span class="p">);</span>     <span class="c1">// Evaluate at compiling time</span>
+</code></pre></div></div>
+<hr />
+
+<p>在 C++11 中，constexpr函数隐式地是const函数，所以你会发现set_x()和set_y()这两个函数不能是constexpr函数。</p>
+
+<p>但在 C++14 中，这个限制放宽了，也就是说这两个函数可以声明为constexpr函数：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="c1">// ...</span>
+    <span class="k">constexpr</span> <span class="kt">void</span> <span class="n">set_x</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">x_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="k">constexpr</span> <span class="kt">void</span> <span class="n">set_y</span><span class="p">(</span> <span class="kt">double</span> <span class="n">y</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="c1">// ...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<hr />
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=c++中const与constexpr关键字&url=http://localhost:4000/cpp-const-constexpr/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/cpp-const-constexpr/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/cpp-const-constexpr/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
+          
+        
+          
+            <a href="/cpp-unique-ptr/" class="recent_item" style="background-image: url( /assets/img/cute2.jpg )"><span>c++智能指针－－unique_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
+          
+        
+          
+            <a href="/opencv-mat/" class="recent_item" style="background-image: url( /assets/img/cartoon4.jpg )"><span>opencv中的Mat类讲解</span></a>
+          
+        
+          
+            <a href="/reference-cpp/" class="recent_item" style="background-image: url( /assets/img/cartoon1.jpg )"><span>c++的引用使用中需要注意的几个问题</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
