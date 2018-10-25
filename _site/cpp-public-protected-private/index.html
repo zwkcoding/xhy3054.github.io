@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>c++中public、protected与private关键字 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/cute5.jpg alt="c++中public、protected与private关键字">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Oct 25</p>
+        <h1 class="post_title">c++中public、protected与private关键字</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>不用说，这三个关键字大家都很熟悉，今天我主要是重新温习一遍，理清一遍。</p>
+<h1 id="访问权限关键字无继承关系时">访问权限关键字（无继承关系时）</h1>
+<ul>
+  <li>
+    <p>public: 这个关键字代表对外界开放，用户可以通过一个对象直接进行其<code class="highlighter-rouge">public</code>成员的访问操作；</p>
+  </li>
+  <li>
+    <p>protected: 这个关键字代表只对自己的派生类开放，对与普通用户不开放；</p>
+  </li>
+  <li>
+    <p>private: 这个关键字代表只对自己内部的成员（或友元）开放，对其他任何外在用户（包括派生类对象）都不开放。</p>
+  </li>
+</ul>
+
+<h1 id="派生类继承来的基类部分的成员的访问权限说明">派生类继承来的基类部分的成员的访问权限说明</h1>
+<p>派生类继承来的基类部分的成员的访问权限受到两个因素影响：</p>
+<ol>
+  <li>在基类中该成员的访问说明符；</li>
+  <li>在派生类的派生列表中的访问说明符。</li>
+</ol>
+
+<p>然后关于派生类继承来的成员的权限可以分为以下两方面来讨论。</p>
+
+<h2 id="派生类对自己继承的基类部分的成员的访问权限解析">派生类对自己继承的基类部分的成员的访问权限解析</h2>
+<p><strong>派生类</strong>对其继承而来的<strong>基类部分的成员</strong>的访问权限只受到１个因素影响：<strong>在基类中该成员的访问说明符</strong>。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//下列两个关键字，第一个代表基类中成员的访问说明符；第二个代表派生类派生列表中的访问说明符</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span> <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>   <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span> <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>  <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>  <span class="err">不可访问</span>
+</code></pre></div></div>
+<hr />
+
+<p>由上，只有基类中成员的访问说明符起作用了，派生访问说明符并没有起作用。</p>
+
+<h2 id="派生访问说明符的作用">派生访问说明符的作用</h2>
+
+<p>派生访问说明符的<strong>作用</strong>是控制派生类用户（包括派生类的派生类在内）对于这部分基类成员的访问权限。</p>
+
+<p>所以对于<strong>一个派生类的用户</strong>（包括派生类的派生类在内），其对于此派生类中的<strong>基类部分的成员</strong>的访问权限就是由两个因素决定的了。如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//下列两个关键字，第一个代表基类中成员的访问说明符；第二个代表派生类派生列表中的访问说明符</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span> <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span> <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>  <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>  <span class="err">不可访问</span>
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>同样，还有一点，我们会看到有将派生类向基类类型转换的代码，这个也是有条件的。条件就是，如果对当前代码基类部分的公有成员是可访问的，则派生类向基类的类型转换也是可访问的。</p>
+</blockquote>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=c++中public、protected与private关键字&url=http://localhost:4000/cpp-public-protected-private/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/cpp-public-protected-private/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/cpp-public-protected-private/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
+          
+        
+          
+            <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
+          
+        
+          
+            <a href="/cpp-unique-ptr/" class="recent_item" style="background-image: url( /assets/img/cute2.jpg )"><span>c++智能指针－－unique_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
+          
+        
+          
+            <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
+          
+        
+          
+            <a href="/opencv-mat/" class="recent_item" style="background-image: url( /assets/img/cartoon4.jpg )"><span>opencv中的Mat类讲解</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
