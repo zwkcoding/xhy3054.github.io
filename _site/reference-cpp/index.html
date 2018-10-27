@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>c++的引用使用中需要注意的几个问题 - line - 千里之行</title>
+	<title>c++中的引用 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,17 +39,21 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/cartoon1.jpg alt="c++的引用使用中需要注意的几个问题">
+        <img src=/assets/img/cartoon1.jpg alt="c++中的引用">
       </div>
       <div class="post_description">
         <p class="post_meta">2018, Oct 09</p>
-        <h1 class="post_title">c++的引用使用中需要注意的几个问题</h1>
+        <h1 class="post_title">c++中的引用</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>在c++中，为了改变c语言中指针使用的种种麻烦与困难，定义了一种新的复合类型－－－引用。</p>
+      <p>在c++中，为了改变c语言中指针使用的种种麻烦与困难，定义了一种新的复合类型－－－引用，引用也分为很多种，比如左值引用、右值引用、常量引用等等。</p>
 
+<h1 id="左值引用">左值引用</h1>
+<p>一般情况下，大家见的最多的就是左值引用。右值引用通常与移动操作结合起来的比较多。其中左值引用使用<code class="highlighter-rouge">&amp;</code>符号，右值引用使用<code class="highlighter-rouge">&amp;&amp;</code>。</p>
+
+<p>下面是左值引用的两个大类。</p>
 <h2 id="普通引用">普通引用</h2>
 <p>引用为对象起了另外一个名字，引用类型引用（refers to）另外一种类型。通过将声明符写成<code class="highlighter-rouge">&amp;d</code>的形式来定义引用类型，其中d是声明的变量名。如下：</p>
 
@@ -68,7 +72,7 @@
     <p>普通引用（非常量引用）是<strong>不能绑定常量</strong>的！因为可以使用引用对绑定的变量进行赋值，所以如果引用绑定了常量，就会有改变常量的操作发生的可能。</p>
   </li>
   <li>
-    <p><strong>不能定义引用的引用</strong>。因为引用本身只是一个别名，不是一个对象，所以不能定义引用的引用。</p>
+    <p><strong>没有引用的引用，但是可以通过引用绑定到一个对象</strong>（如<code class="highlighter-rouge">int i=1; int &amp;a=i; int &amp;b=a;</code>这样是可以的，但是b绑定的是i）。因为引用本身只是一个别名，不是一个对象，所以不能定义引用的引用。</p>
   </li>
   <li>
     <p>引用的<strong>类型必须与绑定的对象严格匹配</strong>。</p>
@@ -93,7 +97,7 @@
     <p>常量引用的<strong>类型不必与绑定的对象严格一致</strong>，只要可以转换成常量引用的类型即可；</p>
   </li>
   <li>
-    <p>常量引用<strong>可与字面值或者某个表达式的计算结果绑定</strong>；</p>
+    <p>常量引用<strong>可与字面值或者某个表达式的计　算结果绑定</strong>；</p>
   </li>
 </ol>
 
@@ -106,6 +110,42 @@
 </code></pre></div></div>
 <p>当所要绑定的对象与常量引用类型不一样时，编译器便会创建一个临时变量，并将原变量转换类型赋值给这个临时变量，常量引用最终绑定的是这个临时变量。当绑定对象是某个表达式时执行操作一样。注意！这种操作只在必要时发生，如果绑定的是一个类型相符的变量，则直接进行绑定操作，不会有什么临时变量。</p>
 
+<h1 id="右值引用">右值引用</h1>
+<p>新标准中为了支持移动操作，有了<strong>右值引用</strong>的概念。顾名思义，右值引用就是绑定到右值的引用。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>	
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>				<span class="c1">//正确：r是变量i的引用</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>			<span class="c1">//错误：不能将一个右值引用绑定到一个左值上</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r2</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>			<span class="c1">//错误：不能将一个普通引用绑定到一个右值上</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r3</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>	<span class="c1">//正确：可以讲一个常量引用绑定到一个临时变量上</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr2</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>		<span class="c1">//正确：将右值引用绑定到一个右值上</span>
+</code></pre></div></div>
+<hr />
+
+<p>由上我们可以看出，左值一般有持久的状态，是一个稳定的对象；而右值要么是字面值常量，要么是表达式求值过程中创建的临时变量。</p>
+
+<p>此处需要说明的一点是变量表达式都是左值，我们<strong>不能将一个右值引用绑定到一个右值引用类型的变量上</strong>。如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r1</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>	<span class="c1">//正确：42是一个右值</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r2</span><span class="o">=</span><span class="n">r1</span><span class="p">;</span>	<span class="c1">//错误：右值引用类型的变量表达式r1是一个左值</span>
+<span class="c1">//注意：这样的操作在左值引用就是可以成立的。</span>
+</code></pre></div></div>
+
+<h2 id="stdmove">std::move()</h2>
+<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>显式地将一个左值转换为对应的右值类型</strong>，它<strong>返回的是一个右值类型的值</strong>。</p>
+
+<p>因为右值引用类型为左值，所以我们可以通过右值引用改变源对象的值：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//int &amp;&amp;rr1 = i;    错误，不能绑定左值</span>
+    <span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>	<span class="c1">//此处move返回一个右值类型的值被绑定到右值引用类型变量rr2</span>
+    <span class="n">rr2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>	<span class="c1">//正确；通过右值引用改变变量i的值</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>	<span class="c1">//输出２</span>
+    <span class="c1">//int &amp;&amp;rr3 = rr2;  错误，rr2是左值</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>通常肯定不会这样使用move，通常我们将move函数来辅助完成<a href="https://xhy3054.github.io/cpp-copy-move/">一个对象的移动操作</a>，因此，往往调用<code class="highlighter-rouge">move</code>意味着就承诺：除了对源对象重新赋值或者销毁它外，我们将不再使用它。在对一个源对象做了move操作后，我们只能保证移后源对象结构依旧完好，可以正常销毁，但是它的值我们不能做任何假设。</p>
+</blockquote>
+
 
     </div>
     
@@ -113,7 +153,7 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=c++的引用使用中需要注意的几个问题&url=http://localhost:4000/reference-cpp/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=c++中的引用&url=http://localhost:4000/reference-cpp/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
           <a href="https://facebook.com/sharer.php?u=http://localhost:4000/reference-cpp/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
           <a href="https://plus.google.com/share?url=http://localhost:4000/reference-cpp/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
@@ -158,6 +198,10 @@
       <div class="recent_list">
         
           
+            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
+          
+        
+          
             <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
           
         
@@ -175,10 +219,6 @@
         
           
             <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
-          
-        
-          
-            <a href="/opencv-mat/" class="recent_item" style="background-image: url( /assets/img/cartoon4.jpg )"><span>opencv中的Mat类讲解</span></a>
           
         
       </div>
