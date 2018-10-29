@@ -48,11 +48,8 @@
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>首先，理清一下c++的类中有哪些会自动合成的成员函数，要知道，自动合成说明这些成员函数一般情况是每个类必备的功能。这样的成员函数一般有：</p>
+      <p>通常一个类的拷贝控制操作由以下三个函数来定义：</p>
 <ol>
-  <li>
-    <p>默认构造函数</p>
-  </li>
   <li>
     <p>拷贝构造函数</p>
   </li>
@@ -64,7 +61,12 @@
   </li>
 </ol>
 
-<p>以上这四个成员，如果在一个类中未自己定义时，编译器会为这个类自动生成默认的版本。其中默认构造函数大家都很熟了，此处我就不再赘言。余下的三个成员共同构成了一个类基本的的拷贝控制与资源管理操作。</p>
+<p>以上这３个成员，如果在一个类中未自己定义时，编译器会为这个类自动生成默认的版本。三个成员共同构成了一个类基本的的拷贝控制与资源管理操作。</p>
+
+<h2 id="default-与-delete-的使用"><code class="highlighter-rouge">=default</code> 与 <code class="highlighter-rouge">=delete</code> 的使用</h2>
+<p>我们可以通过将拷贝控制成员定义为<code class="highlighter-rouge">=default</code>来<strong>显式</strong>地要求编译器生成合成版本的。</p>
+
+<p>在c++11标准以后我们可以通过将拷贝构造函数与拷贝赋值运算符定义为<code class="highlighter-rouge">=delete</code>来<strong>组织拷贝的发生</strong>。<code class="highlighter-rouge">=delete</code>告诉编译器，我们不希望定义这些成员。例如，<code class="highlighter-rouge">iostream</code>类阻止了拷贝操作。<strong>析构函数不能是<code class="highlighter-rouge">=delete</code>的</strong>，如果我们用<code class="highlighter-rouge">=delete</code>将一个类的析构函数定义为删除的，则我们不能定义该类型的变量（但是可以动态分配内存），也不能释放指向该类型动态分配对象的指针。</p>
 
 <h2 id="拷贝构造函数">拷贝构造函数</h2>
 <p>拷贝构造函数也是一种构造函数。我们知道，不同版本的构造函数的区别在于参数列表的不同。拷贝构造函数的第一个参数一定是自身类类型的引用，任何额外参数都有默认值。</p>
@@ -119,6 +121,15 @@
 </code></pre></div></div>
 <hr />
 
+<h2 id="析构函数">析构函数</h2>
+<p>因为一个对象通常在自己的作用域结束后会自动销毁，它销毁的方式就是挨个销毁自己的数据成员。但是有时<strong>光销毁自己的数据成员</strong>是不够的，比如说当此类的数据成员中有一个指向一块动态分配来的内存的指针。此时光销毁指针显然是不够的。我们还需要在销毁指针之前将指针指向的这块动态内存给释放了。而析构函数就是做这个工作的。其中成员的销毁是隐式进行的。</p>
+
+<blockquote>
+  <p>析构函数负责在销毁对象的数据成员前完成料理好它们的<strong>身后事</strong>。使得即使这个对象的数据成员被销毁了，依然不会有乱子出现。</p>
+</blockquote>
+
+<h2 id="三五法则自己翻书把">三/五法则（自己翻书把）</h2>
+
 <h2 id="探究初始化操作与赋值操作真正调用的函数">探究初始化操作与赋值操作真正调用的函数</h2>
 <p>使用上述定义的类，对它进行测试：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
@@ -157,13 +168,12 @@
 调用HasPtr<span class="o">()</span>
 调用operator<span class="o">=</span>
 </code></pre></div></div>
-<hr />
-
+<p>***　</p>
 <blockquote>
   <p>由上可知，只要是<strong>初始化操作</strong>，无论是直接初始化（使用参数表）还是拷贝初始化（使用＝），全部使用的是构造函数，具体使用哪个版本的构造函数则由括号或者＝号提供的参数形式决定。只有当是普通的赋值操作时，才使用拷贝赋值运算符（重载的＝）。</p>
 </blockquote>
 
-<h2 id="加强版测试">加强版测试</h2>
+<h3 id="加强版测试">加强版测试</h3>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
 #include &lt;vector&gt;
 #include &lt;initializer_list&gt;
@@ -216,7 +226,7 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
 <p>如上，测试函数说明了：</p>
 <ol>
   <li>
-    <p>在函数调用时，<strong>不是引用类型的形参都是采用拷贝初始化</strong>进行形参的初始化的。</p>
+    <p>在函数调用时，<strong>不是引用类型的形参都是采用拷贝构造函数</strong>进行形参的初始化的，引用类型的形参直接绑定到实参上。</p>
   </li>
   <li>
     <p>在<code class="highlighter-rouge">vector</code>进行<code class="highlighter-rouge">reserve</code>函数进行空间分配时，只是分配了空间，并没有在分配的空间上进行初始化操作。</p>
@@ -281,6 +291,10 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
       <div class="recent_list">
         
           
+            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
+          
+        
+          
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
@@ -298,10 +312,6 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
         
           
             <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
-          
-        
-          
-            <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
           
         
       </div>

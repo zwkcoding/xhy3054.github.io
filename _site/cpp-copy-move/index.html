@@ -138,7 +138,7 @@
 <p>与拷贝操作相同，默认情况下，编译器也会<strong>自动生成移动操作</strong>。但是与默认生成拷贝操作的规则大不相同。</p>
 
 <blockquote>
-  <p>通常只有在一个类<strong>没有定义任何自己版本的拷贝控制成员</strong>(包括、拷贝构造、拷贝赋值、析构三种)的情况下，并且此类中的<strong>所有数据成员都支持移动操作</strong>时，编译器才会自动合成移动操作。</p>
+  <p>通常只有在一个类<strong>没有定义任何自己版本的拷贝控制成员</strong>(包括拷贝构造、拷贝赋值、析构三种，并且将这些成员中的某个定义成删除的也算是定义了自己版本的拷贝控制成员)的情况下，并且此类中的<strong>所有数据成员都支持移动操作</strong>时，编译器才会自动合成移动操作。</p>
 </blockquote>
 
 <h2 id="如果没有移动操作右值也可以被拷贝">如果没有移动操作，右值也可以被拷贝</h2>
@@ -202,6 +202,10 @@
       <div class="recent_list">
         
           
+            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
+          
+        
+          
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
@@ -219,10 +223,6 @@
         
           
             <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
-          
-        
-          
-            <a href="/cpp-class-construct-destruct/" class="recent_item" style="background-image: url( /assets/img/cartoon2.jpg )"><span>c++中类的拷贝控制操作</span></a>
           
         
       </div>
