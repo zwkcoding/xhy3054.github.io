@@ -51,9 +51,11 @@
       <p>其实关于函数参数的传递，我一直以来的理解还算到位的。但是经常会有一些稀奇古怪的写法会让我有点懵圈，仔细想清楚了，就会发现都是一样的道理，不过要是我来写我可能会那样写，而不这样写，在这里稍微吐槽一下ｃ语言关于数组指针的很多写法，真是很难理解了。写这个博客希望自己从此不要被很多拗口的写法吓住，抓住本质的东西，写自己的代码。</p>
 
 <h1 id="1-函数参数传递的本质">1 函数参数传递的本质</h1>
-<p>在调用一个函数时进行参数传递，此处<strong>不只是讲参数列表里的参数，包括函数返回值的参数传递</strong>，其本质上进行的工作都是一样的，即<strong>使用实参初始化形参</strong>。</p>
+<p>在调用一个函数时进行参数传递（<strong>不只是讲参数列表里的参数，包括函数返回值的参数传递</strong>），其本质上进行的工作都是一样的，即<strong>使用实参初始化形参</strong>。</p>
 
-<p>注意：正是因为实参与形参是两个完全不同的变量，才能更好的解释它们之间并没有更深入的联系，仅仅只是变量与初始值的关系而已。</p>
+<blockquote>
+  <p>实参与形参本质上是两个完全不同的变量，它们之间并没有更深入的联系，仅仅只是变量与初始值的关系而已。</p>
+</blockquote>
 
 <h2 id="11-传值参数包括传指针">1.1 传值参数（包括传指针）</h2>
 <p>很普通的那种，大家都了解的差不多。</p>
@@ -97,6 +99,7 @@
     <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"j="</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
+<hr />
 
 <p>如上例，在调用<code class="highlighter-rouge">reset</code>函数时，使用实参初始化形参实际相当于<code class="highlighter-rouge">int j=42; int &amp;i=j;</code>因为形参为一个引用，并且被绑定到变量<code class="highlighter-rouge">j</code>上，因此可以通过<code class="highlighter-rouge">i</code>对变量<code class="highlighter-rouge">j</code>的值进行修改。这样就可以替代指针的部分作用了，而且更简单。　</p>
 
@@ -137,19 +140,20 @@
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
 </span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
 <span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
-    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argc = "</span><span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
-        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argv["</span><span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span><span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argc = "</span><span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> 
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> 
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argv["</span><span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span><span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> 
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
 </code></pre></div></div>
+<hr />
 
 <p>如上，是主函数的带参数形式，此时在将源文件编译生成可执行文件后，运行时可以带参数。举个例子，比如编译生成的可执行文件叫做<code class="highlighter-rouge">main_arg</code>，则可以输入如下命令执行：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./main_arg -o -d data0
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./main_arg -o -d data0 
 </code></pre></div></div>
 
 <p>输出如下结果</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>./main_arg <span class="nt">-o</span> <span class="nt">-d</span> data0
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>./main_arg <span class="nt">-o</span> <span class="nt">-d</span> data0 
 argc <span class="o">=</span> 4
 argv[0] <span class="o">=</span> ./main_arg
 argv[1] <span class="o">=</span> <span class="nt">-o</span>
@@ -158,9 +162,11 @@ argv[3] <span class="o">=</span> data0
 xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
  
 </code></pre></div></div>
+<hr />
+
 <p>如上可以知道，其中第一个参数<code class="highlighter-rouge">int　argc</code>为命令行中字符串的数量，后面<code class="highlighter-rouge">char *argv[]</code>为一个数组，数组元素为一个指向<code class="highlighter-rouge">char *</code>类型的指针，指向一个ｃ风格的字符串。最后一个指针之后的元素值保证为０（因此不需要argc其实也能确定是否读完了参数）。</p>
 
-<p>在这里了要科普一下：</p>
+<p>在这里了要科普一下（引用也一样）：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">matrix</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>	<span class="c1">//10个指针组成的数组</span>
 <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">10</span><span class="p">]</span>	<span class="c1">//一个指向含有十个整数的数组的指针</span>
 </code></pre></div></div>
@@ -194,6 +200,8 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
 <p>其实这么写可能比较易读，但是不方便，上述main函数其实还有<strong>一种写法</strong>是：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
 </code></pre></div></div>
+<hr />
+
 <p>之所以有这第二种写法，是因为前文中提到过，数组是不能使用传值操作的，所以传递数组其实是将数组名转换成了指针，所以<strong>一个指针的数组其实在传值操作时被转换成了一个指针的指针</strong>。并且一般情况下，我写这第二种形式比较习惯一点。指针的指针。</p>
 
 
@@ -248,6 +256,14 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
       <div class="recent_list">
         
           
+            <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
+          
+        
+          
+            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
+          
+        
+          
             <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
           
         
@@ -261,14 +277,6 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
         
           
             <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
-          
-        
-          
-            <a href="/cpp-unique-ptr/" class="recent_item" style="background-image: url( /assets/img/cute2.jpg )"><span>c++智能指针－－unique_ptr</span></a>
-          
-        
-          
-            <a href="/cpp-shared-ptr/" class="recent_item" style="background-image: url( /assets/img/cute1.jpg )"><span>c++智能指针－－shared_ptr</span></a>
           
         
       </div>

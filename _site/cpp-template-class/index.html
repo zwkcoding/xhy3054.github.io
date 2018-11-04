@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>c语言与c++语言中关键字static的使用 - line - 千里之行</title>
+	<title>c++中的模板实例化问题 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,66 +39,62 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/tu.jpg alt="c语言与c++语言中关键字static的使用">
+        <img src=/assets/img/cute6.jpg alt="c++中的模板实例化问题">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Aug 14</p>
-        <h1 class="post_title">c语言与c++语言中关键字static的使用</h1>
+        <p class="post_meta">2018, Nov 03</p>
+        <h1 class="post_title">c++中的模板实例化问题</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>想必很多人对c语言的static都不是很熟悉，我有段时间就是，经常看到一些代码中这个关键词出现的频率很高，但是并不是很懂，大概的了解过几次，还是半知半解。最近在对c语言和c++进行基础重翻，终于是弄懂了这部分。</p>
+      <p>在c++中，模板是非常常见并且好用的。基本每一个c++的库都会使用模板，对自己的适用类型进行扩展。本文主要讲的是模板的实例化问题。</p>
 
-<h2 id="链接属性">链接属性</h2>
-<p>我们知道一个程序中的多个源文件是分别被编译，最后通过链接器将多个目标文件还有库文件链接起来才形成一个单一完整的可执行文件的。那么如果相同的标识符出现在几个不同的源文件中，它们是代表同一个实体，还是不同的实体呢？</p>
+<h2 id="函数模板">函数模板</h2>
 
-<p>其实，这个问题的答案是由标识符的链接属性决定的。链接属性一共有三种，分别是external（外部）、internal（内部）和none（无）。</p>
+<h2 id="类模板">类模板</h2>
 
-<ol>
-  <li>none代表没有链接属性，这种标识符有多少个声明就有多少个独立不同的实体；</li>
-  <li>internal代表内部链接，这种标识符在同一个文件内的所有声明都指向同一实体，但是位于不同源文件的多个声明代表不同实体。</li>
-  <li>external代表外部链接，这种标识符无论声明多少次，都表示同一个实体。</li>
-</ol>
+<h2 id="模板实例化">模板实例化</h2>
+<p>当模板被使用时才会实例化，这一特性意味着，<strong>相同的实例可能出现在多个对象文件中</strong>。举个例子就是说，当两个或多个独立编译的源文件使用了相同的模板，并提供了相同的模板参数时，<strong>每个文件中都会有该模板适用该参数的一个实例。</strong></p>
 
-<p>一般缺省情况下，代码块之外（文件作用域）定义的变量都是external属性。代码块作用域声明的变量都是none属性。同时用extern与static可以修改变量的链接属性，static只在变量缺省为external的时候可以将链接属性修改为internal。</p>
+<p>上述的问题在小程序里不算什么，但是在一个大的程序中，在多个文件中实例化相同模板的<strong>额外开销会非常严重</strong>。</p>
 
-<h2 id="存储类型">存储类型</h2>
-<p>变量的存储类型是指存储变量值的内存类型。变量的内存类型决定了变量何时创建、何时销毁、以及它的值将保持多久。</p>
+<p>在新标准中，我们可以通过控制<strong>显式实例化</strong>来避免这种开销。</p>
 
-<p>一般有三个地方可以存储变量：静态普通内存、运行时堆栈、硬件寄存器。</p>
+<h3 id="控制实例化">控制实例化</h3>
+<p>与多文件中声明一个变量相同，可以使用关键字<code class="highlighter-rouge">extern</code>来承诺在程序其他位置会有一个该实例化的非<code class="highlighter-rouge">extern</code>声明，只需要在链接成可执行程序时将含有实例化的<code class="highlighter-rouge">.o</code>文件链接上就可以了。<strong>因此使用关键字<code class="highlighter-rouge">extern</code>进行一个模板的声明时不会在本文件中生成实例化代码。</strong></p>
 
-<ol>
-  <li>其中静态变量存储在静态普通内存，这种变量在程序运行之前创建，在程序的整个执行期间始终存在。它始终保持原先的值，除非赋给它一个不同的值或者程序结束。在代码块之外（文件作用域）的变量，缺省情况下便是静态的。</li>
-  <li>自动变量存储在堆栈中，代码块中的变量在缺省情况下就是自动变量。在程序执行到声明自动变量的代码块时，自动变量才创建，当程序执行离开该代码块时，这些自动变量便会自行销毁。</li>
-  <li>寄存器变量存储在硬件寄存器中，需要用关键字register来声明。这种变量访问效率更高，一般用于对效率要求高的地方，同时由于寄存器有限，编译器只会理睬有限少数几个register声明，甚至不理睬（有的编译器）。寄存器变量的创建与销毁和自动变量相同，但它需要一些额外操作，在一个使用寄存器变量的函数返回之前，这些寄存器先前存储的值需要恢复，确保调用者的寄存器变量未被破坏。</li>
-</ol>
-
-<h2 id="static关键字">static关键字</h2>
-<p>由于不同的上下文环境，static会有不同的含义。</p>
-
-<blockquote>
-  <p>当它用于<strong>函数定义，或者代码块之外（文件作用域）的变量声明</strong>时，static关键字用于修改标识符的链接属性，从external到internal，但是标识符的存储类型与作用域都不会改变。用这种方式声明的函数与变量将只能在声明他们的源文件中访问，对其它源文件隐藏。</p>
-</blockquote>
-
-<p>如下为源文件<code class="highlighter-rouge">a.c</code>：</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">msg</span><span class="p">()</span> 
-<span class="p">{</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> 
-<span class="p">}</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>extern template declaration;	//实例化声明
+template decaration;	//实例化定义
 </code></pre></div></div>
-<p>如下为<code class="highlighter-rouge">main.c</code>:</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-<span class="p">{</span>      
-    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">msg</span><span class="p">();</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-<p>将这两个源文件联合编译，会发现报错找不到msg()函数。</p>
 
-<blockquote>
-  <p>当它用于<strong>代码块内部的变量声明</strong>时，static关键字用于修改变量的存储类型，从自动变量修改为静态变量，但变量的链接属性（还是none）与作用域（还是代码块作用域）不会受到影响。用这种方式声明的变量在程序执行之前创建，并在程序的整个执行期间一直存在。</p>
-</blockquote>
+<p>如下演示一下具体如何操作：
+在第一个文件中，</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//templatebuild.cpp</span>
+<span class="c1">//实例化文件必须为每个在其他文件中声明为extern的类型和函数提供一个（非extern）的定义</span>
+<span class="k">template</span> <span class="kt">int</span> <span class="n">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>第二个文件中</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//application.cpp</span>
+<span class="c1">//这些模板类型必须在其他位置已经进行实例化</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>	<span class="c1">//声明，接下来就可以使用类Blob&lt;string&gt;了</span>
+<span class="n">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">b1</span><span class="p">;</span>	<span class="c1">//像一个普通的类一样使用</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="kt">int</span> <span class="n">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">compare</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">);</span>
+</code></pre></div></div>
+<hr />
+
+<p>在编译时，需要将<code class="highlighter-rouge">templatebuild.o</code>与<code class="highlighter-rouge">application.o</code>链接到一起，生成可执行文件。</p>
+
+<h3 id="类模板的实例化定义">类模板的实例化定义</h3>
+<p>此外，需要说明的一点是，<strong>一个类模板的实例化定义会实例化该模板的所有成员</strong>，包括内联的成员函数。</p>
+
+<p><strong>默认情况下，一个类模板的成员函数只有当程序用到它是才会进行实例化</strong>。但是一个类模板的实例化定义会实例化该模板的所有成员。这是因为当编译器遇到一个实例化定义时，它不了解程序使用哪些成员函数。因此与处理类模板的普通实例化不同，编译器会实例化该类的所有成员。即使我们不使用某个成员，它也会被实例化。因此，如果我们使用一个类型来显式实例化一个类模板，则这个类型必须能用于模板的所有成员。</p>
+
 
     </div>
     
@@ -106,9 +102,9 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=c语言与c++语言中关键字static的使用&url=http://localhost:4000/c-cpp-static/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/c-cpp-static/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/c-cpp-static/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=c++中的模板实例化问题&url=http://localhost:4000/cpp-template-class/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/cpp-template-class/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/cpp-template-class/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>

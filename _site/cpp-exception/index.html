@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>c++中的异常处理 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/cute7.jpg alt="c++中的异常处理">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Nov 03</p>
+        <h1 class="post_title">c++中的异常处理</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>c++是一门复杂的语言，程序的运行环境也是千奇百怪。因此总会有异常出现，本文主要就是讨论一下c++程序中的异常处理问题。</p>
+
+<h2 id="异常对象">异常对象</h2>
+<p>讲到异常，这里就要说明一下，什么是异常？<strong>在c++中，异常就是指异常对象</strong>。而异常对象是异常类的实例化，<strong>异常类是我们定义的用来表示程序错误信息的数据抽象</strong>。下图便是标准库异常类的继承体系。
+<img src="/assets/img/exception/exception.jpg" alt="exception" /></p>
+
+<p>由上图我们可以看到，异常类的继承体系中基类是<code class="highlighter-rouge">exception</code>类。整个关系可以看成是按照层次关系组织的，层次越低，表示的异常情况就越特殊。</p>
+
+<p>一般情况下，每个异常类都定义的有：</p>
+<ol>
+  <li>拷贝构造函数；</li>
+  <li>拷贝赋值运算符；</li>
+  <li>虚析构函数；</li>
+  <li>一个名叫<code class="highlighter-rouge">what</code>的虚成员函数。没有参数，返回一个<code class="highlighter-rouge">const char*</code>的指针指向一个以<code class="highlighter-rouge">null</code>结尾的字符数组，并且确保不会抛出任何异常。</li>
+</ol>
+
+<h2 id="函数try语句块">函数try语句块</h2>
+<p>一般异常处理部分使用try语句块处理异常，try语句块以关键字try开始，并以一个或多个<strong>catch子句</strong>结束。try语句块中代码抛出的异常通常会被某个catch子句处理。因为catch子句“处理”异常，所以它们也被称作<strong>异常处理代码</strong>。其一般形式如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="p">{</span>
+	<span class="c1">//program-statements</span>
+<span class="p">}</span>	
+<span class="k">catch</span><span class="p">(</span><span class="n">exception</span><span class="o">-</span><span class="n">declaration</span><span class="p">){</span>
+	<span class="c1">//handler-statements</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<h3 id="抛出异常throw">抛出异常（throw）</h3>
+<p><strong>抛出异常一般指的是抛出一个异常对象</strong>。一般使用如下语句进行异常的抛出。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>throw exception1;	//其中，exception1是一个异常对象。
+</code></pre></div></div>
+
+<p>这样的形式特别像<code class="highlighter-rouge">return</code>语句。它们的作用机理也会有些许相似，都提供一个待接收的对象。</p>
+
+<h3 id="捕获异常catch">捕获异常（catch）</h3>
+<p><strong>捕获异常也是指捕获一个异常对象</strong>。捕获的过程也就是<strong>参数匹配</strong>的过程。一般捕获异常使用如下形式进行：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//exception-declaration通常与函数形参的声明形式一样，可以与throw抛出的异常对象进行参数匹配。</span>
+<span class="k">catch</span><span class="p">(</span><span class="n">exception</span><span class="o">-</span><span class="n">declaration</span><span class="p">){</span>
+	<span class="c1">//handler-statements</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="异常匹配过程解析">异常匹配过程解析</h3>
+<p>通常最完美的一个异常处理过程如下：</p>
+<ul>
+  <li>如果在一个try语句块内有异常抛出，则检查与该try块关联的catch子句，如果找到了匹配的catch，就使用该catch处理异常。然后执行完这个catch子句后，找到与try块关联的最后一个catch子句之后的点，并从这里继续执行。</li>
+</ul>
+
+<p>但是一般情况下，并不会如此顺利，往往一个更完整的异常匹配过程如下：</p>
+<ul>
+  <li>对于在一个try语句块内有异常抛出，则检查与该try块关联的catch子句，如果找到了匹配的catch，就使用该catch处理异常。否则，如果该try语句嵌套在其他try块中，则继续检查与外层try匹配的catch子句。如果仍然没有找到匹配的catch，则退出当前这个主调函数，如果调用语句也是在一个try语句块内，继续在调用了刚刚退出的这个函数的try代码块中寻找。直到找到与之匹配的catch，并使用该catch处理异常。然后执行完这个catch子句后，找到与这个catch对应的try块关联的最后一个catch子句之后的点，并从这里继续执行。上述过程也叫作<strong>栈展开</strong>。</li>
+</ul>
+
+<blockquote>
+  <p>栈展开过程沿着嵌套函数的调用链不断查找，直到找到了与异常匹配的catch子句为止；或者也可能一直没找到匹配的catch语句，则退出主函数后查找过程终止。（如果找不到匹配的catch时，程序会调用标准库函数<code class="highlighter-rouge">terminate</code>终止程序）</p>
+</blockquote>
+
+<h3 id="异常捕获中的参数匹配规则">异常捕获中的参数匹配规则</h3>
+<p>上文说过，catch语句的捕获与throw语句的抛出异常之间会进行<strong>参数匹配</strong>。匹配规则类似函数的形参与实参的匹配，但是也不是完全相同。</p>
+
+<p>一般而言要求异常的类型与catch声明的类型是<strong>精确匹配</strong>的，匹配时一般只有如下三种类型转换可用：</p>
+<ol>
+  <li>允许从非常量向常量的类型转换，也就是说，一条非常量１对象的throw语句可以匹配一个接受常量引用的catch语句；</li>
+  <li>允许从派生类向基类的类型转换；</li>
+  <li>数组被转换成指向数组（元素）类型的指针，函数被转换成指向该函数类型的指针。</li>
+</ol>
+
+<p>除此之外，包括标准算数类型的转换和类类型转换在内，其他所有转换规则都不能在匹配catch的过程中使用。</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=c++中的异常处理&url=http://localhost:4000/cpp-exception/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/cpp-exception/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/cpp-exception/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++" class="tag">c与c++</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
+          
+        
+          
+            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
+          
+        
+          
+            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
+          
+        
+          
+            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
+          
+        
+          
+            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
+          
+        
+          
+            <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
