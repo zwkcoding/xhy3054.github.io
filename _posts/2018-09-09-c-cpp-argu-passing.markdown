@@ -1,6 +1,6 @@
 ---
 layout: post
-title: c与ｃ++中函数参数的传递
+title: c语言和ｃ++语言中函数参数的传递
 date: 2018-09-09 10:07:24.000000000 +09:00
 img:  reef.jpg # Add image post (optional)
 tag: [c与c++]

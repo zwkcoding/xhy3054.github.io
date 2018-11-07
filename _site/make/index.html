@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>大批量编译make与cmake - line - 千里之行</title>
+	<title>编译工具讨论－－make与cmake - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,11 +39,11 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/software.jpg alt="大批量编译make与cmake">
+        <img src=/assets/img/software.jpg alt="编译工具讨论－－make与cmake">
       </div>
       <div class="post_description">
         <p class="post_meta">2018, May 12</p>
-        <h1 class="post_title">大批量编译make与cmake</h1>
+        <h1 class="post_title">编译工具讨论－－make与cmake</h1>
       </div>
     </header> <!-- End Header -->
 
@@ -52,22 +52,26 @@
 
 <p>很早之前就接触过makefile的语法，但是没有深入的学习下去。本来以为自己了解这方面的知识了，谁知道最近做项目时，<strong>cmake</strong>、<strong>make install</strong>、<strong>make distribute</strong>…各种形式接连丢过来，我竟是懵了。这才发现自己其实根本没有形成系统的理解，稍微变形就使得我不知所云。想来想去还是写一篇博客吧，把自己的理解梳理一遍，以后如果有更深入、更清晰的理解，我会对这篇博客进行补充，尽量使得自己的知识见解有条理，系统化。</p>
 
-<h2 id="编译原理">编译原理</h2>
+<h2 id="编译过程">编译过程</h2>
 
-<p>首先，拿c语言为例，我们先写出了代码。通过编译器可以利用这些c代码（源文件）生成可执行文件。整个的编译流程其实是这样的：</p>
+<p>首先，拿c语言为例，我们先写出了代码。通过编译器可以利用这些c代码（源文件）生成可执行文件。整个的编译流程可以分成四步：</p>
 
 <ol>
-  <li>首先，进行预处理器处理（用实际值替代#define、读入#include指令包含的头文件等）；</li>
-  <li>其次，解析源代码（根据语法判断语句意思、这个阶段产生绝大多数错误与警告），转换为目标代码（产生机器指令的初步形式,也就是<code class="highlighter-rouge">.o</code>文件）；</li>
-  <li>最后将各个目标文件由链接器捆绑起来形成单一完整的可执行程序（ 通过1和2已经将一个程序的每个（有可能多个）源文件转换成目标代码），链接器同时也会引入标准c函数库中任何被该程序用到的函数。</li>
+  <li>预处理阶段：进行预处理器处理（用实际值替代#define、读入#include指令包含的头文件等）；</li>
+  <li>编译阶段：将<code class="highlighter-rouge">.c</code>文件转换成<code class="highlighter-rouge">.s</code>文件，即将ｃ语言代码转换成汇编语言代码；</li>
+  <li>汇编阶段：将<code class="highlighter-rouge">.s</code>文件转换成<code class="highlighter-rouge">.o</code>文件，即将汇编语言代码转换成机器语言指令；</li>
+  <li>链接阶段：最后将各个目标文件由链接器捆绑起来形成单一完整的可执行文件，链接器同时也会引入标准c函数库中任何被该程序用到的函数。</li>
 </ol>
-
-<ul>
-  <li>上述中1与2两步其实就是<strong>编译器</strong>生成<code class="highlighter-rouge">.o</code>文件，<strong>链接器</strong>将<code class="highlighter-rouge">.o</code>文件链接成可执行文件。</li>
-</ul>
 
 <p>我在网上看到一张图，对于整个编译流程归纳的特别详细：
 <img src="/assets/img/make/make.png" alt="make" /></p>
+
+<p>假设生成可执行文件<code class="highlighter-rouge">excute</code>在当前目录下，我们可以通过如下shell命令将<code class="highlighter-rouge">excute</code>载入内存执行。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./excute
+</code></pre></div></div>
+
+<p>一般情况下，当输入一条命令，shell会检测第一个单词是不是一个内置的shell命令，如果不是就会把它当成一个可执行文件的名字，并加载运行这个可执行文件。</p>
 
 <h3 id="gcc编译方式bash">gcc编译方式（bash）</h3>
 <p>编译<code class="highlighter-rouge">main.c</code>、<code class="highlighter-rouge">1.c</code>、<code class="highlighter-rouge">1.h</code>，生成可执行文件<code class="highlighter-rouge">excute</code></p>
@@ -149,14 +153,14 @@ make install
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=大批量编译make与cmake&url=http://localhost:4000/make/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=编译工具讨论－－make与cmake&url=http://localhost:4000/make/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
           <a href="https://facebook.com/sharer.php?u=http://localhost:4000/make/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
           <a href="https://plus.google.com/share?url=http://localhost:4000/make/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#c与c++" class="tag">c与c++</a>
+          <a href="/tags#tools" class="tag">tools</a>
           
           <a href="/tags#编译原理" class="tag">编译原理</a>
           
@@ -196,6 +200,10 @@ make install
       <div class="recent_list">
         
           
+            <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
+          
+        
+          
             <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
           
         
@@ -213,10 +221,6 @@ make install
         
           
             <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
-          
-        
-          
-            <a href="/cpp-const-constexpr/" class="recent_item" style="background-image: url( /assets/img/cute3.jpg )"><span>c++中const与constexpr关键字</span></a>
           
         
       </div>

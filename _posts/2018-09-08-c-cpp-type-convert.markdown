@@ -1,6 +1,6 @@
 ---
 layout: post
-title: c与ｃ++中的类型转换
+title: c语言和ｃ++语言中的类型转换
 date: 2018-09-08 10:07:24.000000000 +09:00
 img:  grassland.jpg # Add image post (optional)
 tag: [c与c++]

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: c与ｃ++的几个常识问题
+title: c语言和ｃ++语言中的几个常识问题
 date: 2018-09-15 10:07:24.000000000 +09:00
 img:  town1.jpg # Add image post (optional)
 tag: [c与c++]

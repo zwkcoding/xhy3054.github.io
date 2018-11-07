@@ -1,6 +1,6 @@
 ---
 layout: post
-title: c与ｃ++中的几种运算符
+title: c语言和ｃ++语言中的几种运算符
 date: 2018-09-02 10:07:24.000000000 +09:00
 img:  grassland2.jpg # Add image post (optional)
 tag: [c与c++]
