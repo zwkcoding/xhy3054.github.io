@@ -125,7 +125,7 @@ $$ 0\le \alpha \le\frac{k}{(1+k)^2}\le0.25 $$
 见我的[github](https://github.com/xhy3054/myopencv/tree/master/08_feature2d_module/01_harris_corner_detector)
 
 # 3. 参考资料
-[1] https://docs.opencv.org/3.4.1/d4/d7d/tutorial_harris_detector.html
-[2] https://www.cnblogs.com/ronny/p/4009425.html#4056636
-[3] https://blog.csdn.net/lwzkiller/article/details/54633670
+- [1] https://docs.opencv.org/3.4.1/d4/d7d/tutorial_harris_detector.html
+- [2] https://www.cnblogs.com/ronny/p/4009425.html#4056636
+- [3] https://blog.csdn.net/lwzkiller/article/details/54633670
 
