@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
 <main class="post_content">
   <article class="post">
@@ -59,7 +71,7 @@
 </ul>
 
 <blockquote>
-  <p>通常如果一个表达式（变量名也是表达式）<strong>不是引用也不是指针，则它的动态类型与静态类型永远一致</strong>。<strong>基类的指针或引用的静态类型可能与其动态类型不一致</strong>。</p>
+  <p>通常如果一个表达式（变量名也是表达式）<strong>不是引用也不是指针，则它的动态类型与静态类型永远一致</strong>。<strong>基类的指针或引用的静态类型可能与其动态类型不一致</strong>。我们都知道一个派生类对象的存储中<strong>基类部分与派生类部分是分开存储的</strong>。并且在我们使用一个派生类对象对一个基类对象进行赋值时，<strong>调用的是等式左边的基类对象的拷贝赋值运算符</strong>，所以参数传入时将一个基类引用绑定到右边的派生类对象上。在拷贝赋值操作中其实是将右边派生类对象的基类部分拷贝给左边的基类对象。本质也就是将派生类部分“切掉”再赋值给基类对象的，也就是说<strong>得到的基类对象就是一个实打实的基类对象。除了数据成员值相同，与原本的派生类对象不再有任何关系</strong>。</p>
 </blockquote>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">base</span><span class="p">{};</span>
@@ -71,7 +83,7 @@
 <hr />
 
 <blockquote>
-  <p>我们都知道一个派生类对象的存储中<strong>基类部分与派生类部分是分开存储的</strong>。并且在我们<strong>使用一个派生类对象对一个基类对象进行赋值</strong>时，调用的是等式左边的基类对象的拷贝赋值运算符，参数传入时将一个基类引用绑定到右边的派生类对象上。在拷贝赋值操作中其实是将右边派生类对象的基类部分拷贝给左边的基类对象。本质也就是将派生类部分“切掉”再赋值给基类对象的，也就是说<strong>得到的基类对象就是一个实打实的基类对象。除了数据成员值相同，与原本的派生类对象不再有任何关系</strong>。</p>
+  <p>对象、指针和引用的<strong>静态类型</strong>决定了我们能够使用哪些成员。就算是虚函数，也是因为这个虚函数本身在静态类型的基类中也存在。</p>
 </blockquote>
 
 <h2 id="继承体系中的虚函数与非虚函数">继承体系中的虚函数与非虚函数</h2>
@@ -165,6 +177,10 @@
       <div class="recent_list">
         
           
+            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
+          
+        
+          
             <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
           
         
@@ -182,10 +198,6 @@
         
           
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
-          
-        
-          
-            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
           
         
       </div>

@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
   
 <section id="banner" data-vide-bg="/assets/video/mountains.mp4" data-vide-options="posterType: jpg, loop: true, muted: false, position: 50% 50%">
@@ -49,6 +61,18 @@
   <section class="chapters cf">
       <div class="wrapper flex-row">
       
+  <div class="chapter">
+    <a href="/computer-network-overview/">
+      
+      <img src=/assets/img/network.jpg alt="互联网分层结构实现">
+      
+    </a>
+    <div class="chapter_inner">
+      <p class="chapter_number">2018, Jun 21</p>
+      <h3 class="chapter_title">互联网分层结构实现</h3>
+    </div>
+  </div>
+
   <div class="chapter">
     <a href="/Inception/">
       
@@ -142,18 +166,6 @@
     <div class="chapter_inner">
       <p class="chapter_number">2018, Apr 20</p>
       <h3 class="chapter_title">shell脚本快速入门</h3>
-    </div>
-  </div>
-
-  <div class="chapter">
-    <a href="/ssh-instruction/">
-      
-      <img src=/assets/img/meteor.jpg alt="SSH简要教程">
-      
-    </a>
-    <div class="chapter_inner">
-      <p class="chapter_number">2018, Apr 16</p>
-      <h3 class="chapter_title">SSH简要教程</h3>
     </div>
   </div>
 

@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
 <main class="post_content">
   <article class="post">
@@ -167,6 +179,10 @@
       <div class="recent_list">
         
           
+            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
+          
+        
+          
             <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
           
         
@@ -184,10 +200,6 @@
         
           
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
-          
-        
-          
-            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
           
         
       </div>

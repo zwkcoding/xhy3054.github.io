@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
   
 <section id="banner" data-vide-bg="/assets/video/mountains.mp4" data-vide-options="posterType: jpg, loop: true, muted: false, position: 50% 50%">
@@ -49,6 +61,18 @@
   <section class="chapters cf">
       <div class="wrapper flex-row">
       
+  <div class="chapter">
+    <a href="/cpp-shared-ptr/">
+      
+      <img src=/assets/img/cute1.jpg alt="c++智能指针－－shared_ptr">
+      
+    </a>
+    <div class="chapter_inner">
+      <p class="chapter_number">2018, Oct 18</p>
+      <h3 class="chapter_title">c++智能指针－－shared_ptr</h3>
+    </div>
+  </div>
+
   <div class="chapter">
     <a href="/cpp-class-construct-destruct/">
       
@@ -112,12 +136,12 @@
   <div class="chapter">
     <a href="/visual-slam-orb/">
       
-      <img src=/assets/img/village1.jpg alt="ORB特征详解">
+      <img src=/assets/img/village1.jpg alt="图像特征之ORB特征详解">
       
     </a>
     <div class="chapter_inner">
       <p class="chapter_number">2018, Sep 16</p>
-      <h3 class="chapter_title">ORB特征详解</h3>
+      <h3 class="chapter_title">图像特征之ORB特征详解</h3>
     </div>
   </div>
 
@@ -142,18 +166,6 @@
     <div class="chapter_inner">
       <p class="chapter_number">2018, Sep 09</p>
       <h3 class="chapter_title">c语言和ｃ++语言中函数参数的传递</h3>
-    </div>
-  </div>
-
-  <div class="chapter">
-    <a href="/c-cpp-type-convert/">
-      
-      <img src=/assets/img/grassland.jpg alt="c语言和ｃ++语言中的类型转换">
-      
-    </a>
-    <div class="chapter_inner">
-      <p class="chapter_number">2018, Sep 08</p>
-      <h3 class="chapter_title">c语言和ｃ++语言中的类型转换</h3>
     </div>
   </div>
 

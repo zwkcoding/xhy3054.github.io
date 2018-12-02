@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
   
 <section id="banner" data-vide-bg="/assets/video/mountains.mp4" data-vide-options="posterType: jpg, loop: true, muted: false, position: 50% 50%">
@@ -49,6 +61,18 @@
   <section class="chapters cf">
       <div class="wrapper flex-row">
       
+  <div class="chapter">
+    <a href="/corner-detect-harris/">
+      
+      <img src=/assets/img/minion1.jpg alt="图像特征之Harris角点检测">
+      
+    </a>
+    <div class="chapter_inner">
+      <p class="chapter_number">2018, Dec 01</p>
+      <h3 class="chapter_title">图像特征之Harris角点检测</h3>
+    </div>
+  </div>
+
   <div class="chapter">
     <a href="/cpp-namespace-use/">
       
@@ -142,18 +166,6 @@
     <div class="chapter_inner">
       <p class="chapter_number">2018, Oct 20</p>
       <h3 class="chapter_title">c++智能指针－－unique_ptr</h3>
-    </div>
-  </div>
-
-  <div class="chapter">
-    <a href="/cpp-shared-ptr/">
-      
-      <img src=/assets/img/cute1.jpg alt="c++智能指针－－shared_ptr">
-      
-    </a>
-    <div class="chapter_inner">
-      <p class="chapter_number">2018, Oct 18</p>
-      <h3 class="chapter_title">c++智能指针－－shared_ptr</h3>
     </div>
   </div>
 

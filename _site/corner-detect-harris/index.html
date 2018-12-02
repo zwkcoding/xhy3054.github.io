@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>图像特征之Harris角点检测 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/minion1.jpg alt="图像特征之Harris角点检测">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Dec 01</p>
+        <h1 class="post_title">图像特征之Harris角点检测</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h1 id="1-角点与角点的检测">1. 角点与角点的检测</h1>
+<h2 id="11-什么是角点">1.1 什么是角点？</h2>
+<p>从图像分析的角度来看，一般而言角点有如下两种定义：</p>
+<ol>
+  <li>角点可以是两个边缘的角点；</li>
+  <li>角点是邻域内具有两个主方向的特征点；</li>
+</ol>
+
+<p>如同下图所示，前俩例子一个是平坦区域，一个是边缘。第三个就如上述两种定义方式的角点一样，设置一个滑动窗口，无论朝那个方向移动，对应位置上的亮度都会有很大变化，</p>
+<div style="text-align: center">
+<img src="/assets/img/harris/corner.png" />
+</div>
+
+<h2 id="12-不同的角点检测方法">1.2 不同的角点检测方法</h2>
+<p>角点定义出来了以后，如何检测角点呢？这个有好多种方法，比如以前提到的orb特征里的fast关键点的检测方式，就是一种角点检测方法。本文提到的harris也是一种角点检测方法，而且应该是名气很大的一种方法。除此之外，还有一些其他的角点检测方法，比如Shi-Tomasi算法、SUSAN算子等。</p>
+
+<h1 id="2-harris角点检测">2. harris角点检测</h1>
+<h2 id="21-原理">2.1 原理</h2>
+<p>由1.1中所述，我们知道在一个角点处设置一个滑动窗口，这个窗口无论朝哪个方向滑动，对应位置上的亮度都会有很大变化。对应如下公式</p>
+
+<script type="math/tex; mode=display">E(u,v) = \sum _{x,y} w(x,y)[ I(x+u,y+v) - I(x,y)]^{2}</script>
+
+<p>其中：</p>
+<ul>
+  <li>w(x,y)是滑动窗口系数，系数越大，代表这个位置上的亮度差异对结果所占权重更大。一般使用二维高斯窗口</li>
+  <li>(u,v)是一个确定位移</li>
+  <li>I(x,y)是在位置(x,y)的亮度值，(x,y)是在滑动窗口范围内的一个点</li>
+</ul>
+
+<p>上述公式中，有如下一项存在操作空间</p>
+
+<script type="math/tex; mode=display">[I(x+u,y+v) - I(x,y)]^{2}</script>
+
+<p>可以泰勒展开<strong>近似</strong>成</p>
+
+<script type="math/tex; mode=display">[ I(x,y) + u I_{x} + vI_{y} - I(x,y)]^{2}</script>
+
+<p>消去并展开方程，带入原式得</p>
+
+<script type="math/tex; mode=display">E(u,v) \approx \sum _{x,y} w(x,y)(u^{2}I_{x}^{2} + 2uvI_{x}I_{y} + v^{2}I_{y}^{2})</script>
+
+<p>写成矩阵形式是：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} \left ( \displaystyle \sum_{x,y} w(x,y) \begin{bmatrix} I_x^{2} & I_{x}I_{y} \\ I_xI_{y} & I_{y}^{2} \end{bmatrix} \right ) \begin{bmatrix} u \\ v \end{bmatrix} %]]></script>
+
+<p>可以定义矩阵M为</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+M = \displaystyle \sum_{x,y} w(x,y) \begin{bmatrix} I_x^{2} & I_{x}I_{y} \\ I_xI_{y} & I_{y}^{2} \end{bmatrix} %]]></script>
+
+<p>现在式子变成</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} %]]></script>
+
+<p>如果左值固定，这个式子本质上是一个椭圆，椭圆的扁率与尺寸是由M的特征值$ \lambda_1、\lambda_2 $决定的，椭圆的方向是由M的特征矢量决定的，假设椭圆方程如下</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 1 %]]></script>
+
+<div style="text-align: center">
+<img src="/assets/img/harris/eclipse.png" width="400" height="200" />
+</div>
+
+<p>之前是u,v确定，如今是E(u,v)固定求对应的(u,v)，由于系数之前已经推导确定，所以如上椭圆是固定的。这种情况下，由椭圆的特征值$ \lambda_1、\lambda_2 $的情况，可以将图像上的一个点分为三种情况：</p>
+<ol>
+  <li>图像中<strong>边缘上的点</strong>。一个特征值大，另一个特征值小，即$ \lambda_1\gg \lambda_2 $或$ \lambda_2\gg \lambda_1 $，在窗口朝某一方向滑动时，E的值变化明显，其他方向上不明显。</li>
+  <li>图像中<strong>平面上的点</strong>。两个特征值都小，且近似相等。窗口朝各个方向上滑动，E的值变化都不明显。</li>
+  <li>图像中<strong>角点</strong>。两个特征值都大，且近似相等。窗口朝每个方向滑动，E的值都会有很明显的变化。</li>
+</ol>
+<div style="text-align: center">
+<img src="/assets/img/harris/analyse.png" />
+</div>
+
+<p>上述分析过后，我们知道如何使用M矩阵的特征值来判断一个点是边缘点、平面点还是角点。不过harris是进行角点检测的方法，它提出我们可以计算一个harris角点响应值R来判断一个点是否是角点，而无需计算具体的矩阵特征值。R的计算公式如下：</p>
+
+<script type="math/tex; mode=display">R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2</script>
+
+<p>其中：</p>
+<ul>
+  <li>$det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2$</li>
+  <li>$trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2$</li>
+  <li>$\alpha$是一个经验系数，通常取值范围在0.04~0.06。下文还会对这个系数进行探讨。</li>
+</ul>
+
+<h2 id="22-实际代码实现步骤">2.2 实际代码实现步骤</h2>
+<p>在上述原理讲解完毕后，代码实现主要可以分为五步：</p>
+<ol>
+  <li>
+    <p>分别计算像素I(x,y)在x,y方向的梯度，使用<strong>sobel算子</strong>：<script type="math/tex">I_x=\frac{\partial I}{\partial x}=I\otimes(-1\ 0\ 1)，I_y =\frac{\partial I}{\partial x}=I\otimes(-1\ 0\ 1)^T</script></p>
+  </li>
+  <li>
+    <p>计算两个方向梯度的乘积：<script type="math/tex">I_x^2=I_x\cdot I_y，I_y^2=I_y\cdot I_y，I_{xy}=I_x\cdot I_y</script></p>
+  </li>
+  <li>
+    <p>生成高斯系数窗口，并最终<strong>确定M矩阵</strong>(前三步都是为了确定矩阵M)。</p>
+  </li>
+  <li>
+    <p>依据M矩阵计算每个像素的<strong>harris响应值R</strong>，并设置一个阈值，小于阈值的清零。</p>
+  </li>
+  <li>
+    <p>在$3\times3或5\times5$的领域内进行<strong>非极大值抑制</strong>(防止角点太密集，这一小撮全是角点的情况出现)，局部最大值点即为图像中的角点。</p>
+  </li>
+</ol>
+
+<h2 id="23-harris角点性质">2.3 harris角点性质</h2>
+<h3 id="231-旋转不变性">2.3.1 旋转不变性</h3>
+<p>由我们上述讲解的原理可知，当旋转发生时，矩阵M确定的椭圆也会发生旋转，但是椭圆的长短轴的大小是不会变化的。而椭圆的长短轴是<strong>矩阵M的特征值平方根的倒数</strong>，也就是说矩阵的特征值不会发生变化，所以harris响应值的大小也不会发生变化。因此harris角点检测具有旋转不变性。</p>
+
+<h3 id="232-光照不敏感">2.3.2 光照不敏感</h3>
+<p>这是因为我们在进行harris响应值的计算时，并没有直接使用像素亮度信息，而是使用了像素亮度的梯度信息。但由于梯度信息对于像素亮度的拉升与收缩变化并不敏感，就算光照条件发生变化导致像素亮度整体发生变化，也不会影响harris响应值的极值点出现的位置。最多由于阈值的选择，会影响检测到的角点数量而已。</p>
+<div style="text-align: center">
+<img src="/assets/img/harris/brightness.png" />
+</div>
+<h3 id="233-不具备尺度不变">2.3.3 不具备尺度不变</h3>
+<p>这一点同样容易理解，下图解释的尤其形象。</p>
+<div style="text-align: center">
+<img src="/assets/img/harris/scale.png" />
+</div>
+
+<h3 id="234-参数alpha的意义">2.3.4 参数$\alpha$的意义</h3>
+<p>假设已经得到了矩阵M的特征值$\lambda_1\ge\lambda_2\ge0$，令$\lambda_2=k\lambda_1,0\le k\le 1$。由特征值与矩阵M的直迹和行列式的关系可得：</p>
+
+<script type="math/tex; mode=display">det\boldsymbol{M}=\prod_i\lambda_i \ \ \ \ \ \  trace\boldsymbol{M}=\sum_i\lambda_i</script>
+
+<p>所以角点的响应值为</p>
+
+<script type="math/tex; mode=display">R=\lambda_2\lambda_2=\alpha(\lambda_2+\lambda_2)^2=\lambda^2(k-\alpha(1+k)^2)</script>
+
+<p>若有R不小于0，则</p>
+
+<script type="math/tex; mode=display">0\le \alpha \le\frac{k}{(1+k)^2}\le0.25</script>
+
+<p>并且有如下结论：<strong>增大α的值，将减小角点响应值R，降低角点检测的灵性，减少被检测角点的数量；减小α值，将增大角点响应值R，增加角点检测的灵敏性，增加被检测角点的数量。</strong></p>
+
+<h2 id="24-harris角点检测的opencv接口与自己的c实现">2.4 harris角点检测的opencv接口与自己的c++实现</h2>
+<p>见我的<a href="https://github.com/xhy3054/myopencv/tree/master/08_feature2d_module/01_harris_corner_detector">github</a></p>
+
+<h1 id="3-参考资料">3. 参考资料</h1>
+<p>[1] https://docs.opencv.org/3.4.1/d4/d7d/tutorial_harris_detector.html
+[2] https://www.cnblogs.com/ronny/p/4009425.html#4056636
+[3] https://blog.csdn.net/lwzkiller/article/details/54633670</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=图像特征之Harris角点检测&url=http://localhost:4000/corner-detect-harris/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/corner-detect-harris/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/corner-detect-harris/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
+          
+        
+          
+            <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
+          
+        
+          
+            <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
+          
+        
+          
+            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
+          
+        
+          
+            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
+          
+        
+          
+            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2018. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -53,7 +64,7 @@
     <li ><a href="#vslam" class="tag">vslam <span>(1)</span></a></li>
   
     
-    <li ><a href="#%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86" class="tag">图像处理 <span>(2)</span></a></li>
+    <li ><a href="#%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86" class="tag">图像处理 <span>(3)</span></a></li>
   
     
     <li ><a href="#%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86" class="tag">文本处理 <span>(1)</span></a></li>
@@ -253,7 +264,7 @@
 <!--  lists all posts corresponding to specific tag...-->
     
     <div class="tag_list">
-        <span><a href="/visual-slam-orb/">ORB特征详解</a></span>
+        <span><a href="/visual-slam-orb/">图像特征之ORB特征详解</a></span>
         <small><span>16 Sep 2018</span></small>
     </div>
     
@@ -263,12 +274,17 @@
 <!--  lists all posts corresponding to specific tag...-->
     
     <div class="tag_list">
+        <span><a href="/corner-detect-harris/">图像特征之Harris角点检测</a></span>
+        <small><span>01 Dec 2018</span></small>
+    </div>
+    
+    <div class="tag_list">
         <span><a href="/opencv-mat/">opencv中的Mat类讲解</a></span>
         <small><span>10 Oct 2018</span></small>
     </div>
     
     <div class="tag_list">
-        <span><a href="/visual-slam-orb/">ORB特征详解</a></span>
+        <span><a href="/visual-slam-orb/">图像特征之ORB特征详解</a></span>
         <small><span>16 Sep 2018</span></small>
     </div>
     

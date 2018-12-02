@@ -45,3 +45,71 @@ signed char sc2 = i2;
 # 显式类型转换
 显式类型转换也叫作强制类型转换，除非必须，否则不建议使用。并且在这方面，ｃ语言提供的强制类型转换是及其不完善的，c++对与强制类型转换比之要完善很多，不过依然不建议使用。
 
+# 整数类型转换机器码操作
+1. **同位宽的无符号与有符号**的整数类型进行转换时，内存中**机器码形式不变**，变得是**机器码的解读方式**，以补码形式进行解读还是无符号数形式进行解读。
+2. 在进行**扩展位宽**的整数类型转换时，无符号数进行**零扩展**，有符号数进行**符号扩展**。（这两种方式都能保证扩展后原值不变，原理可参考补码原理）
+3. 在进行**截断位宽**的整数类型转换时，采用**截断式转换**。
+4. 同时进行**无符号与有符号和不同位宽**类型转换时，**首先进行位宽变换**。
+
+```c
+#include <stdio.h>
+//#include <stdlib.h>
+
+typedef unsigned char *byte_pointer;
+
+void show_bytes(byte_pointer start, int len) {
+    int i;
+    for (i = 0; i < len; i++)
+    printf(" %.2x", start[i]);
+    printf("\n");
+}
+
+void test() {
+    /* $begin extend */
+    short sx = -12345;       /* -12345 */
+    unsigned short usx = sx; /*  53191 */
+    int   x = sx;            /* -12345 */
+    unsigned  ux = usx;      /*  53191 */
+    unsigned  uy = sx;       /* Mystery! */
+
+    // 16位有符号数-12345与其机器码
+    printf("16位有符号数-12345与其机器码: %d:\t", sx);
+    show_bytes((byte_pointer) &sx, sizeof(short));
+    
+    // 将16位有符号数-12345转换成16位无符号数后其值与机器码
+    printf("将16位有符号数-12345转换成16位无符号数后其值与机器码: %u:\t", usx);
+    show_bytes((byte_pointer) &usx, sizeof(unsigned short));
+    
+    // 将16位有符号数-12345扩展成32位有符号数后其值与机器码
+    printf("将16位有符号数-12345扩展成32位有符号数后其值与机器码: %d:\t", x);
+    show_bytes((byte_pointer) &x, sizeof(int));
+    
+    // 将16位无符号数53191扩展成32位无符号数后其值与机器码
+    printf("将16位无符号数53191扩展成32位无符号数后其值与机器码: %u:\t", ux);
+    show_bytes((byte_pointer) &ux, sizeof(unsigned));
+
+    // 将16位有符号数-12345转成32位无符号数后其值与机器码
+    printf("将16位有符号数-12345转成32位无符号数后其值与机器码: %u:\t", uy);
+    show_bytes((byte_pointer) &uy, sizeof(unsigned));
+    /* $end extend */
+}
+
+int main(){
+    test();
+    return 0;
+}
+
+```
+---
+
+运行结果如下：
+```bash
+xhy@ubuntu:~/c_learn/datatype_int_convert$ ./test 
+16位有符号数-12345与其机器码: -12345:	 c7 cf
+将16位有符号数-12345转换成16位无符号数后其值与机器码: 53191:	 c7 cf
+将16位有符号数-12345扩展成32位有符号数后其值与机器码: -12345:	 c7 cf ff ff
+将16位无符号数53191扩展成32位无符号数后其值与机器码: 53191:	 c7 cf 00 00
+将16位有符号数-12345转成32位无符号数后其值与机器码: 4294954951:	 c7 cf ff ff
+```
+---
+

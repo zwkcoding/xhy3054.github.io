@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
 <main class="post_content">
   <article class="post">
@@ -58,9 +70,12 @@
 
 <p>而有符号数最高位为符号位，所以一个八位的有符号数取值范围为多少呢（先卖个关子）？计算机中存储的都是有符号数，也叫<strong>机器数</strong>。机器数<code class="highlighter-rouge">10000001</code>的<strong>形式值</strong>为129，<strong>真值</strong>为<code class="highlighter-rouge">-1</code>。</p>
 
-<p>下文中说的都是对于八位有符号数，因为无符号数讨论补码原码什么着实没什么意义，更多位数的如16位有符号数可以自己类推。</p>
+<p>下文中讲的<strong>原码、反码、补码</strong>都是指<strong>有符号数</strong>的编码方式。以八位有符号数为例进行讲解。</p>
 
 <h3 id="原码">原码</h3>
+<blockquote>
+  <p>m位二进制<strong>原码的定义</strong>与其他编码形式稍有不同，它最高位并没有权值，而是一个系数，所以在由原码求十进制整数式，是最高位的确定的系数乘以低m-1位累加各位值与权值的积的和。</p>
+</blockquote>
 
 <p>原码：符号位 + 绝对值</p>
 
@@ -69,12 +84,15 @@
 <p>这种形式及其符合人们脑海中对于有符号数的第一印象，看到这里都会觉得理所当然，确实，这是人脑最容易理解与计算的形式。但，对电脑不是。</p>
 
 <h3 id="反码">反码</h3>
+<blockquote>
+  <p>首先提一下，m位<strong>反码的定义</strong>，即最高位的权值为<code class="highlighter-rouge">-2^(m-1)-1</code>，其他第n位权值为<code class="highlighter-rouge">2^(n-1)</code>，在由反码求十进制整数时，直接累加各位值与权值的积即可。</p>
+</blockquote>
 
 <p>反码：</p>
 <ul>
   <li>首先记住，符号位是不会变得，正数最高位为0，负数最高位为1</li>
-  <li>正数的反码为本身</li>
-  <li>负数的反码是其原码符号位不变的基础上，其余各位取反</li>
+  <li>正数的反码与原码相同</li>
+  <li>负数的反码是其绝对值原码按位取反</li>
 </ul>
 
 <p>反码有什么用呢？</p>
@@ -92,12 +110,15 @@
 <p>这个原因我们仔细考虑一下会发现，在采用反码的减法中，负数通过加正数得0时得到的是<code class="highlighter-rouge">-0</code>，而且刚好<code class="highlighter-rouge">-0 +1 = +0（本来应该是1的）</code>。如何解决这个问题呢？我们来看补码。</p>
 
 <h3 id="补码">补码</h3>
+<blockquote>
+  <p>首先提一下，m位<strong>补码的定义</strong>，即最高位的权值为<code class="highlighter-rouge">-2^(m-1)</code>，其他第n位权值为<code class="highlighter-rouge">2^(n-1)</code>，在由补码求十进制整数时，直接累加各位值与权值的积即可。</p>
+</blockquote>
 
 <p>补码：</p>
 <ul>
   <li>同样，符号位始终不变，正数最高位为0，负数最高位为1, 而0的补码为<code class="highlighter-rouge">00000000</code>（原来的负0在补码里变成了-128），所以补码表示范围<code class="highlighter-rouge">-128~127</code></li>
-  <li>正数的补码为本身</li>
-  <li>负数的补码是其原码在符号位不变的基础上，其余各位取反加1（也就是反码的基础上加1）</li>
+  <li>正数的补码为与原码相同</li>
+  <li>负数的补码是其正数绝对值补码（也就是原码）按位取反再加1（也就是反码的基础上加1）</li>
 </ul>
 
 <p>下面来讨论上面的问题，用补码来实现机器减法：如：</p>
@@ -109,10 +130,14 @@
 
 <p><code class="highlighter-rouge">10000000</code>看作原码是-0;求反码是<code class="highlighter-rouge">11111111</code>，再求补码是<code class="highlighter-rouge">10000000</code>（求补码时加一是不进最高位的，但是补码还有反码减法时最高位符号位是会进位的），不过此时代表-128。</p>
 
+<blockquote>
+  <p>此处说明一下，由于补码的定义，使得对于一个补码表示的有符号数x来说，<strong>按位取反再加１</strong>是一种用来求<code class="highlighter-rouge">-x</code>补码的手段。这个手段一直有效，无论x是正数还是负数还是0。(最小的那个负数的<code class="highlighter-rouge">-x</code>是本身)</p>
+</blockquote>
+
 <h3 id="神奇补码背后思考">神奇补码背后思考</h3>
 
 <blockquote>
-  <p>其实仔细想想补码这样定义确实是有其原因的。（当然，只是我个人理解用的）</p>
+  <p>由补码的定义可知，一个m位有符号数（假设值为x，x为一个负值）的补码如果表示的是一个无符号数，则这个无符号数的值为<code class="highlighter-rouge">x+2^m</code>，这个结果可以由上面补码的定义推断出，因为补码的最高位权值是<code class="highlighter-rouge">-2^(m-1)</code>。同理，一个m位无符号数（假设值为x，x&gt;=2^(m-1)）的二进制编码如果用来表示的是一个有符号数的补码，则这个有符号数值为<code class="highlighter-rouge">x-2^m</code>。</p>
 </blockquote>
 
 <p>我们都知道加法减法是满足结合率的，所以要想知道做减法需要用到的负数机器码应该如何定义可以这样想：</p>
@@ -124,7 +149,7 @@
 <ul>
   <li>所以会有<code class="highlighter-rouge">1 + （-1）= 0</code>，我们知道1为<code class="highlighter-rouge">00000001</code>，所以-1应该为<code class="highlighter-rouge">11111111</code></li>
   <li>同理，2为<code class="highlighter-rouge">00000010</code>，-2应该为<code class="highlighter-rouge">11111110</code></li>
-  <li>。。。依次类推，补码也诞生了，这种实现减法的思想依靠的是有限位数进位导致的循环来实现的。在8位二进制数中，减1也就等于加255，刚好是求补的感觉，所以这种编码方式叫做补码（我猜的）。</li>
+  <li>。。。依次类推，补码也诞生了，这种实现减法的思想依靠的是有限位数进位导致的循环来实现的。在8位二进制数中，减1也就等于加255，刚好是求补的感觉，所以这种编码方式叫做补码（我猜的，但是其实一种运算在一个集合上形成的这种奇妙现象有一个数学名字－－<strong>阿贝尔群</strong>）。</li>
 </ul>
 
 <blockquote>
@@ -191,6 +216,10 @@
       <div class="recent_list">
         
           
+            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
+          
+        
+          
             <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
           
         
@@ -208,10 +237,6 @@
         
           
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
-          
-        
-          
-            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
           
         
       </div>

@@ -22,6 +22,17 @@
 	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
 	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 
 <body>
@@ -34,6 +45,7 @@
     <a href="/contact/">Contact</a>
   </nav>
 </header> <!-- End Section Header -->
+
 
 <main class="post_content">
   <article class="post">
@@ -69,7 +81,7 @@
 <p>在c++11标准以后我们可以通过将拷贝构造函数与拷贝赋值运算符定义为<code class="highlighter-rouge">=delete</code>来<strong>组织拷贝的发生</strong>。<code class="highlighter-rouge">=delete</code>告诉编译器，我们不希望定义这些成员。例如，<code class="highlighter-rouge">iostream</code>类阻止了拷贝操作。<strong>析构函数不能是<code class="highlighter-rouge">=delete</code>的</strong>，如果我们用<code class="highlighter-rouge">=delete</code>将一个类的析构函数定义为删除的，则我们不能定义该类型的变量（但是可以动态分配内存），也不能释放指向该类型动态分配对象的指针。</p>
 
 <h2 id="拷贝构造函数">拷贝构造函数</h2>
-<p>拷贝构造函数也是一种构造函数。我们知道，不同版本的构造函数的区别在于参数列表的不同。拷贝构造函数的第一个参数一定是自身类类型的引用，任何额外参数都有默认值。</p>
+<p>拷贝构造函数也是一种构造函数。我们知道，不同版本的构造函数的区别在于参数列表的不同。<strong>拷贝构造函数的第一个参数一定是自身类类型的引用</strong>，任何额外参数都有默认值。</p>
 
 <p>如果一个类未定义自己的拷贝构造函数，则编译器会为其自动生成一个，自动生成的拷贝构造函数就是将类中的每一个数据成员进行简单的拷贝构造。如果不希望自己的类有拷贝构造函数操作，必须显式将拷贝构造函数声明成<code class="highlighter-rouge">=delete</code>来指出我们希望将它定义成删除的，比如<code class="highlighter-rouge">iostream</code>类就阻止了拷贝操作来避免多个对象写入或者读取相同的IO操作。</p>
 
@@ -291,6 +303,10 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
       <div class="recent_list">
         
           
+            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
+          
+        
+          
             <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
           
         
@@ -308,10 +324,6 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
         
           
             <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
-          
-        
-          
-            <a href="/cpp-public-protected-private/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++中public、protected与private关键字</span></a>
           
         
       </div>
