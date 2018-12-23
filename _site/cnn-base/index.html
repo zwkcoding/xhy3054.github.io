@@ -61,8 +61,9 @@
 
     <div class="entry_content">
       <h2 id="从神经网络到卷积神经网络cnn">从神经网络到卷积神经网络（cnn）</h2>
-<p>学过模式识别课程的都知道神经网络，它是一种重要的模式识别手段。基本结构如下：
-<img src="/assets/img/cnn_base/neural_network.jpg" alt="neural_network" /></p>
+<p>学过模式识别课程的都知道神经网络，它是一种重要的模式识别手段。基本结构如下：</p>
+
+<p><img src="/assets/img/cnn_base/neural_network.jpg" alt="neural_network" /></p>
 
 <p>卷积神经网络（Convolutional neural network，CNN），听名字就可以猜到，没错，这是一种特殊的神经网络。至于它特殊在哪？下面我们慢慢来说。</p>
 
@@ -95,16 +96,17 @@
 <ul>
   <li>去均值：即把输入数据的各个维度都中心化为0,目的是把样本中心拉回到坐标系原点。</li>
   <li>归一化：幅度归一化到同样的范围，即减少各个维度数据取值范围差异带来的干扰，比如，我们有两个维度的特征A和B，A范围是0到10,而B范围是0到10000,如果直接使用这两个特征效果肯定不好，好的做法就是先归一化，比如将A和B的数据都变为0到1的范围。</li>
-  <li>PCA：用PCA降维。
-去均值与归一化图解：</li>
+  <li>PCA：用PCA降维。</li>
 </ul>
+
+<p>去均值与归一化图解：</p>
 
 <p><img src="/assets/img/cnn_base/pretreat.jpg" alt="pretreat" /></p>
 
 <h3 id="卷积计算层conv-layer">卷积计算层（CONV layer）</h3>
-<p>这一层是卷积神经网络最关键的一层，上文中讲到的cnn的特点局部关联与权值共享就体现在这一层，权重参数的减少也主要是在这一步完成的。如果有图像处理空域的一些知识，理解起来会比较轻松。这一层操作与图像处理中空域滤波操作是一样的，即使用固定的权重和不同窗口数据做内积，这一层主要要理解以下几个概念：</p>
+<p>这一层是卷积神经网络最关键的一层，上文中讲到的cnn的特点局部关联与权值共享就体现在这一层，权重参数的减少也主要是在这一步完成的。如果有图像处理空域的一些知识，理解起来会比较轻松。这一层操作与图像处理中空域滤波操作是一样的，即使用固定的权重和不同窗口数据做内积，这一层主要要理解以下几个参数概念：</p>
 <ol>
-  <li>卷积核（穿函数）</li>
+  <li>卷积核（窗函数）</li>
   <li>填充值（一般为0）</li>
   <li>步长</li>
   <li>深度（比如彩色图像三通道深度为3）</li>
@@ -115,7 +117,7 @@
 <p><img src="/assets/img/cnn_base/conv.gif" alt="conv" /></p>
 
 <h3 id="激励层">激励层</h3>
-<p>学习过神经网络都知道激励层的作用是非线性，如果没有这一层那神经网络每个层都是线性的，而多个线性层其实可以合为一个线性层的。这样神经网络的层级深度就成了一个笑话。卷积神经网络同样如此。</p>
+<p>学习过神经网络都知道激励层的作用是<strong>非线性</strong>，如果没有这一层那神经网络每个层都是线性的，而多个线性层其实可以合为一个线性层的。这样神经网络的层级深度就成了一个笑话。卷积神经网络同样如此。</p>
 
 <p>CNN采用的激励函数一般为RELU（the rectified linear unit：修正线性单元），它的特点是收敛快，求梯度简单，但是比较脆弱，如下图：</p>
 
@@ -231,6 +233,18 @@
       <div class="recent_list">
         
           
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)算法解析</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+          
+            <a href="/disk-partition/" class="recent_item" style="background-image: url( /assets/img/minion2.jpg )"><span>磁盘分区问题解析</span></a>
+          
+        
+          
             <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
           
         
@@ -240,18 +254,6 @@
         
           
             <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
-          
-        
-          
-            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
-          
-        
-          
-            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
-          
-        
-          
-            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
       </div>

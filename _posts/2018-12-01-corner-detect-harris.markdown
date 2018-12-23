@@ -3,7 +3,7 @@ layout: post
 title: 图像特征之Harris角点检测
 date: 2018-12-01 10:07:24.000000000 +09:00
 img:  minion1.jpg # Add image post (optional)
-tag: [图像处理]
+tag: [图像处理, image_feature]
 ---
 # 1. 角点与角点的检测
 ## 1.1 什么是角点？
@@ -75,8 +75,8 @@ $$ \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 
 $$ R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2 $$
 
 其中：
-- $det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2$
-- $trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2$
+- $det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2 = AC-B^2$，A,B,C,D是M矩阵的四个元素
+- $trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2 = A+C$
 - $\alpha$是一个经验系数，通常取值范围在0.04~0.06。下文还会对这个系数进行探讨。
 
 ## 2.2 实际代码实现步骤
@@ -89,7 +89,9 @@ $$ R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2 $$
 
 4. 依据M矩阵计算每个像素的**harris响应值R**，并设置一个阈值，小于阈值的清零。
 
-5. 在$3\times3或5\times5$的领域内进行**非极大值抑制**(防止角点太密集，这一小撮全是角点的情况出现)，局部最大值点即为图像中的角点。
+5. 在$3\times3或5\times5$的领域内进行**非极大值抑制**，局部最大值点即为图像中的角点。
+
+> **非极大值抑制**原理是，在一个窗口内，如果有多个角点则用值最大的那个角点，其他的角点都删除。这样做可以祛除一些黏在一起的角点，好处是可以防止角点太密集，出现一小撮全是角点的情况。
 
 ## 2.3 harris角点性质
 ### 2.3.1 旋转不变性

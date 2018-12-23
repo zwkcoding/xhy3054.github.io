@@ -120,7 +120,18 @@
   <p>了解过SIFT和SURF描述子的人应该知道，它们一个描述子就要占用几百个字节内存空间，十分庞大，计算效率很低。而一个BRIEF描述子只需要128，256或512个比特的空间便可存储（opencv中提供了这三种长度，默认为256）。</p>
 </blockquote>
 
-<p>BRIEF是一种二进制描述子，描述向量由很多0与1组成。这里0与1的确定是通过比较关键点附近两个像素<strong>灰度值的大小关系</strong>确定。其使用了<strong>随机取点</strong>的比较，原始的BRIEF描述子不具有旋转不变性，因此在图像发生旋转时容易丢失。而在ORB中通过在<strong>FAST特征点提取阶段计算的关键点的方向信息</strong>，通过方向信息进行随机取点函数的设置，使得Rotated BRIEF 描述子具有了良好的<strong>旋转不变性</strong>。</p>
+<p>BRIEF是一种二进制描述子，描述向量由很多0与1组成。这里0与1的确定是通过比较关键点附近两个像素<strong>灰度值的大小关系</strong>确定。</p>
+
+<p>两个像素的位置确定使用了<strong>随机取点</strong>的比较，原始的BRIEF描述子不具有旋转不变性，因此在图像发生旋转时容易丢失。而在ORB中通过在<strong>FAST特征点提取阶段计算的关键点的方向信息</strong>，通过方向信息进行随机取点函数的设置，使得Rotated BRIEF 描述子具有了良好的<strong>旋转不变性</strong>。</p>
+
+<blockquote>
+  <p>在orb论文中，提供了启发式搜索算法计算得到的256对匹配点对，可以直接拿来使用，只需要在计算时将这256对点按照<strong>特征点</strong>的方向信息进行旋转就可以了。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 视觉SLAM十四讲</li>
+</ul>
 
 
     </div>
@@ -129,16 +140,16 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=图像特征之ORB特征详解&url=http://localhost:4000/visual-slam-orb/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/visual-slam-orb/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/visual-slam-orb/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=图像特征之ORB特征详解&url=http://localhost:4000/visual-feature-orb/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/visual-feature-orb/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/visual-feature-orb/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
           <a href="/tags#图像处理" class="tag">图像处理</a>
           
-          <a href="/tags#vslam" class="tag">vslam</a>
+          <a href="/tags#image_feature" class="tag">image_feature</a>
           
         </div>
       </footer>
@@ -176,6 +187,18 @@
       <div class="recent_list">
         
           
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)算法解析</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+          
+            <a href="/disk-partition/" class="recent_item" style="background-image: url( /assets/img/minion2.jpg )"><span>磁盘分区问题解析</span></a>
+          
+        
+          
             <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
           
         
@@ -185,18 +208,6 @@
         
           
             <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
-          
-        
-          
-            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
-          
-        
-          
-            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
-          
-        
-          
-            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
       </div>

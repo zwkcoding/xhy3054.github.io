@@ -113,3 +113,6 @@ xhy@ubuntu:~/c_learn/datatype_int_convert$ ./test
 ```
 ---
 
+# 参考资料
+- [1] C++ Primer（第5版）
+- [2] 深入理解计算机系统（第三版）

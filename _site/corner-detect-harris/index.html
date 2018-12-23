@@ -141,8 +141,8 @@ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end
 
 <p>其中：</p>
 <ul>
-  <li>$det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2$</li>
-  <li>$trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2$</li>
+  <li>$det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2 = AC-B^2$，A,B,C,D是M矩阵的四个元素</li>
+  <li>$trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2 = A+C$</li>
   <li>$\alpha$是一个经验系数，通常取值范围在0.04~0.06。下文还会对这个系数进行探讨。</li>
 </ul>
 
@@ -162,9 +162,13 @@ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end
     <p>依据M矩阵计算每个像素的<strong>harris响应值R</strong>，并设置一个阈值，小于阈值的清零。</p>
   </li>
   <li>
-    <p>在$3\times3或5\times5$的领域内进行<strong>非极大值抑制</strong>(防止角点太密集，这一小撮全是角点的情况出现)，局部最大值点即为图像中的角点。</p>
+    <p>在$3\times3或5\times5$的领域内进行<strong>非极大值抑制</strong>，局部最大值点即为图像中的角点。</p>
   </li>
 </ol>
+
+<blockquote>
+  <p><strong>非极大值抑制</strong>原理是，在一个窗口内，如果有多个角点则用值最大的那个角点，其他的角点都删除。这样做可以祛除一些黏在一起的角点，好处是可以防止角点太密集，出现一小撮全是角点的情况。</p>
+</blockquote>
 
 <h2 id="23-harris角点性质">2.3 harris角点性质</h2>
 <h3 id="231-旋转不变性">2.3.1 旋转不变性</h3>
@@ -222,6 +226,8 @@ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end
           
           <a href="/tags#图像处理" class="tag">图像处理</a>
           
+          <a href="/tags#image_feature" class="tag">image_feature</a>
+          
         </div>
       </footer>
     </div>
@@ -258,6 +264,18 @@ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end
       <div class="recent_list">
         
           
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)算法解析</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+          
+            <a href="/disk-partition/" class="recent_item" style="background-image: url( /assets/img/minion2.jpg )"><span>磁盘分区问题解析</span></a>
+          
+        
+          
             <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
           
         
@@ -267,18 +285,6 @@ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end
         
           
             <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
-          
-        
-          
-            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
-          
-        
-          
-            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
-          
-        
-          
-            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
       </div>

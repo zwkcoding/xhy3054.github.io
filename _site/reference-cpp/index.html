@@ -146,16 +146,16 @@
 
 <p>由上我们可以看出，左值一般有持久的状态，是一个稳定的对象；而右值要么是字面值常量，要么是表达式求值过程中创建的临时变量。</p>
 
-<p>此处需要说明的一点是变量表达式都是左值，我们<strong>不能将一个右值引用绑定到一个右值引用类型的变量上</strong>。如下：</p>
+<p>此处需要说明的一点是变量表达式都是左值，我们<strong>不能将一个右值引用绑定到一个右值引用上，因为右值引用本身是左值，是可以通过右值引用改变它指向对象的值的</strong>。如下：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r1</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>	<span class="c1">//正确：42是一个右值</span>
 <span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r2</span><span class="o">=</span><span class="n">r1</span><span class="p">;</span>	<span class="c1">//错误：右值引用类型的变量表达式r1是一个左值</span>
 <span class="c1">//注意：这样的操作在左值引用就是可以成立的。</span>
 </code></pre></div></div>
 
 <h2 id="stdmove">std::move()</h2>
-<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>显式地将一个左值转换为对应的右值类型</strong>，它<strong>返回的是一个右值类型的值</strong>。</p>
+<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>返回一个指向左值对象的右值引用</strong>。</p>
 
-<p>因为右值引用类型为左值，所以我们可以通过右值引用改变源对象的值：</p>
+<p>因为<strong>右值引用为左值</strong>，所以我们可以通过右值引用改变源对象的值：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="c1">//int &amp;&amp;rr1 = i;    错误，不能绑定左值</span>
     <span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>	<span class="c1">//此处move返回一个右值类型的值被绑定到右值引用类型变量rr2</span>
@@ -167,6 +167,11 @@
 <blockquote>
   <p>通常肯定不会这样使用move，通常我们将move函数来辅助完成<a href="https://xhy3054.github.io/cpp-copy-move/">一个对象的移动操作</a>，因此，往往调用<code class="highlighter-rouge">move</code>意味着就承诺：除了对源对象重新赋值或者销毁它外，我们将不再使用它。在对一个源对象做了move操作后，我们只能保证移后源对象结构依旧完好，可以正常销毁，但是它的值我们不能做任何假设。</p>
 </blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
 
 
     </div>
@@ -220,6 +225,18 @@
       <div class="recent_list">
         
           
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)算法解析</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+          
+            <a href="/disk-partition/" class="recent_item" style="background-image: url( /assets/img/minion2.jpg )"><span>磁盘分区问题解析</span></a>
+          
+        
+          
             <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
           
         
@@ -229,18 +246,6 @@
         
           
             <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
-          
-        
-          
-            <a href="/cpp-template-class/" class="recent_item" style="background-image: url( /assets/img/cute6.jpg )"><span>c++中的模板实例化问题</span></a>
-          
-        
-          
-            <a href="/cpp-inheritance-virtual-func/" class="recent_item" style="background-image: url( /assets/img/cute5.jpg )"><span>c++继承体系中的成员函数调用问题探究</span></a>
-          
-        
-          
-            <a href="/cpp-copy-move/" class="recent_item" style="background-image: url( /assets/img/cute4.jpg )"><span>c++中的移动操作</span></a>
           
         
       </div>

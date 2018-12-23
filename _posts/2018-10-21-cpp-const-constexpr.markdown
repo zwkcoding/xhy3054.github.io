@@ -112,6 +112,7 @@ public:
 ***
 
 
-
-
+# 参考资料
+- [1] C++ Primer（第5版）
+- [2] http://senlinzhan.github.io/2015/05/01/%E8%B0%88%E8%B0%88C-%E7%9A%84%E7%BC%96%E8%AF%91%E5%99%A8%E8%AE%A1%E7%AE%97/
 

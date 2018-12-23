@@ -66,5 +66,6 @@ catch(exception-declaration){
 
 除此之外，包括标准算数类型的转换和类类型转换在内，其他所有转换规则都不能在匹配catch的过程中使用。
 
-
+# 参考资料
+- [1] C++ Primer（第5版）
 
