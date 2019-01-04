@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>矩阵的特征值分解 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/minion6.jpg alt="矩阵的特征值分解">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Dec 26</p>
+        <h1 class="post_title">矩阵的特征值分解</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h1 id="特征值分解">特征值分解</h1>
+<p>物理意义：</p>
+<ol>
+  <li>矩阵可以表示一种变换；</li>
+  <li>特征向量表示矩阵变换的方向；</li>
+  <li>特征值表示矩阵变换在对应特征向量方向上的变换速度；</li>
+</ol>
+
+<h2 id="特征值与特征向量">特征值与特征向量</h2>
+<p>如下一个二维向量$\vec{v_{}}$，这个二维空间的基向量是$\vec{i_{}}$与$\vec{j_{}}$;</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p1.png" />
+</div>
+<p>将向量$\vec{v_{}}$左乘一个矩阵$\mathbf{A}$，情况变成如下：</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p2.png" />
+</div>
+<p>奇妙的来了，如果调整一下被乘的向量$\vec{v_{}}$的方向到一个特定的方向，则会出现如下情况</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p3.png" />
+</div>
+<p>可以观察到，调整后的$\vec{v_{}}$和$A\vec{v_{}}$在同一根直线上，只是$A\vec{v_{}}$的长度相对$\vec{v_{}}$的长度变长了。此时，我们就称$\vec{v_{}}$是$A$的<strong><em>特征向量</em></strong>，而$A\vec{v_{}}$的长度是$\vec{v_{}}$的长度的$\lambda$倍，$\lambda$就是<strong>特征值</strong>。</p>
+
+<p>从而，特征值与特征向量的定义式就是这样的：</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p4.png" />
+</div>
+<p>特征向量所在的直线上的所有向量都满足特征向量的上述定义，我们称其为<strong>特征空间</strong>。不过一般每个特征向量通常定义为一个单位向量（因为主要的意义是用来表示方向的）。</p>
+<blockquote>
+  <p>当然了，一个矩阵通常不止一个特征向量，比如一个<code class="highlighter-rouge">n*n</code>的矩阵最多有n个特征向量，每个特征向量之间相互正交，也有可能没有特征向量（求得时候发现方程无解或是复数）</p>
+</blockquote>
+
+<h3 id="意义">意义</h3>
+<p>上面说了，特征向量表示矩阵变换的方向，特征值表示该方向上的变换速度。整个变换怎么理解呢？</p>
+
+<p>我们可以这样想，每个矩阵在对一个向量做变换的时候，</p>
+<ol>
+  <li>首先将这个向量使用特征向量组成的正交基向量进行<strong>分解</strong></li>
+  <li>然后目标向量在每个特征向量方向上的分量分别进行<strong>拉伸操作</strong></li>
+  <li>对所有特征向量方向上的拉伸结果进行<strong>合并</strong>。</li>
+</ol>
+
+<blockquote>
+  <p>这个分解操作可以由下面的特征值分解进行解释</p>
+</blockquote>
+
+<h2 id="特征值分解其实是运动分解">特征值分解其实是运动分解</h2>
+<p>一个矩阵进行特征值分解，这是一种将矩阵分解表示的操作。可以通过只保留比较重要的特征向量（将其他置为零）来压缩矩阵。</p>
+
+<script type="math/tex; mode=display">\mathbf{A} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}}</script>
+
+<p>其中，</p>
+<ul>
+  <li>V是n个特征向量组成的<code class="highlighter-rouge">n*n</code>维矩阵</li>
+  <li>D是n个特征值组成的一个对角矩阵（只有对角线上值不为0，维度也是<code class="highlighter-rouge">n*n</code>）</li>
+  <li>上面V与D中的特征向量与特征值是有序配对的，即第i个特征值对应第i个特征向量</li>
+</ul>
+
+<p>使用一个具体例子进行解释如下：</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p5.png" />
+</div>
+<p>如果使用这个矩阵对向量进行变换操作，我们会发现</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p6.png" />
+</div>
+<p>特征值分解其实就是将矩阵的变换操作分解了，将旋转与拉伸分离开来，最后达到上述<a href="#意义">意义</a>的效果。我们逐步解释</p>
+
+<ul>
+  <li>首选这是原本的基向量</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p7.png" />
+</div>
+<ul>
+  <li>左乘$ {V^{-1}}$后，将原本的基向量进行了旋转，变换到矩阵特征向量上，即“将目标向量使用特征向量组成的正交基向量进行了<strong>分解</strong>”</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p8.png" />
+</div>
+<ul>
+  <li>下面再左乘对角矩阵$ \mathbf{D} $，将<strong>目标向量在每个特征向量方向上的分量分别进行了拉伸操作</strong></li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p9.png" />
+</div>
+<ul>
+  <li>最后在左乘$ {V^{}}$，这个操作将基向量重新变换到原本的基向量上，即可以理解成”对所有特征向量方向上的拉伸结果进行<strong>合并</strong>”</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p10.png" />
+</div>
+
+<h3 id="总结">总结</h3>
+<p>通过了解了整个特征值分解的意义，我们应该便能理解为什么说只对<strong>方阵</strong>进行特征值分解了。</p>
+
+<blockquote>
+  <p>这是因为只有方阵才能够在矩阵空间提取出符合<strong>完全正交基</strong>的特征向量，这样对于任何一个目标向量进行变换时，才能使用特征向量对目标向量进行完全表示。如果不能提取出满足条件的特征向量，则特征值分解的公式是<strong>不成立</strong>的!</p>
+</blockquote>
+
+<script type="math/tex; mode=display">\mathbf{A} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}}</script>
+
+<p>那不能特征值分解时怎么办呢？我们可以使用<strong>奇异值分解</strong></p>
+
+<h3 id="应用案例压缩图像">应用案例：压缩图像</h3>
+<p>如下有一幅<code class="highlighter-rouge">512*512</code>的灰度图像(只有方阵才能压缩)</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p11.jpg" />
+</div>
+<p>这个图片可以放到一个矩阵里面去，就是把每个像素的颜色值填入到一个512\times512的A矩阵中。
+根据之前描述的有：
+<script type="math/tex">\mathbf{A} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}}</script></p>
+
+<p>其中，$ \mathbf{D} $是对角阵，对角线上是从大到小排列的特征值。</p>
+
+<p>我们在$ \mathbf{D} $中只保留前面50个的特征值（也就是最大的50个，其实也只占了所有特征值的百分之十），其它的都填0，重新计算矩阵后，恢复为下面这样的图像：</p>
+<div style="text-align: center">
+<img src="/assets/img/matrix_eigenvalue/p12.jpg" />
+</div>
+<p>效果还可以，其实一两百个特征值之和可能就占了所有特征值和的百分之九十了，其他的特征值都可以丢弃了。</p>
+
+<blockquote>
+  <p>不过注意:在通过特征值分解的方式压缩过后，这个图像就不再是以前的图像了。</p>
+  <h1 id="参考资料">参考资料</h1>
+  <ul>
+    <li>[1] https://www.matongxue.com/madocs/228.html</li>
+    <li>[2] https://zh.wikipedia.org/zh-hans/%E7%89%B9%E5%BE%81%E5%88%86%E8%A7%A3</li>
+  </ul>
+</blockquote>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=矩阵的特征值分解&url=http://localhost:4000/matrix-eigenvalue/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/matrix-eigenvalue/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/matrix-eigenvalue/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
+          
+        
+          
+            <a href="/matrix-singular-value/" class="recent_item" style="background-image: url( /assets/img/minion7.jpg )"><span>矩阵的奇异值分解(SVD)</span></a>
+          
+        
+          
+            <a href="/matrix-eigenvalue/" class="recent_item" style="background-image: url( /assets/img/minion6.jpg )"><span>矩阵的特征值分解</span></a>
+          
+        
+          
+            <a href="/optical-flow/" class="recent_item" style="background-image: url( /assets/img/minion5.jpg )"><span>光流算法简述</span></a>
+          
+        
+          
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

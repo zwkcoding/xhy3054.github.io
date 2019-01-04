@@ -1,0 +1,60 @@
+---
+layout: post
+title: 光流算法简述
+date: 2018-12-24 10:07:24.000000000 +09:00
+img:  minion5.jpg # Add image post (optional)
+tag: [图像处理]
+---
+**光流(optical　flow)**，字面意思描述的是图像中像素强度的流动。光流法的**目的**是根据图像中像素点的灰度值强度变化估计出物体移动速度与方向。
+
+# 光流
+## 光流的假设
+首先，光流估计指的是利用时间上相邻的两帧图像内**像素强度的变化**来计算点的运动。原理决定了这种方法是建立在一系列假设上的。
+
+- 前后两帧中点的位移不大
+- 灰度不变假设，这要求外界光强保持恒定
+- 空间相关性，每个点的运动和邻近的点类似
+
+> 好像这么多假设有些不靠谱，但是其实光流的输入图像一般时间间隔极小，这使得这么短的时间内，位移，光照强度等都变化极小。这样的假设其实是可以接受的。
+
+## 光流的原理
+上述假设中的核心是第二条，灰度不变假设。
+
+$$ I(x,y,t) = I(x+dx, y+dy, t+dt) $$
+
+将上式右项进行泰勒展开，可以得到
+
+$$ I(x+dx, y+dy, t+dt) \approx I(x,y,t) + \frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt $$
+
+由于我们假设灰度不变，所以即
+
+$$ \frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt \approx 0 $$
+
+上式同时除以$dt$得：
+
+$$ \frac{\partial I}{\partial x}\frac{dx}{dt} + \frac{\partial I}{\partial y}\frac{dy}{dt} = - \frac{\partial I}{\partial t} $$
+
+- 上式中$\frac{dx}{dt}$代表的是像素在ｘ轴上的运动速度，$\frac{dy}{dt}$代表的是像素在ｙ轴上的运动速度，此处我们将其分别记为$u,v$。
+- 上式中$\frac{\partial I}{\partial x}$代表的是像素在x方向上的梯度，$\frac{\partial I}{\partial y}$代表的是像素在y方向上的梯度，我们将其记为$I_x,I_y$
+
+上式可写成如下形式
+
+$$ \begin{bmatrix} I_x & I_y \end{bmatrix} \begin{bmatrix} u \\ v \end{bmatrix} = -I_t $$
+
+- 其中$I_x,I_y$我们可以通过简单的求梯度卷积操作计算得到
+- $ I_t $可以通过图像序列得到
+
+> 由此我们可以计算出$(u,v)$，一般一幅图像中如果我们选取n个点(一般这n个点比较靠近，因为图像中不同区域中的点运动尺寸很可能不一致)进行光流跟踪，就会有n个方程。多个方程求解两个变量，我们可以**迭代**求得一个最优解。
+
+## LK光流
+LK光流指的是通过建立一个**观察窗口**，假设窗口内的像素点的位移是相同的。由此可以建立一个超定方程。使用最小二乘法进行求解。
+
+## 金字塔辅助方法
+问题：上面提到光流的第一条假设是前后两帧中的点位移相差不大。这是因为位移较大时，泰勒展开近似就会不成立了。
+
+解决方法：使用图像金字塔建立多尺度的图像空间，这样本来较大的位移在新的层级比较高的尺度空间上会变小。
+
+# 参考资料
+- [1] 视觉SLAM十四讲
+- [2] https://xmfbit.github.io/2017/05/03/cs131-opticalflow/
+

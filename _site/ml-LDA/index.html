@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>线性判别分析(LDA) - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/minion8.jpg alt="线性判别分析(LDA)">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jan 03</p>
+        <h1 class="post_title">线性判别分析(LDA)</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>线性判别分析(Linear Discriminant Analysis，简称LDA)是一种经典的线性学习方法，最早在1936年由fisher在二分类问题上提出。这种方法主要用于分类与降维。此处需要说明的是，LDA常常还会是隐含狄利克雷分布(Latent Dirichlet Allocation)的简称，这是自然语言处理领域一种处理文档的主题模型，与本文讲的线性判别分析关系不大。</p>
+
+<h1 id="基本思想">基本思想</h1>
+<p>LDA的思想及其朴素，这是一种<strong>有监督</strong>学习的技术。给定训练样例集合，设法将样例投影到低维度的空间里，使得同类样例的投影点尽可能接近、异类样例的投影点尽可能远离。概括一下为<strong>投影后类内方差最小，类间方差最大。</strong></p>
+
+<p>为了尽量表达清楚，先从最简单的二分类的LDA进行讲解。如下图：</p>
+<div style="text-align: center">
+<img src="/assets/img/lda/2lda.png" width="700" height="300" />
+</div>
+<h2 id="二分类lda">二分类LDA</h2>
+<ul>
+  <li>假设有数据集$ D={(x_1,y_1), (x_2,y_2), …,((x_m,y_m))} $，其中$x_i$为n维向量，$ y_i \in {0,1} $。我们定义
+    <ul>
+      <li>$N_j(j=0,1)$为第j类样本的个数;</li>
+      <li>$X_j(j=0,1)$为第j类样本的集合;</li>
+      <li>$u_j(j=0,1)$为第j类样本的均值向量，即$ \mu_j = \frac{1}{N_j}\sum\limits_{x \in X_j}x\;\;(j=0,1) $;</li>
+      <li>$\Sigma_j(j=0,1)$为第j类样本的协方差矩阵，即$ \Sigma_j = \sum\limits_{x \in X_j}(x-\mu_j)(x-\mu_j)^T\;\;(j=0,1) $；</li>
+    </ul>
+  </li>
+  <li>由于两类，所以只需要将数据投影到一条直线上即可。投影到一条直线上，则：
+    <ul>
+      <li>投影矩阵是一个向量，假设为w</li>
+      <li>样本$x_i$投影后为$w^Tx_i$</li>
+      <li>投影后的样本中心为$w^Tu_i$</li>
+      <li>投影后类间方差为$ w^T\Sigma_0w $与$ w^T\Sigma_1w $，类内方差为</li>
+    </ul>
+
+    <script type="math/tex; mode=display">||w^T\mu_0-w^T\mu_1||_2^2 =  w^T(\mu_0-\mu_1)(\mu_0-\mu_1)^Tw</script>
+  </li>
+  <li>
+    <p>我们的目标是投影后类内方差最小，类间方差最大，即：</p>
+
+    <script type="math/tex; mode=display">\underbrace{arg\;max}_w\;\;J(w) = \frac{||w^T\mu_0-w^T\mu_1||_2^2}{w^T\Sigma_0w+w^T\Sigma_1w} = \frac{w^T(\mu_0-\mu_1)(\mu_0-\mu_1)^Tw}{w^T(\Sigma_0+\Sigma_1)w}</script>
+  </li>
+  <li>
+    <p>一般我们定义类内散度为$S_w$为：</p>
+
+    <p>$ S_w = \Sigma_0 + \Sigma_1 = \sum\limits_{x \in X_0}(x-\mu_0)(x-\mu_0)^T + \sum\limits_{x \in X_1}(x-\mu_1)(x-\mu_1)^T $</p>
+  </li>
+  <li>
+    <p>类间散度为$S_b$为：</p>
+
+    <p>$ S_b = (\mu_0-\mu_1)(\mu_0-\mu_1)^T $</p>
+  </li>
+  <li>
+    <p>最后，我们将优化目标重写为</p>
+
+    <p>$ \underbrace{arg\;max}_w\;\;J(w) = \frac{w^TS_bw}{w^TS_ww} $</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>最后的这个优化结果其实是一个<strong>广义瑞利商</strong></p>
+</blockquote>
+
+<h2 id="瑞利商与广义瑞利商">瑞利商与广义瑞利商</h2>
+<h3 id="瑞利商">瑞利商</h3>
+<p>瑞利商是指这样的函数$ R(A,x) $</p>
+
+<script type="math/tex; mode=display">R(A,x) = \frac{x^HAx}{x^Hx}</script>
+
+<p>其中：</p>
+<ul>
+  <li>x为非零向量</li>
+  <li>A为<code class="highlighter-rouge">n*n</code>的Hermitan矩阵(共轭转置等于自身的矩阵)，即$A^H = A$，只要A为实矩阵，并且满足$ A^T=A $,即为一个Hermitan矩阵。</li>
+</ul>
+
+<p>瑞利商$R(A,x)$有一个非常重要的性质，即它的最大值等于矩阵A最大的特征值（此时x为对应的特征向量），而最小值等于矩阵A的最小的特征值，也就满足</p>
+
+<script type="math/tex; mode=display">\lambda_{min} \leq \frac{x^HAx}{x^Hx} \leq \lambda_{max}</script>
+
+<blockquote>
+  <p>我们可以发现瑞利商的分子分母都是x的二次项，所以最后的结果肯定是与x的长度无关的，只会与x的方向有关，这个结论刚好体现了这样一点。</p>
+</blockquote>
+
+<h3 id="广义瑞利商">广义瑞利商</h3>
+<p>广义瑞利商是指这样的函数$R(A,B,x)$;</p>
+
+<script type="math/tex; mode=display">R(A,x) = \frac{x^HAx}{x^HBx}</script>
+
+<p>其中：</p>
+<ul>
+  <li>x为非零向量</li>
+  <li>而A,B为<code class="highlighter-rouge">n*n</code>的Hermitan矩阵。B为正定矩阵。</li>
+</ul>
+
+<p>另$x = B^{-1/2}x’ $,此处分母可以转换成：</p>
+
+<script type="math/tex; mode=display">x^HBx = x'^H(B^{-1/2})^HBB^{-1/2}x' = x'^HB^{-1/2}BB^{-1/2}x' = x'^Hx'</script>
+
+<p>分子可以转换成：</p>
+
+<script type="math/tex; mode=display">x^HAx =  x'^HB^{-1/2}AB^{-1/2}x'</script>
+
+<p>此时我们的$R(A,B,x)$转化为 $ R(A,B,x’) $</p>
+
+<script type="math/tex; mode=display">R(A,B,x') = \frac{x'^HB^{-1/2}AB^{-1/2}x'}{x'^Hx'}</script>
+
+<p>利用前面的瑞利商的性质，我们可以很快的知道，$R(A,B,x)$的最大值为矩阵$ B^{-1/2}AB^{-1/2} $的最大特征值，而最小值为矩阵$ B^{-1/2}AB^{-1/2} $的最小特征值。或者说是$B^{-1}A$的最大特征值。</p>
+
+<h3 id="二类lda的广义瑞利商结果">二类LDA的广义瑞利商结果</h3>
+<p>接下来回到二类LDA的优化目标</p>
+
+<script type="math/tex; mode=display">\underbrace{arg\;max}_w\;\;J(w) = \frac{w^TS_bw}{w^TS_ww}</script>
+
+<p>这个广义瑞利商的最大值为矩阵$ S^{−\frac{1}{2}}_wS_bS^{−\frac{1}{2}}_w $的最大特征值，对应的w为其对应的特征向量。而$S_w^{-1}S_b$的特征值和$S^{−\frac{1}{2}}_wS_bS^{−\frac{1}{2}}_w$的特征值相同，$S_w^{-1}S_b$的特征向量w’和$S^{−\frac{1}{2}}_wS_bS^{−\frac{1}{2}}_w$的特征向量满足$w’ = S^{−\frac{1}{2}}_ww$的关系。
+　　　　</p>
+<h2 id="多类lda">多类LDA</h2>
+<ul>
+  <li>数据集$ D={(x_1,y_1), (x_2,y_2), …,((x_m,y_m))} $，其中$x_i$为n维向量，$y_i \in {C_1,C_2,…,C_k}$为所属类别</li>
+  <li>我们定义$N_i$为第i类样本个数，$X_i$为第i类样本的集合</li>
+  <li>$\mu_i$为第i类样本的均值向量，$\Sigma_i$为第i类样本的协方差矩阵。</li>
+</ul>
+
+<p>此时为多类向低维度空间的投影，我们假设投影到的低维度空间的维度为d，对应的基向量为$(w_1,w_2,…w_d)$，基向量组成的投影矩阵为W，它是一个<code class="highlighter-rouge">n*d</code>的矩阵(d==1为二分类情况)。</p>
+
+<p>此时优化目标是：</p>
+
+<script type="math/tex; mode=display">\frac{W^TS_bW}{W^TS_wW}</script>
+
+<p>其中，</p>
+<ul>
+  <li>$ S_b = \sum\limits_{j=1}^{k}N_j(\mu_j-\mu)(\mu_j-\mu)^T $,代表类间散度(u为所有样本均值向量)</li>
+  <li>$ S_w =  \sum\limits_{j=1}^{k}S_{wj} = \sum\limits_{j=1}^{k}\sum\limits_{x \in X_j}(x-\mu_j)(x-\mu_j)^T $，代表类内散度之和</li>
+</ul>
+
+<p>此时，$W^TS_bW$与$W^TS_wW$都是矩阵，不是标量，无法作为一个标量函数进行优化。</p>
+
+<p>可以将上式进行分解(与奇异值分解压缩形式类似)</p>
+
+<script type="math/tex; mode=display">J(W) = \frac{W^TS_bW}{W^TS_wW} = \frac{\prod\limits_{i=1}^dw_i^TS_bw_i}{\prod\limits_{i=1}^dw_i^TS_ww_i} = \prod\limits_{i=1}^d\frac{w_i^TS_bw_i}{w_i^TS_ww_i}</script>
+
+<p>此时右边又变成了广义瑞利商。每个乘积项最大值是矩阵$S_w^{-1}S_b$的最大特征值，最大的乘积就是矩阵$S_w^{-1}S_b$的最大的d个特征值的乘积。此时对应的投影矩阵W就对应着最大的d个特征值对应的特征向量张成的矩阵。</p>
+
+<h2 id="lda算法流程">LDA算法流程</h2>
+<ul>
+  <li>输入：数据集$ D={(x_1,y_1), (x_2,y_2), …,((x_m,y_m))} $，其中任意样本$x_i$为n维向量，$ y_i \in {C_1,C_2,…,C_k} $，降维到的维度d。</li>
+  <li>输出：降维后的样本集D’</li>
+</ul>
+
+<ol>
+  <li>计算类内散度矩阵$S_w$</li>
+  <li>计算类间散度矩阵$S_b$</li>
+  <li>计算矩阵$S_w^{-1}S_b$</li>
+  <li>计算$S_w^{-1}S_b$最大的d个特征值和对应的d个特征向量$(w_1,w_2,…w_d)$，得到投影矩阵W(二分类时是向量)</li>
+  <li>对样本集中的每一个样本特征$x_i$，转化成新的样本$z_i = W^Tx_i$;</li>
+  <li>得到输出样本集$ D’={(z_1,y_1), (z_2,y_2), …,((z_m,y_m))} $</li>
+</ol>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《机器学习》，周志华著；</li>
+  <li>[2] https://www.cnblogs.com/pinard/p/6244265.html</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=线性判别分析(LDA)&url=http://localhost:4000/ml-LDA/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ml-LDA/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/ml-LDA/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#机器学习" class="tag">机器学习</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
+          
+        
+          
+            <a href="/matrix-singular-value/" class="recent_item" style="background-image: url( /assets/img/minion7.jpg )"><span>矩阵的奇异值分解(SVD)</span></a>
+          
+        
+          
+            <a href="/matrix-eigenvalue/" class="recent_item" style="background-image: url( /assets/img/minion6.jpg )"><span>矩阵的特征值分解</span></a>
+          
+        
+          
+            <a href="/optical-flow/" class="recent_item" style="background-image: url( /assets/img/minion5.jpg )"><span>光流算法简述</span></a>
+          
+        
+          
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

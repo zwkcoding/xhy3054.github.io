@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>光流算法简述 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/minion5.jpg alt="光流算法简述">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2018, Dec 24</p>
+        <h1 class="post_title">光流算法简述</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p><strong>光流(optical　flow)</strong>，字面意思描述的是图像中像素强度的流动。光流法的<strong>目的</strong>是根据图像中像素点的灰度值强度变化估计出物体移动速度与方向。</p>
+
+<h1 id="光流">光流</h1>
+<h2 id="光流的假设">光流的假设</h2>
+<p>首先，光流估计指的是利用时间上相邻的两帧图像内<strong>像素强度的变化</strong>来计算点的运动。原理决定了这种方法是建立在一系列假设上的。</p>
+
+<ul>
+  <li>前后两帧中点的位移不大</li>
+  <li>灰度不变假设，这要求外界光强保持恒定</li>
+  <li>空间相关性，每个点的运动和邻近的点类似</li>
+</ul>
+
+<blockquote>
+  <p>好像这么多假设有些不靠谱，但是其实光流的输入图像一般时间间隔极小，这使得这么短的时间内，位移，光照强度等都变化极小。这样的假设其实是可以接受的。</p>
+</blockquote>
+
+<h2 id="光流的原理">光流的原理</h2>
+<p>上述假设中的核心是第二条，灰度不变假设。</p>
+
+<script type="math/tex; mode=display">I(x,y,t) = I(x+dx, y+dy, t+dt)</script>
+
+<p>将上式右项进行泰勒展开，可以得到</p>
+
+<script type="math/tex; mode=display">I(x+dx, y+dy, t+dt) \approx I(x,y,t) + \frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt</script>
+
+<p>由于我们假设灰度不变，所以即</p>
+
+<script type="math/tex; mode=display">\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt \approx 0</script>
+
+<p>上式同时除以$dt$得：</p>
+
+<script type="math/tex; mode=display">\frac{\partial I}{\partial x}\frac{dx}{dt} + \frac{\partial I}{\partial y}\frac{dy}{dt} = - \frac{\partial I}{\partial t}</script>
+
+<ul>
+  <li>上式中$\frac{dx}{dt}$代表的是像素在ｘ轴上的运动速度，$\frac{dy}{dt}$代表的是像素在ｙ轴上的运动速度，此处我们将其分别记为$u,v$。</li>
+  <li>上式中$\frac{\partial I}{\partial x}$代表的是像素在x方向上的梯度，$\frac{\partial I}{\partial y}$代表的是像素在y方向上的梯度，我们将其记为$I_x,I_y$</li>
+</ul>
+
+<p>上式可写成如下形式</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{bmatrix} I_x & I_y \end{bmatrix} \begin{bmatrix} u \\ v \end{bmatrix} = -I_t %]]></script>
+
+<ul>
+  <li>其中$I_x,I_y$我们可以通过简单的求梯度卷积操作计算得到</li>
+  <li>$ I_t $可以通过图像序列得到</li>
+</ul>
+
+<blockquote>
+  <p>由此我们可以计算出$(u,v)$，一般一幅图像中如果我们选取n个点(一般这n个点比较靠近，因为图像中不同区域中的点运动尺寸很可能不一致)进行光流跟踪，就会有n个方程。多个方程求解两个变量，我们可以<strong>迭代</strong>求得一个最优解。</p>
+</blockquote>
+
+<h2 id="lk光流">LK光流</h2>
+<p>LK光流指的是通过建立一个<strong>观察窗口</strong>，假设窗口内的像素点的位移是相同的。由此可以建立一个超定方程。使用最小二乘法进行求解。</p>
+
+<h2 id="金字塔辅助方法">金字塔辅助方法</h2>
+<p>问题：上面提到光流的第一条假设是前后两帧中的点位移相差不大。这是因为位移较大时，泰勒展开近似就会不成立了。</p>
+
+<p>解决方法：使用图像金字塔建立多尺度的图像空间，这样本来较大的位移在新的层级比较高的尺度空间上会变小。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 视觉SLAM十四讲</li>
+  <li>[2] https://xmfbit.github.io/2017/05/03/cs131-opticalflow/</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=光流算法简述&url=http://localhost:4000/optical-flow/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/optical-flow/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/optical-flow/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
+          
+        
+          
+            <a href="/matrix-singular-value/" class="recent_item" style="background-image: url( /assets/img/minion7.jpg )"><span>矩阵的奇异值分解(SVD)</span></a>
+          
+        
+          
+            <a href="/matrix-eigenvalue/" class="recent_item" style="background-image: url( /assets/img/minion6.jpg )"><span>矩阵的特征值分解</span></a>
+          
+        
+          
+            <a href="/optical-flow/" class="recent_item" style="background-image: url( /assets/img/minion5.jpg )"><span>光流算法简述</span></a>
+          
+        
+          
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)</span></a>
+          
+        
+          
+            <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

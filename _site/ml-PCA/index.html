@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>主成分分析(PCA)算法解析 - line - 千里之行</title>
+	<title>主成分分析(PCA) - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,11 +51,11 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/minion4.jpg alt="主成分分析(PCA)算法解析">
+        <img src=/assets/img/minion4.jpg alt="主成分分析(PCA)">
       </div>
       <div class="post_description">
         <p class="post_meta">2018, Dec 20</p>
-        <h1 class="post_title">主成分分析(PCA)算法解析</h1>
+        <h1 class="post_title">主成分分析(PCA)</h1>
       </div>
     </header> <!-- End Header -->
 
@@ -121,12 +121,16 @@
 
 <p>上式中<code class="highlighter-rouge">*</code>是共轭转置运算符。不过由于一般B中包含的都是实数，所以在大部分情况下这个操作相当于一个转置运算符。</p>
 
-<h2 id="25-求得上一步中协方差矩阵的特征值与特征向量">2.5 求得上一步中协方差矩阵的特征值与特征向量</h2>
+<h2 id="25-由特征值分解求得上一步中协方差矩阵的特征值与特征向量">2.5 由特征值分解求得上一步中协方差矩阵的特征值与特征向量</h2>
 <p>首先说明一下，特征值与特征向量还有矩阵之间的关系。</p>
+
+<blockquote>
+  <p>特征向量是<strong>矩阵空间的基向量</strong>，长度为1，特征向量之间互相正交，特征值是矩阵在对应特征向量上的投影。将矩阵理解成一种变换，则每个特征向量就是这个变换的一个方向，对应的特征值就是在这个方向上的变换速度。</p>
+</blockquote>
 
 <p>一般对于一个矩阵C(维度为<code class="highlighter-rouge">n*n</code>)，会存在n个特征向量(每个维度都是n)，与n个特征值，每个特征值对应一个特征向量。它们之间的关系如下：</p>
 
-<script type="math/tex; mode=display">\mathbf{V^{-1}} \mathbf{C} \mathbf{V} = \mathbf{D}</script>
+<script type="math/tex; mode=display">\mathbf{V^{-1}} \mathbf{C} \mathbf{V} = \mathbf{D} 　也可以写成　 \mathbf{C} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}}</script>
 
 <p>其中，</p>
 <ul>
@@ -136,7 +140,7 @@
 </ul>
 
 <blockquote>
-  <p>到了这一步其实就已经大功告成了，我们下面可以做的就是根据特征值的大小保留前p个特征向量，作为新的维度基础。实现将n维度降维到p维度。</p>
+  <p><strong>特征值分解</strong>(变换矩阵必须是方阵)就是从矩阵C中分解出V与D，我们下面可以做的就是根据特征值的大小保留前p个特征向量，作为新的维度基础。实现将n维度降维到p维度。</p>
 </blockquote>
 
 <h1 id="3-opencv中的cvpca类的使用">3. opencv中的<code class="highlighter-rouge">cv::PCA</code>类的使用</h1>
@@ -156,7 +160,7 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=主成分分析(PCA)算法解析&url=http://localhost:4000/ml-PCA/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=主成分分析(PCA)&url=http://localhost:4000/ml-PCA/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
           <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ml-PCA/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
           <a href="https://plus.google.com/share?url=http://localhost:4000/ml-PCA/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
@@ -201,27 +205,27 @@
       <div class="recent_list">
         
           
-            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)算法解析</span></a>
+            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
+          
+        
+          
+            <a href="/matrix-singular-value/" class="recent_item" style="background-image: url( /assets/img/minion7.jpg )"><span>矩阵的奇异值分解(SVD)</span></a>
+          
+        
+          
+            <a href="/matrix-eigenvalue/" class="recent_item" style="background-image: url( /assets/img/minion6.jpg )"><span>矩阵的特征值分解</span></a>
+          
+        
+          
+            <a href="/optical-flow/" class="recent_item" style="background-image: url( /assets/img/minion5.jpg )"><span>光流算法简述</span></a>
+          
+        
+          
+            <a href="/ml-PCA/" class="recent_item" style="background-image: url( /assets/img/minion4.jpg )"><span>主成分分析(PCA)</span></a>
           
         
           
             <a href="/linux-file-permission/" class="recent_item" style="background-image: url( /assets/img/minion3.jpg )"><span>Linux系统下文件权限问题解析</span></a>
-          
-        
-          
-            <a href="/disk-partition/" class="recent_item" style="background-image: url( /assets/img/minion2.jpg )"><span>磁盘分区问题解析</span></a>
-          
-        
-          
-            <a href="/corner-detect-harris/" class="recent_item" style="background-image: url( /assets/img/minion1.jpg )"><span>图像特征之Harris角点检测</span></a>
-          
-        
-          
-            <a href="/cpp-namespace-use/" class="recent_item" style="background-image: url( /assets/img/cute8.jpg )"><span>c++中关于命名空间中成员的使用</span></a>
-          
-        
-          
-            <a href="/cpp-exception/" class="recent_item" style="background-image: url( /assets/img/cute7.jpg )"><span>c++中的异常处理</span></a>
           
         
       </div>
@@ -262,7 +266,7 @@
   
 </ul>
     <div class="copyright">
-      <p>&copy; 2018. Design by line</p>
+      <p>&copy; 2019. Design by line</p>
     </div>
   </div>
 </footer> <!-- End Section Footer -->
