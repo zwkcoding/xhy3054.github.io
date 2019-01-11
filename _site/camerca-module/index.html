@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>相机成像的几何描述 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/cartoon6.jpg alt="相机成像的几何描述">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jan 10</p>
+        <h1 class="post_title">相机成像的几何描述</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>相机成像，就是指通过摄像机将真实的三维空间中的点映射到成像平面（2维）上。这个过程可以通过一个几何模型来表示，本文使用最简单的针孔成像模型进行讲解。</p>
+
+<h1 id="针孔相机模型">针孔相机模型</h1>
+<p>如下图所示，是针孔相机的成像模型。</p>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/camera_needle.jpg" />
+</div>
+<p>其中，O为相机的光心，也是针孔模型的针孔。现实世界的空间点P，在经过小孔O投影之后，落在了物理成像平面<code class="highlighter-rouge">O'-x'-y'</code>上，成像点是 P’ ，假设P的相机坐标系坐标是$[X,Y,Z]^T$，P’　的相机坐标系坐标为$[X’,Y’,Z’]^T$，并且假设物理成像平面到小孔的距离为f(焦距)。则这会构成如下相似三角形</p>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/trang.jpg" />
+</div>
+<p>那么根据三角形相似的关系有：</p>
+
+<script type="math/tex; mode=display">\frac{Z}{f} = - \frac{X}{X'} = - \frac{Y}{Y'}</script>
+
+<p>其中负号是因为成的像是<strong>倒</strong>的，所以坐标系数会相反，不过一般为了简化模型，我们统一将成像平面对称到相机的前方，使得成像平面与三维空间点一起放在摄像机坐标系的同一侧，这叫做<strong>虚像</strong>。这样，我们可以去掉上式中的负号，如下：</p>
+
+<script type="math/tex; mode=display">\frac{Z}{f} = \frac{X}{X'} = \frac{Y}{Y'}</script>
+
+<blockquote>
+  <p>此处之所以可以随意的将成像平面挪到前方，是因为我们拍照相机输出的照片都是正常的，并不是倒像，这是因为相机自身的软件会帮助我们翻转这张图片。虽然原理上小孔成像是倒的，但是实际应用中我们在理解照片与实际场景的成像时应该是将成像平面放到前面的。</p>
+</blockquote>
+
+<h1 id="相机几何坐标转换">相机几何坐标转换</h1>
+<p>如上的针孔模型，一个空间点在投影到2d的像素平面上时会经历如下三步：</p>
+<ol>
+  <li>空间点从世界坐标系转换到相机坐标系;</li>
+  <li>由空间点的相机坐标系的坐标得到成像平面上投影点的坐标;</li>
+  <li>最后由成像平面投影点的坐标得到像素平面上的像素坐标。</li>
+</ol>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/coor1.png" />
+</div>
+
+<h2 id="从世界坐标系到相机坐标系">从世界坐标系到相机坐标系</h2>
+<p>这个转换很容易完成，是一种刚体运动，可以用平移、旋转来描述</p>
+<ul>
+  <li>第一步是平移操作，平移操作变换是将光心位置移动到坐标原点的那个向量。</li>
+  <li>第二步是旋转操作，旋转矩阵是将相机角度旋转到朝向ｚ轴的那个矩阵。</li>
+</ul>
+
+<script type="math/tex; mode=display">P_c=R(P_w - C)</script>
+
+<p>上式中，R是旋转矩阵，C是一个平移矩阵，式中将其写为了负的形式，整个矩阵形式如下图</p>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/matrix1.png" />
+</div>
+
+<blockquote>
+  <p>此处的旋转与平移信息相对于相机的一些内存参数而言属于外部参数，在讨论相机外部参数时，往往会将上式写成如下形式，使用R与T的联合矩阵(4*4)来表示<strong>相机外参</strong></p>
+</blockquote>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/matrix2.png" />
+</div>
+
+<h2 id="由空间点的相机坐标系的坐标得到成像平面上投影点的坐标">由空间点的相机坐标系的坐标得到成像平面上投影点的坐标</h2>
+<p>这部分变换其实前面已经讲过了，成像平面与真实物体还有相机光心的位置大概如下所示（下图中我们使用新的坐标命名参数）：</p>
+<div style="text-align: center">
+<img src="/assets/img/camera_needle/camera1.png" />
+</div>
+<p>其中相机坐标系坐标<code class="highlighter-rouge">(X,Y,Z)</code>到投影平面上的齐次坐标<code class="highlighter-rouge">(x,y,1)</code>可以表示如下：</p>
+
+<h2 id="转换为像素坐标">转换为像素坐标</h2>
+<p>由上已经知道，空间点相机坐标系坐标<code class="highlighter-rouge">(X,Y,Z)</code>到成像平面投影的坐标<code class="highlighter-rouge">(x,y)</code>变换为</p>
+
+<script type="math/tex; mode=display">x = f\frac{X}{Z}</script>
+
+<script type="math/tex; mode=display">y = f\frac{Y}{Z}</script>
+
+<p>而像素坐标系通常的定义方式是：原点o’位于图像的左上角，$\mu$轴向右与本来x轴平行，$\nu$轴向下与y轴平行。像素坐标系与成像平面之间，相差了一个缩放和一个原点的平移。我们假设像素坐标在$\mu$轴上缩放了$\alpha$倍，在$\nu$上缩放了$\beta$倍。同时，原点平移了$[c_x,c_y]^T$。所以，(x,y)与(u,v)的关系如下：</p>
+
+<script type="math/tex; mode=display">u = \alpha x + c_x</script>
+
+<script type="math/tex; mode=display">v = \beta y + c_y</script>
+
+<p>其中$\alpha$代表的含义可以理解为横轴分辨率(1m有多少像素)，$\beta$类似，接下来将上面两个式子合并，得到直接<strong>从相机坐标系坐标到像素坐标</strong>的变换如下：</p>
+
+<script type="math/tex; mode=display">u = f_x\frac{X}{Z} + c_x</script>
+
+<script type="math/tex; mode=display">v = f_y\frac{Y}{Z} + c_y</script>
+
+<p>其中，将$\alpha f$合并成$f_x$，$\beta f$合并成$f_y$。</p>
+
+<p>下面是使用矩阵表示，左边使用齐次坐标。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left( \begin{array}{ccc} u\\  v\\   1 \end{array} \right) = \frac{1}{Z} \left( \begin{array}{ccc} f_x& 0 & c_x\\  0& f_y& c_y\\   0 & 0& 1 \end{array} \right) \left( \begin{array}{ccc} X\\  Y\\   Z \end{array} \right) = \frac{1}{Z} K P_c %]]></script>
+
+<p>其中矩阵K就是相机的<strong>内参矩阵</strong>，我们通常认为，内参矩阵在相机出厂之后是固定的，不会再使用过程中发生变化。有时我们并不知道相机的内参，自己确定内参的操作叫做<strong>标定</strong>。</p>
+
+<h1 id="总结">总结</h1>
+<p>由上，我们简单归纳一下，大概可以将相机投影几何主要用两步来归纳。</p>
+<ol>
+  <li>
+    <p>从世界坐标转换为相机坐标系坐标（需要相机外参）。</p>
+  </li>
+  <li>
+    <p>从相机坐标系坐标转换为像素坐标（需要相机内参）。</p>
+  </li>
+</ol>
+
+<p>整个过程可以使用如下公式合并表示：</p>
+
+<script type="math/tex; mode=display">ZP_{uv} = K(RP_w + t)</script>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《视觉SLAM十四讲》，高翔著；</li>
+  <li>[2] http://www.cnblogs.com/gemstone/archive/2011/12/19/2293932.html</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=相机成像的几何描述&url=http://localhost:4000/camerca-module/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/camerca-module/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/camerca-module/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/homogeneous-coordinates/" class="recent_item" style="background-image: url( /assets/img/game1.jpg )"><span>理解齐次坐标</span></a>
+          
+        
+          
+            <a href="/camerca-module/" class="recent_item" style="background-image: url( /assets/img/cartoon6.jpg )"><span>相机成像的几何描述</span></a>
+          
+        
+          
+            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
+          
+        
+          
+            <a href="/matrix-singular-value/" class="recent_item" style="background-image: url( /assets/img/minion7.jpg )"><span>矩阵的奇异值分解(SVD)</span></a>
+          
+        
+          
+            <a href="/matrix-eigenvalue/" class="recent_item" style="background-image: url( /assets/img/minion6.jpg )"><span>矩阵的特征值分解</span></a>
+          
+        
+          
+            <a href="/optical-flow/" class="recent_item" style="background-image: url( /assets/img/minion5.jpg )"><span>光流算法简述</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
