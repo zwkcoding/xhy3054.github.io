@@ -10,7 +10,7 @@ tags: [linux]
 
 > 在计算机科学中，**壳层**（英语：shell）指“为用户提供用户界面”的软件，通常指的是命令行界面的解析器。一般来说，这个词是指操作系统中，提供访问内核所提供之服务的程序。——维基百科
 
-shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(**CLI-Shell**)和图形界面的shell(**GUI-Shell**)。**CLI-Shell**最典型的就是linux的bash与windows的cmd，**GUI-Shell**最常见的就是Windows Explorer。
+shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(**CLI-Shell**)和图形界面的shell(**GUI-Shell**)。**CLI-Shell**最典型的就是linux的bash与windows的cmd，**GUI-Shell**包括我们常用的windows与linux的图形用户界面软件。
 
 我会写出来的肯定是**CLI-Shell**,以我的这个Ubuntu为例，可以通过`cat /etc/shells`查看现有的shell种类：
 
@@ -35,6 +35,7 @@ shell是一种应用程序，它提供了用户交互界面，并且在这个交
 	xhy@ubuntu:~$ echo $-
 	himBH #代表是交互式shell
 ```
+---
 2. 在一个shell脚本中写入`echo $-`,然后运行这个脚本
 ```
 	xhy@ubuntu:~$ ./test.sh
@@ -52,22 +53,25 @@ shell是一种应用程序，它提供了用户交互界面，并且在这个交
 
 2. `logout`命令可以退出登录shell，不能退出登录shell，`exit`命令都可以退出
 
-说了半天，知道这些有什么用呢？额其实作用就是为下面讲的做铺垫。
+> 此处之所以介绍这些，是因为系统在启动登录与非登录shell时读取的配置文件数据是不一样的。
 
 
 ## shell启动时的脚本读取情况
 其实在Linux系统启动时（开机）以图形模式登录时是以`bash -login`模式的。随后我们打开终端的都是`bash`模式。
 
-登录shell在启动时会进行如下初始化读取操作：
+**登录shell**在启动时会进行如下初始化读取操作：
 
 > 1. 首先执行 /etc/profile
 > 2. 然后**依次**查找 ~/.bash_profile, ~/.bash_login, ~/.profile 三个文件，找到第一个存在且可读的文件来执行。
 > 3. 如果存在 ~/.bash_logout，退出时会执行这个脚本。
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/shell_init/loginshell.png"/>
+</div>
 
 > 我们知道，~/目录下的是用户配置文件（每个用户不一定相同），是可以覆盖 /etc/profile 中的全局设置的。这几个配置文件如果修改了，只有重启才会在接下来所有新开的bash终端中生效，source只会在当前终端中生效。
 
 
-非登录shell在启动时进行如下初始化操作
+**非登录shell**在启动时进行如下初始化操作
 
 > 1. 先执行 /etc/bash.bashrc
 > 2. 后执行 ~/.bashrc
