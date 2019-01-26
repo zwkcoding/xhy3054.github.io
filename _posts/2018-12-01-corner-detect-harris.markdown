@@ -70,7 +70,7 @@ $$ \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 
 <img src="{{site.baseurl}}/assets/img/harris/analyse.png"/>
 </div>
 
-上述分析过后，我们知道如何使用M矩阵的特征值来判断一个点是边缘点、平面点还是角点。不过harris是进行角点检测的方法，它提出我们可以计算一个harris角点响应值R来判断一个点是否是角点，而无需计算具体的矩阵特征值。R的计算公式如下：
+上述分析过后，我们知道如何使用M矩阵的特征值来判断一个点是边缘点、平面点还是角点。不过harris是进行角点检测的方法，它提出我们可以计算一个harris**角点响应值R**来判断一个点是否是角点，而无需计算具体的矩阵特征值。R的计算公式如下：
 
 $$ R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2 $$
 
@@ -126,7 +126,9 @@ $$ 0\le \alpha \le\frac{k}{(1+k)^2}\le0.25 $$
 ## 2.4 harris角点检测的opencv接口与自己的c++实现
 见我的[github](https://github.com/xhy3054/myopencv/tree/master/08_feature2d_module/01_harris_corner_detector)
 
-# 3. 参考资料
+# 3. 总结
+由上面的描述我们知道了什么是角点，harris角点响应值的定义等，**其实角点的定义都是相同的，只是不同的角点检测方法定义了不同的角点响应值的计算方式罢了。上述推导了最出名的harris响应值的定义公式，还有其他的角点响应值，比如Shi-Tomasi角点响应值是矩阵M较小的那个特征值。这种方法不仅充分，而且在很多情况下（比如跟踪）会比harris更加有效。**
+# 4. 参考资料
 - [1] https://docs.opencv.org/3.4.1/d4/d7d/tutorial_harris_detector.html
 - [2] https://www.cnblogs.com/ronny/p/4009425.html#4056636
 - [3] https://blog.csdn.net/lwzkiller/article/details/54633670

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>shell启动流程 - line - 千里之行</title>
+	<title>RANSAC算法的理解与使用 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,107 +51,87 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/wheel.jpg alt="shell启动流程">
+        <img src=/assets/img/game4.jpg alt="RANSAC算法的理解与使用">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Apr 26</p>
-        <h1 class="post_title">shell启动流程</h1>
+        <p class="post_meta">2019, Jan 26</p>
+        <h1 class="post_title">RANSAC算法的理解与使用</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <h2 id="什么是shell">什么是shell</h2>
+      <p><strong>随机抽样一致算法(random sample consensus, RANSAC)</strong>，其实就是采用迭代的方法从一组包含离群的被观测数据中估算出数学模型的参数。(比如通过一群点拟合一条直线等)</p>
 
-<blockquote>
-  <p>在计算机科学中，<strong>壳层</strong>（英语：shell）指“为用户提供用户界面”的软件，通常指的是命令行界面的解析器。一般来说，这个词是指操作系统中，提供访问内核所提供之服务的程序。——维基百科</p>
-</blockquote>
-
-<p>shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(<strong>CLI-Shell</strong>)和图形界面的shell(<strong>GUI-Shell</strong>)。<strong>CLI-Shell</strong>最典型的就是linux的bash与windows的cmd，<strong>GUI-Shell</strong>包括我们常用的windows与linux的图形用户界面软件。</p>
-
-<p>我会写出来的肯定是<strong>CLI-Shell</strong>,以我的这个Ubuntu为例，可以通过<code class="highlighter-rouge">cat /etc/shells</code>查看现有的shell种类：</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># /etc/shells: valid login shells
-/bin/sh
-/bin/dash
-/bin/bash
-/bin/rbash
-</code></pre></div></div>
-
-<p>在各个Linux的发行版中，默认的都是bash，所以以下讲解都是基于<strong>bash</strong>（一种CLI-Shell）。</p>
-
-<h2 id="shell的运行模式">shell的运行模式</h2>
-<h3 id="交互式shell与非交互式shell">交互式shell与非交互式shell</h3>
-
-<p>这个很简单，直接按照字面理解便可以想清楚。交互式shell就是terminal。非交互式shell就是<code class="highlighter-rouge">shell script</code>。</p>
-
-<p>检验：</p>
-
-<ol>
-  <li>命令行输入<code class="highlighter-rouge">echo $-</code>
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ echo $-
- himBH #代表是交互式shell
-</code></pre></div>    </div>
-    <hr />
-  </li>
-  <li>在一个shell脚本中写入<code class="highlighter-rouge">echo $-</code>,然后运行这个脚本
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ ./test.sh
- hB #代表是非交互式shell
-</code></pre></div>    </div>
-  </li>
-</ol>
-
-<h3 id="登录shell与非登录shell">登录shell与非登录shell</h3>
-<p>其实我们平时用到的都是非登录shell，比如在Linux桌面里<code class="highlighter-rouge">Ctrl+Alt+T</code>打开的bash终端，就是非登录的shell，包括你在这个终端里进行用户切换，比如说切换到root账户，其实还是非登录shell。那什么时候才是登录shell呢？</p>
-
-<p>很简单，判断是登录shell，还是非登录shell是通过启动bash时的命令选项决定的。<code class="highlighter-rouge">Ctrl+Alt+T</code>其实就是执行了一个<code class="highlighter-rouge">bash</code>命令，没有参数，默认是非登录shell。而登录shell在启动时执行的是<code class="highlighter-rouge">bash -login</code>。</p>
-
-<p>怎么判断是登录shell还是非登录shell呢？首先<code class="highlighter-rouge">Ctrl+Alt+T</code>打开bash终端，通过下面两个办法检验非登录shell的结果；再在bash终端里输入<code class="highlighter-rouge">bash -login</code>进入登录shell，再试一次。查看区别。</p>
-
-<ol>
+<h2 id="基本假设">基本假设</h2>
+<ul>
   <li>
-    <p>可以通过<code class="highlighter-rouge">echo $0</code>命令查看</p>
+    <p>模型假设：事先知道真实数据满足的数学模型，不知道的只是模型的具体参数；</p>
   </li>
   <li>
-    <p><code class="highlighter-rouge">logout</code>命令可以退出登录shell，不能退出登录shell，<code class="highlighter-rouge">exit</code>命令都可以退出</p>
+    <p>输入假设：输入数据中包含正确数据（即inliers，可以被假设模型描述的数据）；同时也包含异常数据（即outliers，偏离正常范围很远、不能用假设模型描述的数据）；即输入数据集中含有噪声；</p>
   </li>
+  <li>
+    <p>有解假设：给定一组(通常很小，比如直线模型两个点就够了)内群数据，存在一种解法，可以通过这组内群数据求解出最适用于这一数据模型的一组参数；</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>一般当有效数据占绝大多数，无效数据只是少量时，我们可以通过<strong>最小二乘法</strong>或类似的方法来确定模型的参数与误差；如果无效数据很多，最小二乘法可能就不适用了</p>
+</blockquote>
+
+<blockquote>
+  <p>最小二乘法通过<strong>最小化误差的平方和</strong>来寻找数据的最佳函数匹配。</p>
+</blockquote>
+
+<h2 id="算法步骤概述">算法步骤概述</h2>
+<ol>
+  <li>在数据中随机选择几个点设定为内群；</li>
+  <li>计算适合此内群的一组模型参数；</li>
+  <li>把刚才没有选到的点带入刚才建立的模型中，计算误差的平方和（或者统计输入内群点的数量）；</li>
+  <li>重复以上1、2、3步骤多次；</li>
+  <li>选取其中使误差平方和最小的（或者内群点数量最多的）的那组模型参数作为我们要求的解；</li>
 </ol>
 
-<blockquote>
-  <p>此处之所以介绍这些，是因为系统在启动登录与非登录shell时读取的配置文件数据是不一样的。</p>
-</blockquote>
+<h2 id="参数选择">参数选择</h2>
+<p>上述算法步骤中最重要的参数就是迭代的次数k了，这个参数的确定可以通过如下推导理解一下：</p>
 
-<h2 id="shell启动时的脚本读取情况">shell启动时的脚本读取情况</h2>
-<p>其实在Linux系统启动时（开机）以图形模式登录时是以<code class="highlighter-rouge">bash -login</code>模式的。随后我们打开终端的都是<code class="highlighter-rouge">bash</code>模式。</p>
-
-<p><strong>登录shell</strong>在启动时会进行如下初始化读取操作：</p>
-
-<blockquote>
-  <ol>
-    <li>首先执行 /etc/profile</li>
-    <li>然后<strong>依次</strong>查找 ~/.bash_profile, ~/.bash_login, ~/.profile 三个文件，找到第一个存在且可读的文件来执行。</li>
-    <li>如果存在 ~/.bash_logout，退出时会执行这个脚本。</li>
-  </ol>
-</blockquote>
-<div style="text-align: center">
-<img src="/assets/img/shell_init/loginshell.png" />
-</div>
+<ul>
+  <li>
+    <p>假设任取一个点是内群点的概率为w，则有<code class="highlighter-rouge">w = 数据中内群点的数量/数据中点的总数</code>；</p>
+  </li>
+  <li>
+    <p>则任取n个点都是内群点的概率为$w^n$(此处假设了数据中点的总数远大于n)；</p>
+  </li>
+  <li>
+    <p>所以我们所选择的n个点至少有一个不是内群点的概率为$1 - w^n$；</p>
+  </li>
+  <li>
+    <p>所以我们连续重复k次都不能有一次全是内群点的概率$p_e$为$(1 - w^n)^k$;</p>
+  </li>
+</ul>
 
 <blockquote>
-  <p>我们知道，~/目录下的是用户配置文件（每个用户不一定相同），是可以覆盖 /etc/profile 中的全局设置的。这几个配置文件如果修改了，只有重启才会在接下来所有新开的bash终端中生效，source只会在当前终端中生效。</p>
+  <p>由上，我们发现当w保持不变时，我们要想让$p_e$尽量小，则n越大，k就需要越大。</p>
 </blockquote>
 
-<p><strong>非登录shell</strong>在启动时进行如下初始化操作</p>
-
-<blockquote>
-  <ol>
-    <li>先执行 /etc/bash.bashrc</li>
-    <li>后执行 ~/.bashrc</li>
-  </ol>
-</blockquote>
+<h2 id="在关键点匹配对筛选中的应用">在关键点匹配对筛选中的应用</h2>
+<ul>
+  <li>模型假设：模型是单应矩阵表示的对极几何模型；</li>
+  <li>输入假设：输入的数据中包含正确的匹配(inliers)与误匹配(outliers);</li>
+  <li>有解假设：可以通过四对匹配特征点求解处自由度为8的单应矩阵；</li>
+</ul>
 
 <blockquote>
-  <p>这个配置文件如果修改了，对接下来新开的终端都会有效果，source一下对当前终端也生效。</p>
+  <p>具体代码效果可以见<a href="">我的github</a>，不过我直接调用了opencv自带的ransac的实现，并没有自己手写。</p>
 </blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] https://blog.csdn.net/laobai1015/article/details/51682596</li>
+  <li>[2] https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95</li>
+  <li>[3] https://docs.opencv.org/3.4.1/d9/d0c/group__calib3d.html#gae420abc34eaa03d0c6a67359609d8429</li>
+</ul>
+
 
     </div>
     
@@ -159,14 +139,16 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=shell启动流程&url=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/shell-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=RANSAC算法的理解与使用&url=http://localhost:4000/ransac/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ransac/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/ransac/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#linux" class="tag">linux</a>
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+          <a href="/tags#机器学习" class="tag">机器学习</a>
           
         </div>
       </footer>
