@@ -60,7 +60,7 @@
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>对极几何是<strong>两幅视图</strong>之间内在的射影几何。它独立于景物结构，只依赖于摄像机的内参外参。</p>
+      <p>对极几何是<strong>双视图</strong>之间内在的射影几何。它独立于景物结构，只依赖于摄像机的内参外参。</p>
 
 <p>而基本矩阵是对对极几何的代数表示。</p>
 
@@ -82,74 +82,91 @@
 </blockquote>
 
 <h2 id="基本矩阵f">基本矩阵F</h2>
-<p>由上面的讲述，我们知道，对于一幅图像上的一点x，映射在另一幅图像上是一条与之对应的对极线I’。</p>
+<p>由上面的讲述，我们知道，在深度未知的情况下，对于一幅图像上的一点x，映射在另一幅图像上是一条与之对应的对极线I’。</p>
 
 <script type="math/tex; mode=display">x \rightarrowtail I'</script>
 
-<p>剧本矩阵F表示的正是这个从点到直线的射影映射。</p>
-
-<h3 id="几何推导">几何推导</h3>
-<p>如下图所示，我们假设具有如下图所示的対极约束关系。</p>
-<div style="text-align: center">
-<img src="/assets/img/epipolar_geometry/jihe.png" />
-</div>
-<ul>
-  <li>其中不通过任何两个摄像机中心的平面$\pi$上的一点X经过投影后在两个摄像机成像平面上的投影点分别是x与x’。</li>
-  <li>存在一个2D单应$H_{\pi}$把每一个$x_i$（$\pi$平面上的点在第一个相机平面上的投影点）映射到$x_i’$$\pi$平面上的点在第二个相机平面上的投影点）</li>
-  <li>给定点x’，通过x’和对极点e’的对极线I’可以记为$I’ = e’ \times x’ = [e’]<em>{\times} x’$(后面那种写法是一种叉乘的一种形式)，又因为$x’ = H</em>{\pi} x$，所以最终得到下式：</li>
-</ul>
-
-<script type="math/tex; mode=display">I' = [e']_{\times} H_{\pi} x = Fx</script>
-
-<p>其中定义了基本矩阵$ F = [e’]<em>{\times}H</em>{\pi} $</p>
+<p><strong>基本矩阵F表示的正是这个从一个点到一条直线的射影映射</strong>。</p>
 
 <blockquote>
   <p>由上，我们发现基本矩阵F实现的是从二维（二维点）到一维（一条线上的点）的转换，因此F的秩只能是2。</p>
 </blockquote>
 
-<h3 id="代数推导">代数推导</h3>
-<ul>
-  <li>首先对于两个视图的射影矩阵P、P’，第一个视图中通过x和光心O的射线可以由方程$PX=x$解出：</li>
-</ul>
+<h3 id="推导出基础矩阵与本质矩阵">推导出基础矩阵与本质矩阵</h3>
+<p>由<a href="https://xhy3054.github.io/camerca-module/">相机成像的几何描述</a>我们可以理解如下的公式(世界坐标到像素坐标的转换)：</p>
 
-<script type="math/tex; mode=display">X(\lambda) = P^{+}x + \lambda O</script>
+<script type="math/tex; mode=display">Z_1P_{uv1} = K_1P_w</script>
 
-<p>其中，$P^{+}$是P的伪逆，即$P^{+}P = I$，O为相机的中心，即P的零矢量并且定义为$PO = 0$</p>
+<script type="math/tex; mode=display">Z_2P_{uv2} = K_2(RP_w + t)</script>
 
-<ul>
-  <li>额没看懂，以后补，最后得出基本矩阵F</li>
-</ul>
-
-<script type="math/tex; mode=display">F = [e']_{\times} (P' P_{+})</script>
+<p>其中K是相机内参，R与t是第二个相机在第一个相机的相机坐标系下的外参，$P_w$是此空间点在第一个相机的相机坐标系下的坐标。Z是空间点到相机光心的距离(也是相机坐标系下的z轴坐标)。$P_{uv1}$与$P_{uv2}$是空间点$P_w$在两个相机平面上的投影点。</p>
 
 <ul>
-  <li>将世界坐标系定在第一个视图，最终得到：</li>
+  <li>首先做出如下定义：</li>
 </ul>
 
-<script type="math/tex; mode=display">F = [e']_{\times} (P' P_{+}) = K^{'-T}RK^T[e]_{\times}</script>
+<script type="math/tex; mode=display">x_1 = K_1^{-1}p_{uv1}</script>
 
-<h3 id="性质">性质</h3>
-<p>基本矩阵是一个秩为2的$3\times3$齐次线性矩阵</p>
+<script type="math/tex; mode=display">x_2 = K_2^{-1}p_{uv2}</script>
 
 <ul>
-  <li>对应点：　<script type="math/tex">x'Fx = 0</script></li>
-  <li>对应线：　　
-    <ul>
-      <li>$I’ = Fx$对应于x的对极线</li>
-      <li>$I = F^T x$对应于x’的对极线</li>
-    </ul>
-  </li>
-  <li>对极点：
-    <ul>
-      <li>$Fe = 0$</li>
-      <li>$F^Te = 0$</li>
-    </ul>
-  </li>
+  <li>带入如上定义可得：</li>
 </ul>
+
+<script type="math/tex; mode=display">Z_2 x_2 = Z_1 Rx_1 + t</script>
+
+<ul>
+  <li>上式两边同时左乘<code class="highlighter-rouge">t^</code>，也就是两侧同时与t做外积：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 t^{\land} x_2 = Z_1 t^{\land} R x_1</script>
+
+<ul>
+  <li>两侧同时左乘$x_{2}^T$：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 x_{2}^T t^{\land} x_2 = Z_1 x_{2}^T t^{\land} R x_1</script>
+
+<ul>
+  <li>上式中由于等式左侧 $t^{\land} x_2$ 是一个与t、$x_2$都垂直的向量，再和$x_2$做内积将得到0，因此上式子其实可以写成如下形式：</li>
+</ul>
+
+<script type="math/tex; mode=display">x_{2}^T t^{\land} R x_1 = 0</script>
+
+<ul>
+  <li>上式就是大名鼎鼎的<strong>対极约束</strong>，将 $x_1$ 与 $x_2$ 换下，重新带入 $p_{uv1}$ 与 $p_{uv2}$ 可得：</li>
+</ul>
+
+<script type="math/tex; mode=display">p_{uv2}^T K_2^{-T} t^{\land} R K_1^{-1} p_{uv1} = 0</script>
+
+<ul>
+  <li>其中，中间项就是<strong>基础矩阵</strong>，满足如下：</li>
+</ul>
+
+<script type="math/tex; mode=display">p_{uv2}^T F p_{uv1} = 0</script>
+
+<script type="math/tex; mode=display">F = K_2^{-T} t^{\land} R K_1^{-1}</script>
+
+<blockquote>
+  <p>此处注意，当点$p_{uv1}$与基础矩阵F确定时，上式演变成一个直线方程，更好的诠释了基础矩阵的本质是<strong>从一个点到一条直线的射影映射的代数表示。</strong></p>
+</blockquote>
+
+<ul>
+  <li><strong>本质矩阵</strong>是基础矩阵中只与外参相关的部分，即去掉相机内参，可以得到：</li>
+</ul>
+
+<script type="math/tex; mode=display">E = t^{\land} R</script>
+
+<script type="math/tex; mode=display">F = K_2^{-T} E K_1^{-1}</script>
+
+<blockquote>
+  <p>一般在slam中，可以通过本质矩阵E的奇异值分解得到相机相对于前一时刻的位姿变换。</p>
+</blockquote>
 
 <h1 id="参考资料">参考资料</h1>
 <ul>
   <li>[1] 《Multiple View Geometry in Computer Vision (Second Edition)》</li>
+  <li>[2] 《视觉slam十四讲》</li>
 </ul>
 
 
@@ -204,6 +221,10 @@
       <div class="recent_list">
         
           
+            <a href="/Homography-matrix/" class="recent_item" style="background-image: url( /assets/img/game5.jpg )"><span>射影几何中的单应变换</span></a>
+          
+        
+          
             <a href="/ransac/" class="recent_item" style="background-image: url( /assets/img/game4.jpg )"><span>RANSAC算法的理解与使用</span></a>
           
         
@@ -221,10 +242,6 @@
         
           
             <a href="/camerca-module/" class="recent_item" style="background-image: url( /assets/img/cartoon6.jpg )"><span>相机成像的几何描述</span></a>
-          
-        
-          
-            <a href="/ml-LDA/" class="recent_item" style="background-image: url( /assets/img/minion8.jpg )"><span>线性判别分析(LDA)</span></a>
           
         
       </div>

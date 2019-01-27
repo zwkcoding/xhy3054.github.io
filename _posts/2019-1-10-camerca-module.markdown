@@ -57,7 +57,7 @@ $$ P_c=R(P_w - C) $$
 <div style="text-align: center">
 <img src="{{site.baseurl}}/assets/img/camera_needle/camera1.png"/>
 </div>
-其中相机坐标系坐标`(X,Y,Z)`到投影平面上的齐次坐标`(x,y,1)`可以表示如下：
+其中相机坐标系坐标`(X,Y,Z)`到投影平面上的齐次坐标`(x,y,1)`可以表示如上。
 
 ## 转换为像素坐标
 由上已经知道，空间点相机坐标系坐标`(X,Y,Z)`到成像平面投影的坐标`(x,y)`变换为
