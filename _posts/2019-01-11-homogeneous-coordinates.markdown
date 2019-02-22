@@ -50,13 +50,13 @@ $$ Ax + By + Dw = 0 $$
 
 # 齐次坐标更易用于仿射变换
 一个二维点的仿射变换可以用一个矩阵乘法(线性变换)与一个矩阵加法(平移变换)的叠加来表示：
-- 矩阵乘法可以表示线性变换，线性变换可以表示旋转变换或者缩放变换
+- 矩阵乘法可以表示线性变换，线性变换可以表示旋转变换或者缩放变换（不局限于表示这两种）
 
 $$ \left[ \begin{array}{ccc} x'\\  y' \end{array} \right] = \left[ \begin{array}{ccc} cos(\theta) & -sin(\theta) \\  sin(\theta) & cos(\theta) \end{array} \right] \left[ \begin{array}{ccc} x\\  y \end{array} \right]$$
 
 $$ \left[ \begin{array}{ccc} x'\\  y' \end{array} \right] = \left[ \begin{array}{ccc} S_x & 0 \\  0 & S_y \end{array} \right] \left[ \begin{array}{ccc} x\\  y \end{array} \right] $$
 
-- 矩阵加法可以表示平移变换
+- 矩阵加法可以表示平移变换（不局限于表示平移）
 
 $$ \left[ \begin{array}{ccc} x'\\  y' \end{array} \right] = \left[ \begin{array}{ccc} x'\\  y' \end{array} \right] + \left[ \begin{array}{ccc} t_x\\  t_y \end{array} \right] $$
 

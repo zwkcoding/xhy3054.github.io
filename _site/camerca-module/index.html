@@ -150,7 +150,7 @@
 
 <p>其中矩阵K就是相机的<strong>内参矩阵</strong>，我们通常认为，内参矩阵在相机出厂之后是固定的，不会再使用过程中发生变化。有时我们并不知道相机的内参，自己确定内参的操作叫做<strong>标定</strong>。</p>
 
-<h1 id="总结">总结</h1>
+<h1 id="总结1">总结1</h1>
 <p>由上，我们简单归纳一下，大概可以将相机投影几何主要用两步来归纳。</p>
 <ol>
   <li>
@@ -164,6 +164,31 @@
 <p>整个过程可以使用如下公式合并表示：</p>
 
 <script type="math/tex; mode=display">ZP_{uv} = K(RP_w + t)</script>
+
+<h1 id="总结2">总结2</h1>
+<p>换一种方式更详细地进行总结(此处有简化细节)：</p>
+<ol>
+  <li>
+    <p>首先，世界坐标系下有一个固定的点P，<strong>世界坐标</strong>是 $P_w$</p>
+  </li>
+  <li>
+    <p>获得点P的<strong>相机坐标系坐标</strong>，可以利用相机外参R与t得到 $ P_c = RP_w + t $</p>
+  </li>
+  <li>
+    <p>在2中获得的 $P_c$ 仍然是三维的 (X,Y,Z) ，将其投影到归一化平面 $Z=1$ 上，得到<strong>归一化相机坐标</strong>：$ P_C = [X/Z, Y/Z, 1]^T $</p>
+  </li>
+  <li>
+    <p>最后一步，利用内参K，将归一化相机坐标转换成<strong>像素坐标</strong>： $ P_{uv} = KP_C $</p>
+  </li>
+</ol>
+
+<p>上述<strong>整合</strong>起来也得到：</p>
+
+<script type="math/tex; mode=display">ZP_{uv} = K(RP_w + t)</script>
+
+<blockquote>
+  <p>参考上面详细的成像原理，其实总结2中的第三步与第四步是可以没有先后关系的。因为都是线性的运算，所以谁先谁后都不影响最后结果。</p>
+</blockquote>
 
 <h1 id="参考资料">参考资料</h1>
 <ul>
@@ -223,6 +248,10 @@
       <div class="recent_list">
         
           
+            <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
+          
+        
+          
             <a href="/Homography-matrix/" class="recent_item" style="background-image: url( /assets/img/game5.jpg )"><span>射影几何中的单应变换</span></a>
           
         
@@ -240,10 +269,6 @@
         
           
             <a href="/homogeneous-coordinates/" class="recent_item" style="background-image: url( /assets/img/game1.jpg )"><span>理解齐次坐标</span></a>
-          
-        
-          
-            <a href="/camerca-module/" class="recent_item" style="background-image: url( /assets/img/cartoon6.jpg )"><span>相机成像的几何描述</span></a>
           
         
       </div>

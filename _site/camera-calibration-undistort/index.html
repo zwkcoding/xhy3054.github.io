@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>透镜畸变与相机标定 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword1.jpg alt="透镜畸变与相机标定">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Feb 19</p>
+        <h1 class="post_title">透镜畸变与相机标定</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>在<a href="https://xhy3054.github.io/camerca-module/">相机成像的几何描述</a>这篇文章中我们讨论了如何将一个点从世界坐标映射到像素坐标，不过那是比较理想的成像情况。现实世界中的相机在成像时还会受到透镜畸变的影响。</p>
+
+<h1 id="透镜畸变">透镜畸变</h1>
+<p>现代相机为了获得更好的成像效果，相机里一般都加入了透镜。而透镜的加入对成像过程中光线的传播会产生新的影响，进而出现畸变，一般有两种主要的畸变（其实也还有其他的种类的畸变，但是不如这两种明显）：</p>
+
+<div style="text-align: center">
+<img src="/assets/img/distort_calibration/distort0.jpg" />
+</div>
+
+<h2 id="径向畸变">径向畸变</h2>
+<ul>
+  <li><strong>径向畸变</strong>：透镜自身的形状对光线传播会有影响；
+    <ul>
+      <li>桶形畸变：图像放大率随着与光轴之间的距离增加而减小</li>
+      <li>枕形畸变：图像放大率随着与光轴之间的距离增大而增大</li>
+    </ul>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/distort_calibration/distort.png" width="800" height="300" />
+</div>
+
+<ul>
+  <li>一般径向畸变对于二维平面上一个坐标(x,y)（如上图畸变最小的点为坐标原点，一般在图像中心，r是点到原点的距离）的影响可以使用如下公式表述：</li>
+</ul>
+
+<script type="math/tex; mode=display">x_{distorted} = x( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6)　 \\ y_{distorted} = y( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6)</script>
+
+<blockquote>
+  <p>无论是桶形畸变还是枕形畸变，由于他们都是随着与中心之间的距离增加而增加，因此可以使用一个<strong>多项式函数</strong>来描述畸变前后的像素坐标变化。这个公式中，对于畸变较小的图像中心区域，畸变主要是$k_1$在起作用；而对于畸变较大的边缘区域，主要是$k_2$在起作用。一般的普通摄像头用这两个系数就已经可以很好地纠正径向畸变了。但是对于一部分畸变很大的摄像头，比如说鱼眼镜头等，还需要加入$k_3$畸变项才能比较好的表述畸变情况。</p>
+</blockquote>
+
+<h2 id="切向畸变">切向畸变</h2>
+<ul>
+  <li><strong>切向畸变</strong>：在机械组装过程中，透镜和成像平面不可能完全平行，这也会使得光线穿过透镜投影到成像面时的位置出现变化；</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/distort_calibration/distort1.png" />
+</div>
+
+<ul>
+  <li>一般切向畸变对于二维平面上的坐标(x,y)的影响可以使用如下公式进行表述：</li>
+</ul>
+
+<script type="math/tex; mode=display">x_{distorted} = x + [ 2p_1xy + p_2(r^2+2x^2)]  \\ y_{distorted} = y + [ p_1(r^2+ 2y^2)+ 2p_2xy]</script>
+
+<h2 id="加入畸变的成像理想情况下">加入畸变的成像(理想情况下)</h2>
+<ul>
+  <li>
+    <p>首先，世界坐标系下有一个固定的点P，<strong>世界坐标</strong>是 $P_w$</p>
+  </li>
+  <li>
+    <p>获得点P的<strong>相机坐标系坐标</strong>，可以利用相机外参R与t得到 $ P_c = RP_w + t $</p>
+  </li>
+  <li>
+    <p>在2中获得的 $P_c$ 仍然是三维的 (X,Y,Z) ，将其投影到归一化平面 $Z=1$ 上，得到<strong>归一化相机坐标</strong>：$ P_C = [X/Z, Y/Z, 1]^T $</p>
+  </li>
+  <li>
+    <p>此处加入<strong>畸变</strong>因素，畸变公式如下(其中，$x=X/Z, y=Y/Z$)：</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">x_{distorted} = x( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + [ 2p_1xy + p_2(r^2+2x^2)]  \\ y_{distorted} = y( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + [ p_1(r^2+ 2y^2)+ 2p_2xy]</script>
+
+<ul>
+  <li>最后一步，利用内参K，将归一化相机坐标转换成<strong>像素坐标</strong>： $ P_{uv} = KP_{distorted} $</li>
+</ul>
+
+<script type="math/tex; mode=display">u = f_x x_{distorted} + c_x \\ v = f_y y_{distorted} + c_y</script>
+
+<blockquote>
+  <p>此处之所以将畸变放在内参前面作用，是因为上面已经说过了这个畸变模型假设的原点是图像中心，也就是未经过内参作用时符合。</p>
+</blockquote>
+
+<h1 id="相机标定">相机标定</h1>
+<p>现在，我们知道，将一个三维世界坐标点通过相机映射到像素平面上一般需要三个矩阵参数，分别是相机外参、相机内参、畸变参数。其中相机外参可以由相机的位姿固定获得。而相机内参与畸变参数一般可以通过<strong>相机标定</strong>来获取。</p>
+
+<blockquote>
+  <p>需要说明的是相机标定只是对相机物理特性的<strong>近似</strong>获取。</p>
+</blockquote>
+
+<p>对于相机的标定工作，已经有了很多的研究，主要可以分为两类：第一类是基于特定的实验条件，如形状、尺寸已知的标定物，利用一系列的数学变换与计算方法进行标定；第二类叫做自标定，不依赖于标定的参照物，仅仅利用摄像机在运动过程中周围环境的图像与图像之间的对应关系进行摄像机进行标定。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《视觉SLAM十四讲》，高翔著；</li>
+  <li>[2] https://docs.opencv.org</li>
+  <li>[3] 《学习OpenCV3》,O’REILLY著；</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=透镜畸变与相机标定&url=http://localhost:4000/camera-calibration-undistort/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/camera-calibration-undistort/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/camera-calibration-undistort/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
+          
+        
+          
+            <a href="/Homography-matrix/" class="recent_item" style="background-image: url( /assets/img/game5.jpg )"><span>射影几何中的单应变换</span></a>
+          
+        
+          
+            <a href="/ransac/" class="recent_item" style="background-image: url( /assets/img/game4.jpg )"><span>RANSAC算法的理解与使用</span></a>
+          
+        
+          
+            <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
+          
+        
+          
+            <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
+          
+        
+          
+            <a href="/homogeneous-coordinates/" class="recent_item" style="background-image: url( /assets/img/game1.jpg )"><span>理解齐次坐标</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
