@@ -3,14 +3,13 @@ layout: post
 title: Anaconda简要教程
 date: 2018-04-12 11:07:24.000000000 +09:00
 img: anaconda.jpg # Add image post (optional)
-tags: [tools, python]
+tags: [tools]
 ---
 
 
 ### what's Anaconda
 
 **Anaconda**,是用于python编程环境管理的一个工具。它让你可以为每一个项目单独的构建自己的python编程环境，因此很好的解决了不同项目之间的串扰问题。并且使得你的工作更加清晰有条理。
-
 
 
 ### install Anaconda
@@ -44,7 +43,7 @@ $ bash Anaconda2-5.1.0-Linux-x86_64.sh
 
 列出已有的环境
 ```bash
-$ conda env list 
+$ conda env list
 ```
 
 基于**python2**创建一个名为**tensorflow**的环境
@@ -60,16 +59,22 @@ $ source activate tensorflow
 列出此**python**环境下已有的包
 ```bash
 $ conda list
+#或者 
+$ pip list
 ```
 
 此**python**环境下安装**tensorflow**（其他包类似）（也可以用**pip**安装）
 ```bash
 $ conda install tensorflow 
+#也可以pip管理
+$ pip install tensorflow
 ```
 
 卸载包
 ```bash
 $ conda remove tensorflow
+#如果pip管理
+$ pip uninstall tensorflow
 ```
 
 离开**tensorflow**环境（source可用conda替换）

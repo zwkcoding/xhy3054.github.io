@@ -54,7 +54,7 @@
         <img src=/assets/img/anaconda.jpg alt="Anaconda简要教程">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Apr 12</p>
+        <p class="post_meta">2018, Apr 11</p>
         <h1 class="post_title">Anaconda简要教程</h1>
       </div>
     </header> <!-- End Header -->
@@ -104,7 +104,7 @@
 <h3 id="使用anaconda">使用Anaconda</h3>
 
 <p>列出已有的环境</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env </span>list 
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">env </span>list
 </code></pre></div></div>
 
 <p>基于<strong>python2</strong>创建一个名为<strong>tensorflow</strong>的环境</p>
@@ -117,14 +117,20 @@
 
 <p>列出此<strong>python</strong>环境下已有的包</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda list
+<span class="c">#或者 </span>
+<span class="nv">$ </span>pip list
 </code></pre></div></div>
 
 <p>此<strong>python</strong>环境下安装<strong>tensorflow</strong>（其他包类似）（也可以用<strong>pip</strong>安装）</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda <span class="nb">install </span>tensorflow 
+<span class="c">#也可以pip管理</span>
+<span class="nv">$ </span>pip <span class="nb">install </span>tensorflow
 </code></pre></div></div>
 
 <p>卸载包</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>conda remove tensorflow
+<span class="c">#如果pip管理</span>
+<span class="nv">$ </span>pip uninstall tensorflow
 </code></pre></div></div>
 
 <p>离开<strong>tensorflow</strong>环境（source可用conda替换）</p>
@@ -169,8 +175,6 @@
           
           <a href="/tags#tools" class="tag">tools</a>
           
-          <a href="/tags#python" class="tag">python</a>
-          
         </div>
       </footer>
     </div>
@@ -207,6 +211,10 @@
       <div class="recent_list">
         
           
+            <a href="/graph/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>图论简介</span></a>
+          
+        
+          
             <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
           
         
@@ -224,10 +232,6 @@
         
           
             <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
-          
-        
-          
-            <a href="/homogeneous-coordinates/" class="recent_item" style="background-image: url( /assets/img/game1.jpg )"><span>理解齐次坐标</span></a>
           
         
       </div>

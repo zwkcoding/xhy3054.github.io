@@ -54,7 +54,7 @@
         <img src=/assets/img/game5.jpg alt="射影几何中的单应变换">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Jan 27</p>
+        <p class="post_meta">2019, Jan 26</p>
         <h1 class="post_title">射影几何中的单应变换</h1>
       </div>
     </header> <!-- End Header -->
@@ -74,7 +74,7 @@
 <br /></li>
     </ul>
   </li>
-  <li><strong>仿射变换</strong>：具有两个旋转因子与两个缩放因子，外加两个平移因子，因此具有6个自由度（其实就是2*3矩阵每个元素都互不相关，都代表一个自由度），以前在[理解齐次坐标](https://xhy3054.github.io/homogeneous-coordinates/中讲的仿射变换严格上来说是仿射变换的子集，甚至可以简单的使用相似变换达到。仿射变换不具有保角性与保持距离比的性质，但是原本的平行线，变换后仍然是平行线；
+  <li><strong>仿射变换</strong>：具有两个旋转因子与两个缩放因子，外加两个平移因子，因此具有6个自由度（其实就是2*3矩阵每个元素都互不相关，都代表一个自由度），以前在<a href="https://xhy3054.github.io/homogeneous-coordinates/">理解齐次坐标</a>中讲的仿射变换严格上来说是仿射变换的子集，甚至可以简单的使用相似变换达到。仿射变换不具有保角性与保持距离比的性质，但是原本的平行线，变换后仍然是平行线；
     <ul>
       <li>通常可以描述为<strong>先</strong>旋转一个角度j1，<strong>然后</strong>在x方向缩放s1，y方向缩放s2，<strong>然后再</strong>反向旋转角度j，<strong>最后</strong>，再旋转一个角度j2，并平移一次；</li>
     </ul>
@@ -94,14 +94,14 @@ s \begin{bmatrix} x^{'} \\ y^{'} \\ 1 \end{bmatrix} = H \begin{bmatrix} x \\ y \
   <p>同理，在<a href="https://xhy3054.github.io/epipolar-geometry/">理解对极几何与基本矩阵</a>中我们有得出结论，本质矩阵$E = t^{\land} R$，由于平移与旋转共有6个自由度。但是由于其次坐标的的尺度等价性，<strong>本质矩阵实际上有5个自由度</strong>。</p>
 </blockquote>
 
-<h2 id="单应变换的作用">单应变换的作用</h2>
+<h1 id="单应变换的作用">单应变换的作用</h1>
 <ol>
   <li>相机位姿的估计</li>
   <li>图像的矫正</li>
   <li>全景拼接</li>
 </ol>
 
-<h3 id="使用单应变换进行相机位姿估计">使用单应变换进行相机位姿估计</h3>
+<h2 id="使用单应变换进行相机位姿估计">使用单应变换进行相机位姿估计</h2>
 <div style="text-align: center">
 <img src="/assets/img/epipolar_geometry/jihe.png" />
 </div>
@@ -125,23 +125,45 @@ s \begin{bmatrix} x^{'} \\ y^{'} \\ 1 \end{bmatrix} = H \begin{bmatrix} x \\ y \
 <p>\begin{equation}
 \begin{split}
 p_{uv2} &amp;= K(RP_w + t)/Z_2 <br />
-&amp;= K(RP_w + t \cdot -\frac{n^{T}P_w}{d})/Z_2
-&amp;= K(R + t \cdot -\frac{n^{T}}{d})P_w/Z_2
+&amp;= K(RP_w + t \cdot -\frac{n^{T}P_w}{d})/Z_2 <br />
+&amp;= K(R + t \cdot -\frac{n^{T}}{d})P_w/Z_2 <br />
 &amp;= K(R + t \cdot -\frac{n^{T}}{d}) K^{-1}p_{uv1}
 \end{split}
 \end{equation}</p>
 
-<p>如上，上述得到了第一个相机平面上的点到第二个相机平面上的点的映射变换，这部分可以使用下式表示(s是一个齐次坐标的归一系数)：</p>
+<p>如上，上述得到了第一个相机平面上的点到第二个相机平面上的点的映射变换，这部分可以使用下式表示(s是一个齐次坐标的归一系数，为了数学等式的成立)：</p>
 
-<script type="math/tex; mode=display">sp_{uv2} = Hp_{uv1}</script>
+<script type="math/tex; mode=display">sp_{uv2} = Hp_{uv1} \\ H = K(R + t \cdot -\frac{n^{T}}{d}) K^{-1}</script>
 
 <blockquote>
-  <p>我们发现这个单应矩阵H的定义与旋转、平移、还有平面的参数有关。与基础矩阵估计位姿一样，我们可以根据匹配点先计算出H，然后通过奇异值分解计算出旋转与平移。不过这个需要特定的平面上（比如棋盘）的特征点，同时单应矩阵比本质矩阵包含更多的信息，因此单应矩阵的位姿估计更鲁棒，在特征点共面与相机发生纯旋转时，使用本质矩阵的估计已经不能正常工作，但是单应矩阵可以。</p>
+  <p>我们发现这个单应矩阵H的定义与旋转、平移、还有平面的参数有关。</p>
 </blockquote>
 
-<h3 id="使用单应变换进行透视矫正">使用单应变换进行透视矫正</h3>
+<h3 id="单应约束与対极约束的区别">单应约束与対极约束的区别</h3>
+<ul>
+  <li>
+    <p><strong>対极约束</strong>：基础矩阵描述的本质是一种点到直线的映射关系，所以対极约束不能给出两幅图像上的点的一一对应关系，只能给出点对应的必要条件。但是，対极约束与场景的结构无关，只与相机的参数有关。</p>
+  </li>
+  <li>
+    <p><strong>单应约束</strong>：单应矩阵描述的本质是点到点的映射关系，所以单应约束给出了两幅图像上的点的一一对应关系，这是一种充要的条件。但是，单应约束需要做这些投影的空间点本身在一个平面上（即深度本身满足一定要求）,否则使用单应矩阵进行的映射结果会出现错误。如下图p’点不在平面P上，所以使用对应的单应矩阵做投影会得到错误的投影点$x_2$，正确的应该是${x_2}^’$。</p>
+  </li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/epipolar_geometry/homography.jpg" />
+</div>
 
-<h3 id="使用单应变换进行全景拼接">使用单应变换进行全景拼接</h3>
+<ul>
+  <li>
+    <p>在只有旋转没有平移时，対极约束是恒成立的，此时不能用本质矩阵进行相机的位姿估计。而单应矩阵可以。</p>
+  </li>
+  <li>
+    <p>推导中我们使用了齐次坐标，所以单应约束也是尺度无关的，恢复出来的位姿变化也具有尺度不确定性。</p>
+  </li>
+</ul>
+
+<h2 id="使用单应变换进行透视矫正">使用单应变换进行透视矫正</h2>
+
+<h2 id="使用单应变换进行全景拼接">使用单应变换进行全景拼接</h2>
 
 <h1 id="参考资料">参考资料</h1>
 <ul>
@@ -201,6 +223,10 @@ p_{uv2} &amp;= K(RP_w + t)/Z_2 <br />
       <div class="recent_list">
         
           
+            <a href="/graph/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>图论简介</span></a>
+          
+        
+          
             <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
           
         
@@ -218,10 +244,6 @@ p_{uv2} &amp;= K(RP_w + t)/Z_2 <br />
         
           
             <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
-          
-        
-          
-            <a href="/homogeneous-coordinates/" class="recent_item" style="background-image: url( /assets/img/game1.jpg )"><span>理解齐次坐标</span></a>
           
         
       </div>
