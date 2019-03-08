@@ -80,6 +80,21 @@ Port 25000
 ```
 则再使用`ssh`命令登录服务器s1时只需要输入`ssh s1`即可。
 
+## 工具安装
+一般我们都是使用ssh连接服务器，而服务器一般都会预装了ssh服务，所以以上操作不会出现问题，但是也有偶尔我们是想要使用ssh连接任意两台主机，此时也许会出现
+    
+    connect to host xxx.xxx.xxx.xxx port 22:Connection refused
+
+这有可能是因为目前ubuntu主机一般都是默认安装了**openssh-client**，但是没有安装**openssh-server**，可以使用如下命令解决
+```bash
+#首先使用如下命令查看看是否有sshd进行
+$ ps -e | grep ssh
+#如果没有基本就是得自己安装了
+$ sudo apt-get install openssh-server
+```
+---
+> 当然，也有可能是其他原因，比如说你的ip被人屏蔽了等，但是一般我们遇到其他情况可能性比较低。
+
 ## SSH登陆知识常识
 SSH之所以能够保证安全，原因在于它采用了公钥加密。
 
