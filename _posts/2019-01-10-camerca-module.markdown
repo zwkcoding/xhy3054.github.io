@@ -47,7 +47,7 @@ $$ P_c=R(P_w - C) $$
 <img src="{{site.baseurl}}/assets/img/camera_needle/matrix1.png"/>
 </div>
 
-> 此处的旋转与平移信息相对于相机的一些内存参数而言属于外部参数，在讨论相机外部参数时，往往会将上式写成如下形式，使用R与T的联合矩阵(4*4)来表示**相机外参**
+> 此处的旋转与平移信息相对于相机的一些内部参数而言属于外部参数，在讨论相机外部参数时，往往会将上式写成如下形式，使用R与T的联合矩阵(4*4)来表示**相机外参**（一般是对相机位姿求逆）
 <div style="text-align: center">
 <img src="{{site.baseurl}}/assets/img/camera_needle/matrix2.png"/>
 </div>
