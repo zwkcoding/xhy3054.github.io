@@ -63,6 +63,12 @@ $ conda list
 $ pip list
 ```
 
+查询某一个包(比如numpy)的版本信息
+```bash
+$ conda search numpy
+```
+
+
 此**python**环境下安装**tensorflow**（其他包类似）（也可以用**pip**安装）
 ```bash
 $ conda install tensorflow 

@@ -54,16 +54,19 @@
         <img src=/assets/img/minion8.jpg alt="线性判别分析(LDA)">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Jan 02</p>
+        <p class="post_meta">2019, Jan 03</p>
         <h1 class="post_title">线性判别分析(LDA)</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>线性判别分析(Linear Discriminant Analysis，简称LDA)是一种经典的线性学习方法，最早在1936年由fisher在二分类问题上提出。这种方法主要用于分类与降维。此处需要说明的是，LDA常常还会是隐含狄利克雷分布(Latent Dirichlet Allocation)的简称，这是自然语言处理领域一种处理文档的主题模型，与本文讲的线性判别分析关系不大。</p>
+      <p>线性判别分析(Linear Discriminant Analysis，简称LDA)是一种经典的<strong>有监督线性学习</strong>方法，最早在1936年由fisher在二分类问题上提出。这种方法主要用于分类与降维。此处需要说明的是，LDA常常还会是隐含狄利克雷分布(Latent Dirichlet Allocation)的简称，这是自然语言处理领域一种处理文档的主题模型，与本文讲的线性判别分析关系不大。</p>
 
 <h1 id="基本思想">基本思想</h1>
 <p>LDA的思想及其朴素，这是一种<strong>有监督</strong>学习的技术。给定训练样例集合，设法将样例投影到低维度的空间里，使得同类样例的投影点尽可能接近、异类样例的投影点尽可能远离。概括一下为<strong>投影后类内方差最小，类间方差最大。</strong></p>
+<blockquote>
+  <p>一般广义线性模型可表示为$y = g^{-1}(W^{T}x)$,其中W完成线性映射，g函数为联系函数，可以完成非线性转换（比如分类时将回归连续值转换成离散值）。LDA要做的其实是首先使用W将样本从高维空间映射到低维空间，然后根据y的真值将样本分成一群群，通过最大化样本的类间距离、最小化样本的类内方差原则来估计出W。</p>
+</blockquote>
 
 <p>为了尽量表达清楚，先从最简单的二分类的LDA进行讲解。如下图：</p>
 <div style="text-align: center">
@@ -197,7 +200,7 @@
 <h2 id="lda算法流程">LDA算法流程</h2>
 <ul>
   <li>输入：数据集$ D={(x_1,y_1), (x_2,y_2), …,((x_m,y_m))} $，其中任意样本$x_i$为n维向量，$ y_i \in {C_1,C_2,…,C_k} $，降维到的维度d。</li>
-  <li>输出：降维后的样本集D’</li>
+  <li>输出：投影矩阵W与降维后的样本集D’</li>
 </ul>
 
 <ol>
@@ -207,6 +210,14 @@
   <li>计算$S_w^{-1}S_b$最大的d个特征值和对应的d个特征向量$(w_1,w_2,…w_d)$，得到投影矩阵W(二分类时是向量)</li>
   <li>对样本集中的每一个样本特征$x_i$，转化成新的样本$z_i = W^Tx_i$;</li>
   <li>得到输出样本集$ D’={(z_1,y_1), (z_2,y_2), …,((z_m,y_m))} $</li>
+</ol>
+
+<h2 id="lda与pca的比较">LDA与PCA的比较</h2>
+<ol>
+  <li>这两种方法都有降维的思想</li>
+  <li>pca是无监督的，lda是有监督的</li>
+  <li>pca主要用来压缩与简化</li>
+  <li>lda是一种线性分类器，主要用来分类等</li>
 </ol>
 
 <h1 id="参考资料">参考资料</h1>
@@ -267,7 +278,11 @@
       <div class="recent_list">
         
           
-            <a href="/graph/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>图论简介</span></a>
+            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
+          
+        
+          
+            <a href="/linux-issue/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>linux常用小知识--数据流重定向、管道、组合键等</span></a>
           
         
           
@@ -284,10 +299,6 @@
         
           
             <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
-          
-        
-          
-            <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
           
         
       </div>

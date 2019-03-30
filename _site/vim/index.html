@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>备忘vim编辑器 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword3.jpg alt="备忘vim编辑器">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Mar 30</p>
+        <h1 class="post_title">备忘vim编辑器</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>经常需要在linux环境下进行开发，不可避免的要使用vim。为了方便每次查阅与温习，在这篇博客里记录一些常用功能操作与我熟悉的一些基本配置。</p>
+
+<h1 id="vim">vim</h1>
+<p>vim本身就是一个编辑器，就像是windows的text一样，但是这个编辑器有很多的命令与快捷操作方式可以大大的节省我们开发编辑的时间。</p>
+
+<h2 id="基本命令">基本命令</h2>
+<ul>
+  <li>一般命令模式下的普通命令
+    <ul>
+      <li>dd : 剪切光标所在的那一整行到剪切板，会覆盖原先剪切板内容</li>
+      <li>yy : 复制光标所在的那一整行到剪切板，会覆盖原先剪切板内容</li>
+      <li>p  : 将剪切板的内容粘贴到光标下一行，并将光标移到下一行</li>
+      <li>P  : 将剪切板的内容粘贴到光标上一行，并将光标移到被粘贴的那一行</li>
+      <li>u  : 撤销上一次操作（可以是上一次编辑模式下的改变，也可以是上一次命令操作的改变）</li>
+      <li>[Ctrl]+r : 重复做一遍上一个动作</li>
+      <li>G  : 光标跳转到最后一行</li>
+      <li>gg : 光标跳转到第一行</li>
+      <li>i  : 进入编辑模式，光标位置不变</li>
+      <li>o  : 进入编辑模式，并且在下一行插入一个空白行，再将光标移到下一行</li>
+    </ul>
+  </li>
+  <li>一般命令模式下的命令行操作
+    <ul>
+      <li>:w    : 保存现在对文件的修改</li>
+      <li>:w filename : 将现在的文件另存为filename</li>
+      <li>:q    : 退出vim</li>
+      <li>:!    : 强制操作，一般感叹号放在操作后面</li>
+      <li>:10   : 光标跳转到第10行</li>
+      <li>/word : 从光标处往下寻找word这个字符串</li>
+      <li>?word : 从光标处往上寻找word这个字符串</li>
+      <li>:100,200s/word1/word2/g : 在100行与200行之间寻找word1这个字符串，并将字符串取代为word2</li>
+      <li>:100,200s/word1/word2/gc : 在100行与200行之间寻找word1这个字符串，并将字符串取代为word2，并且在取代前显示提示字符给使用者确认是否要执行操作</li>
+    </ul>
+  </li>
+  <li>编辑模式：
+    <ul>
+      <li>[Ctrl]+p : 按照上文中出现的字符串进行补全</li>
+      <li>esc： 退出编辑模式，进入一般命令模式</li>
+    </ul>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/vim/regular_vim.jpg" />
+</div>
+
+<h2 id="区块选择">区块选择</h2>
+<p>一共有三种区块选择方式，都是在一般命令模式下进行操作</p>
+
+<div style="text-align: center">
+<img src="/assets/img/vim/Block.PNG" />
+</div>
+
+<h2 id="多文件编辑1">多文件编辑1</h2>
+<p>通过<code class="highlighter-rouge">vim file1 file2</code>打开两个文件，并且在其中一个文件拷贝到粘贴板上的文本可以在另一个文件中使用。</p>
+<div style="text-align: center">
+<img src="/assets/img/vim/multifiles.PNG" />
+</div>
+
+<h2 id="多文件编辑2">多文件编辑2</h2>
+<blockquote>
+  <p>上面那种方式我用起来感觉不是很舒服，也不是很会用，这第二种方法用起来感觉比较好</p>
+</blockquote>
+
+<ul>
+  <li>
+    <p>通过<code class="highlighter-rouge">tabedit file2</code>打开第二个文件</p>
+  </li>
+  <li>
+    <p>通过<code class="highlighter-rouge">tabn</code>切换到下一个文件</p>
+  </li>
+  <li>
+    <p>通过<code class="highlighter-rouge">tabp</code>切换到上一个文件</p>
+  </li>
+  <li>
+    <p>这种模式下多文件间剪切板是共用的</p>
+  </li>
+</ul>
+
+<h2 id="多窗口编辑">多窗口编辑</h2>
+<p>这种模式下会将一个窗口划分为多个窗口，在文件比较长需要前后对应时可以使用。使用方式下面讲的很详细。</p>
+<div style="text-align: center">
+<img src="/assets/img/vim/multiwindows.PNG" />
+</div>
+
+<h2 id="我的vim常用设置">我的vim常用设置</h2>
+<p>在<code class="highlighter-rouge">/etc/vim/vimrc</code>（个人账户的设置是<code class="highlighter-rouge">~/.vimrc</code>配置文件，默认不存在，需要自己手动创建）中，我们可以对vim这个编辑器进行一些常用的设置。</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set showmatch       " Show matching brackets.
+set hlsearch        " heighlight the search result
+set incsearch       " auto jump to search result
+set autoread        " auto check the file whether be changed by other editor
+set cursorline      " heighlight the cursorline
+set number 
+set ts=4            " set one tab = 4 blank length
+set expandtab       " if new editor's tab's length is not equal,convert the tab to blank
+</code></pre></div></div>
+
+<h2 id="常见问题">常见问题</h2>
+<ul>
+  <li>
+    <p>有时我们在编辑文件后没有保存就因为各种原因强制退出了，这时会在当前目录下生成一个缓存文件，这个缓存文件不手动删除会一直存在</p>
+  </li>
+  <li>
+    <p>编码问题</p>
+    <ul>
+      <li>linux系统默认支持的语系数据：这与<code class="highlighter-rouge">/etc/locale.conf</code>有关</li>
+      <li>终端接口(bash)的语系：与<code class="highlighter-rouge">LANG</code>、<code class="highlighter-rouge">LC_ALL</code>几个环境变量有关</li>
+      <li>文件的编码方式</li>
+      <li>打开文件的软件的接口的编码方式</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《鸟哥的linux私房菜》；</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=备忘vim编辑器&url=http://localhost:4000/vim/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/vim/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/vim/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#tools" class="tag">tools</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
+          
+        
+          
+            <a href="/linux-issue/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>linux常用小知识--数据流重定向、管道、组合键等</span></a>
+          
+        
+          
+            <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
+          
+        
+          
+            <a href="/Homography-matrix/" class="recent_item" style="background-image: url( /assets/img/game5.jpg )"><span>射影几何中的单应变换</span></a>
+          
+        
+          
+            <a href="/ransac/" class="recent_item" style="background-image: url( /assets/img/game4.jpg )"><span>RANSAC算法的理解与使用</span></a>
+          
+        
+          
+            <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

@@ -1,9 +1,9 @@
 # 搜狗输入法 ubuntu16.04
 1. 官网下载`sogoupinyin_2.2.0.0108_amd64.deb`
 
-2. 一般直接安装不能装上`sudo dpkg -i sogoupinyin_2.2.0.0108_amd64.deb`
+2. 一般直接安装不能装上`sudo dpkg -i sogoupinyin_2.2.0.0108_amd64.deb`，会报错是因为dpkg不能解决一些依赖问题。
 
-3. 所以需要先安装一些依赖，比如先`sudo apt-get -f install`,也有可能得自己安装fcitx
+3. 使用`sudo apt-get -f install`可以解决依赖问题。
 
 4. 安装完了就可以装上了`sudo dpkg -i sogoupinyin_2.2.0.0108_amd64.deb`
 

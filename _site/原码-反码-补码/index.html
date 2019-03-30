@@ -54,7 +54,7 @@
         <img src=/assets/img/image.jpg alt="补码，原码，反码">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Apr 23</p>
+        <p class="post_meta">2018, Apr 24</p>
         <h1 class="post_title">补码，原码，反码</h1>
       </div>
     </header> <!-- End Header -->
@@ -62,15 +62,13 @@
     <div class="entry_content">
       <h2 id="写作缘由">写作缘由</h2>
 
-<p>昨天室友忽然提到老师布置的作业里有关补码的问题，我竟然有些生疏了，张口结舌说忘了。事后想到这是最基础的内容了，不由老脸一红。赌气般的把这个问题又梳理了一遍。想来想去觉得还是写出来吧，加深记忆，随时翻阅，省的再给忘了。</p>
+<p>昨天室友忽然问起老师布置的作业里有关补码的问题，我竟然忘了，张口结舌说了半天不知所云。事后想到这是最基础的内容了，不由老脸一红。赌气般的把这个问题又梳理了一遍。想来想去觉得还是写出来吧，加深记忆，随时翻阅，省的再给忘了。</p>
 
 <h2 id="有符号数与无符号数">有符号数与无符号数</h2>
 
 <p>首先，无符号数是最简单的，例如一个八位的无符号数取值范围为<code class="highlighter-rouge">0～255</code>。</p>
 
-<p>而有符号数最高位为符号位，所以一个八位的有符号数取值范围为多少呢（先卖个关子）？计算机中存储的都是有符号数，也叫<strong>机器数</strong>。机器数<code class="highlighter-rouge">10000001</code>的<strong>形式值</strong>为129，<strong>真值</strong>为<code class="highlighter-rouge">-1</code>。</p>
-
-<p>下文中讲的<strong>原码、反码、补码</strong>都是指<strong>有符号数</strong>的编码方式。以八位有符号数为例进行讲解。</p>
+<p>而有符号数最高位为符号位，下文中讲的<strong>原码、反码、补码</strong>都是指<strong>有符号数</strong>的编码方式。以八位有符号数为例进行讲解。</p>
 
 <h3 id="原码">原码</h3>
 <blockquote>
@@ -81,7 +79,7 @@
 
 <p>所以八位机器数的原码范围为<code class="highlighter-rouge">11111111 ～ 01111111</code>，也就是<code class="highlighter-rouge">-127～127</code>（0有两种表示）。</p>
 
-<p>这种形式及其符合人们脑海中对于有符号数的第一印象，看到这里都会觉得理所当然，确实，这是人脑最容易理解与计算的形式。但，对电脑不是。</p>
+<p>这种形式（原码）极其符合人们脑海中对于有符号数的第一印象，看到这里都会觉得理所当然，确实，这是人脑最容易理解与计算的形式。但，对电脑不是。</p>
 
 <h3 id="反码">反码</h3>
 <blockquote>
@@ -90,12 +88,11 @@
 
 <p>反码：</p>
 <ul>
-  <li>首先记住，符号位是不会变得，正数最高位为0，负数最高位为1</li>
   <li>正数的反码与原码相同</li>
-  <li>负数的反码是其绝对值原码按位取反</li>
+  <li>负数的反码是其绝对值的原码按位取反</li>
 </ul>
 
-<p>反码有什么用呢？</p>
+<p>比如-1的反码<code class="highlighter-rouge">11111110</code>是其绝对值1的原码<code class="highlighter-rouge">00000001</code>按位取反的结果。反码有什么用呢？</p>
 
 <p>计算机只会做加法，不会做减法，反码可以用来实现机器减法，没错，而且这个减法是完备的，在负数域，可用的，只是有一个小小的缺点而已，如：</p>
 
@@ -116,10 +113,12 @@
 
 <p>补码：</p>
 <ul>
-  <li>同样，符号位始终不变，正数最高位为0，负数最高位为1, 而0的补码为<code class="highlighter-rouge">00000000</code>（原来的负0在补码里变成了-128），所以补码表示范围<code class="highlighter-rouge">-128~127</code></li>
+  <li>补码表示范围<code class="highlighter-rouge">-128~127</code></li>
   <li>正数的补码为与原码相同</li>
   <li>负数的补码是其正数绝对值补码（也就是原码）按位取反再加1（也就是反码的基础上加1）</li>
 </ul>
+
+<p>比如-1的补码<code class="highlighter-rouge">11111111</code>是其绝对值1的原码<code class="highlighter-rouge">00000001</code>按位取反再加1的结果。</p>
 
 <p>下面来讨论上面的问题，用补码来实现机器减法：如：</p>
 
@@ -216,7 +215,11 @@
       <div class="recent_list">
         
           
-            <a href="/graph/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>图论简介</span></a>
+            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
+          
+        
+          
+            <a href="/linux-issue/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>linux常用小知识--数据流重定向、管道、组合键等</span></a>
           
         
           
@@ -233,10 +236,6 @@
         
           
             <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
-          
-        
-          
-            <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
           
         
       </div>

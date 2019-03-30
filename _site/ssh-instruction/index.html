@@ -54,7 +54,7 @@
         <img src=/assets/img/meteor.jpg alt="SSH简要教程">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Apr 15</p>
+        <p class="post_meta">2018, Apr 16</p>
         <h1 class="post_title">SSH简要教程</h1>
       </div>
     </header> <!-- End Header -->
@@ -122,6 +122,24 @@
 <span class="n">Port</span> <span class="m">25000</span>
 </code></pre></div></div>
 <p>则再使用<code class="highlighter-rouge">ssh</code>命令登录服务器s1时只需要输入<code class="highlighter-rouge">ssh s1</code>即可。</p>
+
+<h2 id="工具安装">工具安装</h2>
+<p>一般我们都是使用ssh连接服务器，而服务器一般都会预装了ssh服务，所以以上操作不会出现问题，但是也有偶尔我们是想要使用ssh连接任意两台主机，此时也许会出现</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>connect to host xxx.xxx.xxx.xxx port 22:Connection refused
+</code></pre></div></div>
+
+<p>这有可能是因为目前ubuntu主机一般都是默认安装了<strong>openssh-client</strong>，但是没有安装<strong>openssh-server</strong>，可以使用如下命令解决</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#首先使用如下命令查看看是否有sshd进行</span>
+<span class="nv">$ </span>ps <span class="nt">-e</span> | <span class="nb">grep </span>ssh
+<span class="c">#如果没有基本就是得自己安装了</span>
+<span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>openssh-server
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>当然，也有可能是其他原因，比如说你的ip被人屏蔽了等，但是一般我们遇到其他情况可能性比较低。</p>
+</blockquote>
 
 <h2 id="ssh登陆知识常识">SSH登陆知识常识</h2>
 <p>SSH之所以能够保证安全，原因在于它采用了公钥加密。</p>
@@ -201,7 +219,11 @@
       <div class="recent_list">
         
           
-            <a href="/graph/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>图论简介</span></a>
+            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
+          
+        
+          
+            <a href="/linux-issue/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>linux常用小知识--数据流重定向、管道、组合键等</span></a>
           
         
           
@@ -218,10 +240,6 @@
         
           
             <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
-          
-        
-          
-            <a href="/epipolar-geometry/" class="recent_item" style="background-image: url( /assets/img/game2.png )"><span>理解对极几何与基本矩阵</span></a>
           
         
       </div>
