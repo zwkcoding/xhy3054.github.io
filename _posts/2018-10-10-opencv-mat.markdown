@@ -39,6 +39,8 @@ A.copyTo(G);
 现在，Ａ、Ｆ、Ｇ三个Mat对象分别管理属于自己的图像矩阵内存，不会互相干扰。
 
 ## Mat对象的存储方法
+> 使用`imread("1.png")`，默认参数是`IMREAD_COLOR `,即总是将硬盘中的图片转换为8位的3通道BGR彩色图然后读入内存，并返回一个3通道BGR的mat类型
+
 存储方法主要受两个参数影响：
 1. 颜色空间：决定了使用何种方法编码一个像素的颜色，比如灰度空间单通道描述、RGB三通道红绿蓝描述、RGBD四通道红绿蓝透明度四通道描述等等；
 
@@ -48,8 +50,10 @@ A.copyTo(G);
     
 	Gray = R*0.299 + G*0.587 + B*0.114
 
+> 关于颜色空间更多的知识可以查看[这篇博文](https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/)，在opencv中提供了将不同颜色空间的Mat进行转换的函数`cv2.cvtColor`
 
-### Mat中指针指向的矩阵中像素的组织形式
+
+### Mat中指针指向的矩阵中像素的组织形式（灰度空间与BGR空间）
 像素的组织形式主要依赖于颜色空间类型的选择，下图是**灰度空间**下像素的组织形式：
 ![tutorial_how_matrix_stored_1]({{site.baseurl}}/assets/img/opencv-mat/tutorial_how_matrix_stored_1.png)
 
