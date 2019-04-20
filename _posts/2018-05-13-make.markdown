@@ -3,7 +3,7 @@ layout: post
 title: 编译工具讨论－－make与cmake
 date: 2018-05-12 10:07:24.000000000 +09:00
 img:   software.jpg # Add image post (optional)
-tags: [tools, 编译原理]
+tags: [tools]
 ---
 
 ## 前言

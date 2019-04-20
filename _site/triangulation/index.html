@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>单目vo中的深度确定方法--三角测量 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword8.jpg alt="单目vo中的深度确定方法--三角测量">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Apr 20</p>
+        <h1 class="post_title">单目vo中的深度确定方法--三角测量</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>三角测量的目的是用来确定图片中某一个点的深度。为什么会有这样的需求呢？我们在前面的博客中提到了<a href="https://xhy3054.github.io/epipolar-geometry/">对极几何</a>与<a href="https://xhy3054.github.io/Homography-matrix/">单应变换</a>。在前面其实已经提到过了，我们可以通过本质矩阵与单应矩阵恢复出相机变换的位姿，但是这两种方法确定的位姿变换是具有<strong>尺度不确定性</strong>的。</p>
+
+<blockquote>
+  <p>因为基础矩阵与单应矩阵本身描述的是从<strong>一个2d平面到另一个2d平面的变换</strong>，无需3d深度信息，这两种变换都是正常进行的，因此自然就具有尺度不确定性。更加具体的讲，将基础矩阵与单应矩阵作用在一个齐次坐标(x,y,1)上时，此时，随意的将基础矩阵与单应矩阵进行一定尺度缩放，由于<strong>齐次坐标的尺度等价性</strong>，对最终的变换结果都不会产生影响。</p>
+</blockquote>
+
+<h2 id="三角测量">三角测量</h2>
+<p>三角测量本身是由高斯提出，最早应用在天文地理领域，根据不同季节观察到的星星的角度，估计星星与我们的距离。</p>
+
+<p>在相机几何中的应用，推导如下：</p>
+
+<p>由<a href="https://xhy3054.github.io/camerca-module/">相机成像的几何描述</a>我们可以理解如下的公式(世界坐标到像素坐标的转换)：</p>
+
+<script type="math/tex; mode=display">Z_1p_{uv1} = K_1P_w</script>
+
+<script type="math/tex; mode=display">Z_2p_{uv2} = K_2(RP_w + t)</script>
+
+<p>其中K是相机内参，R与t是第二个相机在第一个相机的相机坐标系下的外参，$P_w$是此空间点在第一个相机的相机坐标系下的坐标。Z是空间点到相机光心的距离(也是相机坐标系下的z轴坐标)。$p_{uv1}$与$p_{uv2}$是空间点$P_w$在两个相机平面上的投影点。</p>
+
+<ul>
+  <li>首先做出如下定义（其中$x_1$与$x_2$是归一化的相机坐标（X/Z,Y/Z,1））：</li>
+</ul>
+
+<script type="math/tex; mode=display">x_1 = K_1^{-1}p_{uv1}</script>
+
+<script type="math/tex; mode=display">x_2 = K_2^{-1}p_{uv2}</script>
+
+<ul>
+  <li>带入如上定义可得：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 x_2 = Z_1 Rx_1 + t</script>
+
+<ul>
+  <li>由于我们已经通过本质矩阵分解或者单应矩阵分解获得了R与t，此时想求的是两个特征点的深度，即上式中的$Z_1$与$Z_2$，此时，可通过如下操作分别求出，首先求解$Z_1$，上式两边同时左乘<code class="highlighter-rouge">x2^</code>，也就是两侧同时与$x_2$做外积：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 x_2^{\land} x_2 = 0 = Z_1 x_2^{\land}Rx_1 + x_1^{\land}t</script>
+
+<p>如上，可以直接求出$p_{uv1}$的深度$Z_1$了，然后$Z_1$也可以很轻松地求出。</p>
+
+<h2 id="代码实现">代码实现</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">triangulation</span> <span class="p">(</span> 
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span> <span class="n">KeyPoint</span> <span class="o">&gt;&amp;</span> <span class="n">keypoint_1</span><span class="p">,</span> 
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span> <span class="n">KeyPoint</span> <span class="o">&gt;&amp;</span> <span class="n">keypoint_2</span><span class="p">,</span> 
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">DMatch</span> <span class="o">&gt;&amp;</span> <span class="n">matches</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">R</span><span class="p">,</span> <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">,</span> 
+    <span class="n">vector</span><span class="o">&lt;</span> <span class="n">Point3d</span> <span class="o">&gt;&amp;</span> <span class="n">points</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//相机第一个位置处的位姿</span>
+    <span class="n">Mat</span> <span class="n">T1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="c1">//相机第二个位置处的位姿</span>
+    <span class="n">Mat</span> <span class="n">T2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">);</span>
+    
+    <span class="c1">// 相机内参</span>
+    <span class="n">Mat</span> <span class="n">K</span> <span class="o">=</span> <span class="p">(</span> <span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="p">(</span> <span class="mi">3</span><span class="p">,</span><span class="mi">3</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mf">520.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">325.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">521.0</span><span class="p">,</span> <span class="mf">249.7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Point2f</span><span class="o">&gt;</span> <span class="n">pts_1</span><span class="p">,</span> <span class="n">pts_2</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="n">DMatch</span> <span class="n">m</span><span class="o">:</span><span class="n">matches</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 将像素坐标转换至相机平面坐标，为什么要这一步，上面推导中有讲</span>
+        <span class="n">pts_1</span><span class="p">.</span><span class="n">push_back</span> <span class="p">(</span> <span class="n">pixel2cam</span><span class="p">(</span> <span class="n">keypoint_1</span><span class="p">[</span><span class="n">m</span><span class="p">.</span><span class="n">queryIdx</span><span class="p">].</span><span class="n">pt</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="p">);</span>
+        <span class="n">pts_2</span><span class="p">.</span><span class="n">push_back</span> <span class="p">(</span> <span class="n">pixel2cam</span><span class="p">(</span> <span class="n">keypoint_2</span><span class="p">[</span><span class="n">m</span><span class="p">.</span><span class="n">trainIdx</span><span class="p">].</span><span class="n">pt</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="n">Mat</span> <span class="n">pts_4d</span><span class="p">;</span>
+    <span class="c1">//opencv提供的三角测量函数</span>
+    <span class="n">cv</span><span class="o">::</span><span class="n">triangulatePoints</span><span class="p">(</span> <span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">pts_1</span><span class="p">,</span> <span class="n">pts_2</span><span class="p">,</span> <span class="n">pts_4d</span> <span class="p">);</span>
+    
+    <span class="c1">// 转换成非齐次坐标</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">pts_4d</span><span class="p">.</span><span class="n">cols</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Mat</span> <span class="n">x</span> <span class="o">=</span> <span class="n">pts_4d</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="n">x</span> <span class="o">/=</span> <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// 归一化</span>
+        <span class="n">Point3d</span> <span class="n">p</span> <span class="p">(</span>
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> 
+        <span class="p">);</span>
+        <span class="n">points</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span> <span class="n">p</span> <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Point2f</span> <span class="nf">pixel2cam</span> <span class="p">(</span> <span class="k">const</span> <span class="n">Point2d</span><span class="o">&amp;</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">K</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">Point2f</span>
+    <span class="p">(</span>
+        <span class="p">(</span> <span class="n">p</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+        <span class="p">(</span> <span class="n">p</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> 
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 《视觉slam十四讲》</li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=单目vo中的深度确定方法--三角测量&url=http://localhost:4000/triangulation/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/triangulation/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/triangulation/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#图像处理" class="tag">图像处理</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
+          
+        
+          
+            <a href="/bow/" class="recent_item" style="background-image: url( /assets/img/sword/sword7.jpg )"><span>基于词袋模型的图像匹配</span></a>
+          
+        
+          
+            <a href="/vnc-rdp/" class="recent_item" style="background-image: url( /assets/img/sword/sword5.jpg )"><span>vnc与rdp的对比</span></a>
+          
+        
+          
+            <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
+          
+        
+          
+            <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
+          
+        
+          
+            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

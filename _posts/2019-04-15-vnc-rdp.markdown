@@ -1,0 +1,31 @@
+---
+layout: post
+title: vnc与rdp的对比
+date: 2019-04-15 10:07:24.000000000 +09:00
+img:  sword/sword5.jpg # Add image post (optional)
+tag: [tools]
+---
+由于个人电脑性能有限，很多时候我们都需要远程登录服务器利用其资源。常见的远程界面连接到计算机有两种方法，一种是VNC(Virtual Network Computing)，另一种是RDP(Remote Desktop Protocol).
+
+## VNC
+VNC(Virtual Network Computing，是一个软件)是基于RFB(Remote Frame Buffer)协议进行通信的，这种协议是一个平台无关的简单显示协议，因为其工作在帧缓存级别上，所以可以应用于所有的窗口系统。
+
+RFB协议的特点
+1. 基于tcp的应用层协议
+2. 平台无关
+3. 瘦客户机，减少了对客户端的硬件需求
+4. 传图像，服务器端在显存中画好之后将图像传给客户端，客户端仅仅进行图像解码显示，并传送键盘等操作信息给服务器
+5. 对网络要求较高，因为需要传图像
+
+## RDP
+RDP(Remote Desktop Protocol)，远程桌面协议。一般主流系统都会有相应的客户端软件。
+
+RDP协议的特点：
+1. 基于tcp
+2. 所有计算在服务器端进行，客户端只负责处理网络连接，接受数据，界面显示，设备数据输出
+3. 由于主要传输的是命令，对客户端硬件要求较高
+    - 比如显示的图像是在客户端生成的，服务器只计算并将数据传回
+
+# 参考文献
+[1] yansu.org/2013/03/21/vnc-vs-rdp.html
+

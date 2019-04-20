@@ -96,6 +96,10 @@
 <p>现在，Ａ、Ｆ、Ｇ三个Mat对象分别管理属于自己的图像矩阵内存，不会互相干扰。</p>
 
 <h2 id="mat对象的存储方法">Mat对象的存储方法</h2>
+<blockquote>
+  <p>使用<code class="highlighter-rouge">imread("1.png")</code>，默认参数是<code class="highlighter-rouge">IMREAD_COLOR </code>,即总是将硬盘中的图片转换为8位的3通道BGR彩色图然后读入内存，并返回一个3通道BGR的mat类型</p>
+</blockquote>
+
 <p>存储方法主要受两个参数影响：</p>
 <ol>
   <li>
@@ -111,7 +115,11 @@
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Gray = R*0.299 + G*0.587 + B*0.114
 </code></pre></div></div>
 
-<h3 id="mat中指针指向的矩阵中像素的组织形式">Mat中指针指向的矩阵中像素的组织形式</h3>
+<blockquote>
+  <p>关于颜色空间更多的知识可以查看<a href="https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/">这篇博文</a>，在opencv中提供了将不同颜色空间的Mat进行转换的函数<code class="highlighter-rouge">cv2.cvtColor</code></p>
+</blockquote>
+
+<h3 id="mat中指针指向的矩阵中像素的组织形式灰度空间与bgr空间">Mat中指针指向的矩阵中像素的组织形式（灰度空间与BGR空间）</h3>
 <p>像素的组织形式主要依赖于颜色空间类型的选择，下图是<strong>灰度空间</strong>下像素的组织形式：
 <img src="/assets/img/opencv-mat/tutorial_how_matrix_stored_1.png" alt="tutorial_how_matrix_stored_1" /></p>
 
@@ -179,27 +187,27 @@
       <div class="recent_list">
         
           
+            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
+          
+        
+          
+            <a href="/bow/" class="recent_item" style="background-image: url( /assets/img/sword/sword7.jpg )"><span>基于词袋模型的图像匹配</span></a>
+          
+        
+          
+            <a href="/vnc-rdp/" class="recent_item" style="background-image: url( /assets/img/sword/sword5.jpg )"><span>vnc与rdp的对比</span></a>
+          
+        
+          
+            <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
+          
+        
+          
+            <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
+          
+        
+          
             <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
-          
-        
-          
-            <a href="/linux-issue/" class="recent_item" style="background-image: url( /assets/img/sword/sword2.jpg )"><span>linux常用小知识--数据流重定向、管道、组合键等</span></a>
-          
-        
-          
-            <a href="/camera-calibration-undistort/" class="recent_item" style="background-image: url( /assets/img/sword/sword1.jpg )"><span>透镜畸变与相机标定</span></a>
-          
-        
-          
-            <a href="/Homography-matrix/" class="recent_item" style="background-image: url( /assets/img/game5.jpg )"><span>射影几何中的单应变换</span></a>
-          
-        
-          
-            <a href="/ransac/" class="recent_item" style="background-image: url( /assets/img/game4.jpg )"><span>RANSAC算法的理解与使用</span></a>
-          
-        
-          
-            <a href="/hash-table/" class="recent_item" style="background-image: url( /assets/img/game3.jpeg )"><span>哈希表的原理与实现</span></a>
           
         
       </div>
