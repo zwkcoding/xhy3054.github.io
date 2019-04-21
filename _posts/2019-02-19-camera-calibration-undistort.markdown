@@ -3,7 +3,7 @@ layout: post
 title: 透镜畸变与相机标定
 date: 2019-02-19 10:07:24.000000000 +09:00
 img:  sword/sword1.jpg # Add image post (optional)
-tag: [图像处理]
+tag: [计算机视觉]
 ---
 
 在[相机成像的几何描述](https://xhy3054.github.io/camerca-module/)这篇文章中我们讨论了如何将一个点从世界坐标映射到像素坐标，不过那是比较理想的成像情况。现实世界中的相机在成像时还会受到透镜畸变的影响。

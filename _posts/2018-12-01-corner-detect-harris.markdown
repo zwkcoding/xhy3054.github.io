@@ -3,7 +3,7 @@ layout: post
 title: 图像特征之Harris角点检测
 date: 2018-12-01 10:07:24.000000000 +09:00
 img:  minion1.jpg # Add image post (optional)
-tag: [图像处理, image_feature]
+tag: [计算机视觉, image_feature]
 ---
 # 1. 角点与角点的检测
 ## 1.1 什么是角点？

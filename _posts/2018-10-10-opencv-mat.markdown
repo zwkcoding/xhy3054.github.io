@@ -3,7 +3,7 @@ layout: post
 title: opencv中的Mat类讲解
 date: 2018-10-10 10:07:24.000000000 +09:00
 img:  cartoon4.jpg # Add image post (optional)
-tag: [opencv,图像处理]
+tag: [opencv,计算机视觉]
 ---
 
 # Mat类

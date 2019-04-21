@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>计算机中register、cache、memory的区别 - line - 千里之行</title>
+	<title>特征点法slam中位姿估计方法总结 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,63 +51,91 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/memory.jpg alt="计算机中register、cache、memory的区别">
+        <img src=/assets/img/sword/sword9.jpg alt="特征点法slam中位姿估计方法总结">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Jul 02</p>
-        <h1 class="post_title">计算机中register、cache、memory的区别</h1>
+        <p class="post_meta">2019, Apr 21</p>
+        <h1 class="post_title">特征点法slam中位姿估计方法总结</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <h2 id="概念">概念</h2>
-<ol>
-  <li>register：寄存器。cpu中的基本单元，与cpu中的运算单元是一个级别的。运算单元直接处理的数据存储器。从普通单片机到intel的cpu全都存在寄存器。</li>
-  <li>cache：缓存。一般普通MCU是没有缓存的，一些强大的个人电脑或者手机芯片才会有缓存，缓存的一般用的是<strong>SRAM静态随机存储器</strong>，速度很快。通常情况是电脑在工作时将从内存中读入的用过的数据放入缓存，以便下次用时可以快速找到它。不过cpu一般不会直接访问缓存，而是先将缓存放入寄存器，再操作。</li>
-  <li>memory：内存。一般普通MCU也是没有内存的，而且内存一般是外置的，而缓存与寄存器通常集成在cpu内部。内存一般使用<strong>DRAM动态随机存储器</strong>，速度稍慢。已经工作的cpu首先会到cache寻找自己想要的数据，如果没有才会到内存读。</li>
-</ol>
+      <p>这篇博客主要是对基于特征点匹配的slam中的位姿估计方法进行总结。</p>
 
-<p>好比医院，医生对面的椅子就是寄存器，要看病的病人(data)就座这个椅子(register)；已经挂号的(data)进入诊室(cache)排队，其他的就在医院里（memory）。医生可以操作的就是面对面的病人，其他人要看病（如急病）也需先坐上这个位置，这是最快的。如果医生找一个人，会现在诊室(cache)里找，如果找不到，才会到医院大厅里找（memory）。</p>
+<h2 id="2d-2d的位姿估计">2d-2d的位姿估计</h2>
+<p>一般用在单目slam的初始阶段，系统还没有地图，此时只有输入的2d的图片序列。一般会使用如下方法进行位姿估计。</p>
 
-<h2 id="访问速度差异原因">访问速度差异原因</h2>
 <ol>
-  <li>晶体管存储构造的不同是一个原因。SRAM静态随机存储器比较DRAM动态随机存储器速度更快，支持频率更高，但是也不易于把容量做的很大。</li>
-  <li>同时内存（memory）在cpu外部，距离运算单元比较远，也算是一个原因吧。</li>
-  <li>还有一个原因，就是访问方式的差异。一般寄存器（register）按位进行直接访问，速度最快；缓存（cache）与内存（memory）的访问方式一般差不多，但是缓存比较小（寻址空间小），且内存构造速度更快。</li>
-</ol>
-
-<h2 id="缓存与内存的访问方式">缓存与内存的访问方式</h2>
-<ol>
-  <li>找到数据的指针。（指针可能存放在寄存器内，所以这一步就已经包括寄存器的全部工作了。）</li>
-  <li>将指针送往内存管理单元（MMU），由MMU将虚拟的内存地址翻译成实际的物理地址。</li>
-  <li>将物理地址送往内存控制器（memory controller），由内存控制器找出该地址在哪一根内存插槽（bank）上。</li>
-  <li>确定数据在哪一个内存块（chunk）上，从该块读取数据。</li>
-  <li>数据先送回内存控制器，再送回CPU，然后开始使用。</li>
+  <li>首先通过对极约束求解出本质矩阵(比较经典的有八点法)，然后对本质矩阵进行奇异值分解(SVD)，求解出R与t;
+    <ul>
+      <li>原理公式$ E = t^{\land}R $(<a href="https://xhy3054.github.io/epipolar-geometry/">对极约束</a>)</li>
+    </ul>
+  </li>
+  <li>通过单应约束求解出单应矩阵，然后通过对单应矩阵进行分解求解出R与t;
+    <ul>
+      <li>原理公式$ H = K(R + t \cdot -\frac{n^{T}}{d}) K^{-1} $ (<a href="https://xhy3054.github.io/Homography-matrix/">单应约束</a>)</li>
+    </ul>
+  </li>
 </ol>
 
 <blockquote>
-  <p>现代多核处理器中会存在三级缓存（L1、L2与L3高速缓存）。如下是典型的多核心处理器的组织结构。</p>
+  <p>这两种方法有一个共同的缺点，那就是尺度不确定性。所以，在单目slam中，尺度是不确定的，通常，我们会对初始化时的平移向量t进行归一化，此后，建立的地图与整个之后的位姿都是以初始化时的位移作为单位进行的。<strong>这个特性导致特征点法的单目vo是尺度不确定的</strong>。</p>
 </blockquote>
-<div style="text-align: center">
-<img src="/assets/img/data_store/多核处理器的组织结构.JPG" />
-</div>
-<h2 id="总结">总结</h2>
-<p>CPU本身只负责运算，不负责储存数据。数据一般储存在内存(memory)之中，CPU要用的时候就去内存读写数据。但是，CPU的运算速度远高于内存的读写速度，为了避免被拖慢，CPU一般都会自带一级缓存与二级缓存甚至三级缓存（cache）。基本上，CPU缓存可以看作是读写速度较快的内存。</p>
 
-<p>但是，CPU缓存还是不够快，另外数据在缓存里面的地址是不固定的，CPU每次读写还需要做寻址操作，这会明显的拖慢速度。因此，除了缓存之外，CPU还自带了寄存器（register），寄存器不依靠地址区分数据，而是依靠名称来按位访问，速度最快，有的人称它为<strong>零级缓存</strong>。寄存器常常用来储存最常用的数据。也就是说，那些最频繁读写的数据（比如循环变量），都会放在寄存器里面，CPU优先读写寄存器，再由寄存器跟内存交换数据。</p>
-<div style="text-align: center">
-<img src="/assets/img/data_store/存储器层次结构.jpg" width="750" height="320" />
-</div>
+<h2 id="3d-2d的位姿估计pnp问题">3d-2d的位姿估计（PnP问题）</h2>
+<p>在slam正常运行起来之后，会同时建立起基于离散点的地图。在这个时候，当新读入一张图片时，我们可以直接将地图点与新图中的特征点进行匹配。此时通过3d-2d的位姿估计会比2d-2d的方法稳定，方便很多。通常我们将3d-2d的位姿估计问题叫做<strong>PnP问题</strong>。PnP问题有很多求解方法，比如</p>
+
+<ol>
+  <li>
+    <p>直接线性变换(DLT, Direct Linear Transformation): 最少需要6对匹配点</p>
+  </li>
+  <li>
+    <p>P3P(perspective three point): 最少需要3对点即可</p>
+  </li>
+  <li>
+    <p>EPnP(Efficient PnP: an accurate o(n) solution to the pnp problem)</p>
+  </li>
+  <li>
+    <p>UPnP等线性方法</p>
+  </li>
+  <li>
+    <p>Bundle Adjustment(最小化重投影误差)等非线性优化方法</p>
+  </li>
+</ol>
 
 <blockquote>
-  <p>存储器结构的基本思想是上一级的存储器作为下一级的高速缓存。即金字塔越往上，容量越小、速度越快、每字节造价越昂贵。</p>
+  <p>这些方法在opencv中基本都有函数接口提供</p>
 </blockquote>
 
-<hr />
+<h2 id="3d-3d的位姿估计">3d-3d的位姿估计</h2>
+<p>3d-3d的位姿估计指的是我们拥有一组配对好的3d点，然后根据其恢复出位姿，这个问题一般不会很强调是视觉的slam了，因为一组配对好的3d点与相机模型基本没有太大的关系了,在激光slam中也有可能会碰到ICP，不过由于激光数据特征不够丰富，因此我们很难知道两个点集之间的匹配关系。</p>
+
+<p>一般这种问题会使用迭代最近点(Iterative Closest Point, ICP)思想，求解方法主要分为两种方式:</p>
+<ol>
+  <li>基于线性代数的求解
+    <ul>
+      <li>SVD</li>
+    </ul>
+  </li>
+  <li>基于非线性优化方式的求解
+    <ul>
+      <li>确定目标函数，并进行非线性优化</li>
+    </ul>
+  </li>
+</ol>
 
 <blockquote>
-  <p>在现代计算机中，数据的读写一般是严格按照存储器层次结构进行的．比如处理器的运算单元从寄存器读取数据，寄存器从缓存读取数据，缓存从内存读取数据，内存从硬盘读取数据．当运算单元需要的数据寄存器中没有时，寄存器便会从缓存中请求该数据；如果缓存中也没有该数据，缓存便会从内存中请求该数据；如果内存中也没有该数据，内存便会从硬盘上请求该数据；然后再逐层向上返回．</p>
+  <p>这种位姿估计的场景其实在视觉slam中会用的比较少。但是了解也是值得的。</p>
 </blockquote>
+
+<h2 id="代码">代码</h2>
+<blockquote>
+  <p>等我写完会贴出地址，未完待续。。。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<p>[1] 视觉SLAM十四讲， 高翔，张涛等著</p>
+
 
     </div>
     
@@ -115,14 +143,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=计算机中register、cache、memory的区别&url=http://localhost:4000/register-cache-memory/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/register-cache-memory/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/register-cache-memory/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=特征点法slam中位姿估计方法总结&url=http://localhost:4000/pose-estimation/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/pose-estimation/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/pose-estimation/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#计算机基础" class="tag">计算机基础</a>
+          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
           
         </div>
       </footer>

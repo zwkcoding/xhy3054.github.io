@@ -3,7 +3,7 @@ layout: post
 title: 射影几何中的单应变换 
 date: 2019-01-27 10:07:24.000000000 +09:00
 img:  game5.jpg # Add image post (optional)
-tag: [图像处理]
+tag: [计算机视觉]
 ---
 
 # 各种经典变换总结

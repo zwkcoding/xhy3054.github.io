@@ -3,7 +3,7 @@ layout: post
 title: RANSAC算法的理解与使用
 date: 2019-01-26 10:07:24.000000000 +09:00
 img:  game4.jpg # Add image post (optional)
-tag: [图像处理, 机器学习]
+tag: [计算机视觉, 机器学习]
 ---
 **随机抽样一致算法(random sample consensus, RANSAC)**，其实就是采用迭代的方法从一组包含离群的被观测数据中估算出数学模型的参数。(比如通过一群点拟合一条直线等)
 

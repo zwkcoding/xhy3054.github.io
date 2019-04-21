@@ -60,16 +60,23 @@
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>三角测量的目的是用来确定图片中某一个点的深度。为什么会有这样的需求呢？我们在前面的博客中提到了<a href="https://xhy3054.github.io/epipolar-geometry/">对极几何</a>与<a href="https://xhy3054.github.io/Homography-matrix/">单应变换</a>。在前面其实已经提到过了，我们可以通过本质矩阵与单应矩阵恢复出相机变换的位姿，但是这两种方法确定的位姿变换是具有<strong>尺度不确定性</strong>的。</p>
+      <p>三角测量的目的是用来确定图片中某一个点的深度。为什么会有这样的需求呢？我们在前面的博客中提到了<a href="https://xhy3054.github.io/epipolar-geometry/">对极几何</a>与<a href="https://xhy3054.github.io/Homography-matrix/">单应变换</a>。在前面其实已经提到过了，在单目VO中，虽然我们可以通过本质矩阵与单应矩阵恢复出相机变换的位姿，但是这两种方法确定的位姿变换是具有<strong>尺度不确定性</strong>的。<strong>在双目vo中，我们会首先使用三角测量恢复出深度信息，再进行位姿估计</strong>。</p>
 
 <blockquote>
   <p>因为基础矩阵与单应矩阵本身描述的是从<strong>一个2d平面到另一个2d平面的变换</strong>，无需3d深度信息，这两种变换都是正常进行的，因此自然就具有尺度不确定性。更加具体的讲，将基础矩阵与单应矩阵作用在一个齐次坐标(x,y,1)上时，此时，随意的将基础矩阵与单应矩阵进行一定尺度缩放，由于<strong>齐次坐标的尺度等价性</strong>，对最终的变换结果都不会产生影响。</p>
 </blockquote>
 
 <h2 id="三角测量">三角测量</h2>
-<p>三角测量本身是由高斯提出，最早应用在天文地理领域，根据不同季节观察到的星星的角度，估计星星与我们的距离。</p>
+<p>三角测量本身是由高斯提出，最早应用在天文地理领域，根据<strong>不同季节观察到的星星的角度</strong>，估计星星与我们的距离。</p>
 
 <p>在相机几何中的应用，推导如下：</p>
+<div style="text-align: center">
+<img src="/assets/img/triangulation/3_Triangulation.PNG" />
+</div>
+
+<blockquote>
+  <p>注意，三角测量依据的是<strong>同一个空间点</strong>在不同时刻的投影到相机成像平面上的位置来确定这两个时刻时这个点的深度。</p>
+</blockquote>
 
 <p>由<a href="https://xhy3054.github.io/camerca-module/">相机成像的几何描述</a>我们可以理解如下的公式(世界坐标到像素坐标的转换)：</p>
 
@@ -159,9 +166,40 @@
 <span class="p">}</span>
 </code></pre></div></div>
 
+<h2 id="使用概率方法更新矫正深度值">使用概率方法更新矫正深度值</h2>
+<p>从上述讲述中，我们已经知道通过两帧图像的匹配点，可以得到一个等式，可以计算出这一点的深度值，所以，如果有n副图像进行匹配，那我们会得到n-1个等式。此时我们就可以计算出这一点的n-1个空间位置的测量值。</p>
+
+<p>好的测量值是符合正太分布的，噪声符合均匀分布，此时我们可以通过一些概率的方法对多次测量结果进行融合，得到更鲁棒的结果。</p>
+
+<ul>
+  <li>
+    <p>在SVO中，使用贝叶斯方法(最大后验概率)进行更新</p>
+  </li>
+  <li>
+    <p>在LSD中，使用卡尔曼滤波进行深度测量值的滤波</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>此处，尚需查看具体操作，未完待续</p>
+</blockquote>
+
+<h2 id="其他测距方法">其他测距方法</h2>
+<ol>
+  <li>主动方法
+    <ul>
+      <li>结构光: 光已知空间方向的投影光线的集合称为结构光，结构光激光散斑通过投射具有高度伪随机性的激光散斑，会随着不同距离变换不同的图案，对三维空间直接标记，通过观察物体表面的散斑图案就可以判断其深度。</li>
+      <li>ToF: 飞行时间法，通过连续发射光脉冲（一般是不可见光），到被观测物体上，然后接收从物体反射回去的光脉冲，通过探测光脉冲的往返飞行时间来计算被测物体距离。</li>
+      <li>LIDAR: 激光雷达</li>
+    </ul>
+  </li>
+  <li>使用深度学习构建神经网络对图像深度进行预测</li>
+</ol>
+
 <h1 id="参考文献">参考文献</h1>
 <ul>
   <li>[1] 《视觉slam十四讲》</li>
+  <li>[2] https://ewenwan.github.io</li>
 </ul>
 
     </div>
@@ -177,7 +215,7 @@
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#图像处理" class="tag">图像处理</a>
+          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
           
         </div>
       </footer>
@@ -215,6 +253,10 @@
       <div class="recent_list">
         
           
+            <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
+          
+        
+          
             <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
           
         
@@ -232,10 +274,6 @@
         
           
             <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
-          
-        
-          
-            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
           
         
       </div>

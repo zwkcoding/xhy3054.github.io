@@ -3,7 +3,7 @@ layout: post
 title: 图像特征之ORB特征详解
 date: 2018-09-16 10:07:24.000000000 +09:00
 img:  village1.jpg # Add image post (optional)
-tag: [图像处理, image_feature]
+tag: [计算机视觉, image_feature]
 ---
 学术需要，最近开始着手一些视觉slam的工作，首先接触了如今github上最火的开源valsm的项目－－ORB-Slam，这是一种基于特征点匹配的方法。其实以前我就已经接触过一些图像特征了，比如说SURF、SIFT等经典的特征点，记得当时还依据SURF特征写过一个图像拼接的MATLAB大作业。但是说实话，当时对于图像特征这个概念我的理解是非常浅显的。这次进行视觉SLAM的学习，首先就从ORB特征点开始，这段时间的学习，我对于图像特征又有了全新的理解。希望可以通过这篇博客记录下来。
 

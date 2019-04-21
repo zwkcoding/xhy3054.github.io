@@ -120,6 +120,9 @@
 
 <p>解决方法：使用图像金字塔建立多尺度的图像空间，这样本来较大的位移在新的层级比较高的尺度空间上会变小。</p>
 
+<h2 id="光流方法评价">光流方法评价</h2>
+<p>光流方法建立在一系列假设上，使得得到的位置可能与真实特征点所对应的位置有偏差，所以通常做法是对第二幅图也检测特征点，如果检测到的特征点位置和光流法预测的位置靠近，那就认为这个特征点和第一幅图中的对应。这是使用光流进行特征匹配的感觉，由于不需要计算描述子，所以计算量小很多。</p>
+
 <h1 id="参考资料">参考资料</h1>
 <ul>
   <li>[1] 视觉SLAM十四讲</li>
@@ -140,7 +143,7 @@
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#图像处理" class="tag">图像处理</a>
+          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
           
         </div>
       </footer>
@@ -178,6 +181,10 @@
       <div class="recent_list">
         
           
+            <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
+          
+        
+          
             <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
           
         
@@ -195,10 +202,6 @@
         
           
             <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
-          
-        
-          
-            <a href="/vim/" class="recent_item" style="background-image: url( /assets/img/sword/sword3.jpg )"><span>备忘vim编辑器</span></a>
           
         
       </div>
