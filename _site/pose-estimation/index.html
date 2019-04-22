@@ -63,7 +63,7 @@
       <p>这篇博客主要是对基于特征点匹配的slam中的位姿估计方法进行总结。</p>
 
 <h2 id="2d-2d的位姿估计">2d-2d的位姿估计</h2>
-<p>一般用在单目slam的初始阶段，系统还没有地图，此时只有输入的2d的图片序列。一般会使用如下方法进行位姿估计。</p>
+<p>一般用在单目slam的初始阶段，系统还没有地图，此时只有输入的2d的图片序列。一般会使用如下方法进行位姿估计。而RGBD与双目系统中，无需进行初始化。</p>
 
 <ol>
   <li>首先通过对极约束求解出本质矩阵(比较经典的有八点法)，然后对本质矩阵进行奇异值分解(SVD)，求解出R与t;
@@ -79,7 +79,11 @@
 </ol>
 
 <blockquote>
-  <p>这两种方法有一个共同的缺点，那就是尺度不确定性。所以，在单目slam中，尺度是不确定的，通常，我们会对初始化时的平移向量t进行归一化，此后，建立的地图与整个之后的位姿都是以初始化时的位移作为单位进行的。<strong>这个特性导致特征点法的单目vo是尺度不确定的</strong>。</p>
+  <p>这两种方法有一个共同的缺点，那就是尺度不确定性。所以，在单目slam中，尺度是不确定的，通常，我们会对初始化时的平移向量t进行归一化，此后，建立的地图与整个之后的位姿都是以初始化时的位移作为单位进行的。<strong>这个特性导致特征点法的单目vo是尺度不确定的</strong>。在初始化之后，单目相机就会使用下面的3d-2d方法进行位姿估计</p>
+</blockquote>
+
+<blockquote>
+  <p>此处再讨论一下为什么对极约束没有单应约束强，还有必须有位移等缺点，还是首先使用对极约束进行初始化。这时因为单应约束有平面场景要求，使得初始化时必须有平面场景。</p>
 </blockquote>
 
 <h2 id="3d-2d的位姿估计pnp问题">3d-2d的位姿估计（PnP问题）</h2>
@@ -125,7 +129,7 @@
 </ol>
 
 <blockquote>
-  <p>这种位姿估计的场景其实在视觉slam中会用的比较少。但是了解也是值得的。</p>
+  <p>这种位姿估计的场景其实在视觉slam中一般用来估计与校正回环的累积误差，计算能使回环对齐的相似变换。不过在RGBD与双目相机系统中，也可以使用这种方法来计算位姿。</p>
 </blockquote>
 
 <h2 id="代码">代码</h2>
@@ -188,6 +192,10 @@
       <div class="recent_list">
         
           
+            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
+          
+        
+          
             <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
           
         
@@ -205,10 +213,6 @@
         
           
             <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
-          
-        
-          
-            <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
           
         
       </div>

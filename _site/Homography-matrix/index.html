@@ -60,18 +60,16 @@
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <h1 id="各种经典变换总结">各种经典变换总结</h1>
+      <h1 id="各种经典变换总结2维平面上三维空间中思想一致但是自由度不同">各种经典变换总结(2维平面上，三维空间中思想一致，但是自由度不同)</h1>
 <ol>
-  <li><strong>刚体变换</strong>：可以保证两个点在<strong>变换前后欧式距离不变</strong>，具有3个自由度（旋转一个，平移两个）；
+  <li><strong>刚体(欧式)变换</strong>：可以保证两个点在<strong>变换前后欧式距离不变</strong>，具有3个自由度（旋转一个，平移两个）；
     <ul>
-      <li>通常是旋转加上平移；
-<br /></li>
+      <li>通常是旋转加上平移；</li>
     </ul>
   </li>
   <li><strong>相似变换</strong>：通常指相似刚体变换，指增加了缩放的刚体变换，具有4个自由度（刚体的3个再加上缩放尺度），相似变换具有<strong>保角性与保持距离比</strong>的性质；
     <ul>
-      <li>通常可以描述为先旋转一次，再缩放一次，最后平移一次；
-<br /></li>
+      <li>通常可以描述为先旋转一次，再缩放一次，最后平移一次；</li>
     </ul>
   </li>
   <li><strong>仿射变换</strong>：具有两个旋转因子与两个缩放因子，外加两个平移因子，因此具有6个自由度（其实就是2*3矩阵每个元素都互不相关，都代表一个自由度），以前在<a href="https://xhy3054.github.io/homogeneous-coordinates/">理解齐次坐标</a>中讲的仿射变换严格上来说是仿射变换的子集，甚至可以简单的使用相似变换达到。仿射变换不具有保角性与保持距离比的性质，但是原本的平行线，变换后仍然是平行线；
@@ -81,6 +79,30 @@
   </li>
   <li><strong>单应变换（也叫投影变换）</strong>：具有8个自由度，它的作用是描述<strong>两个平面上的点的映射关系</strong>。仿射变换的不变性对于投影变换不适用，但是原本共线的三个点在单应变换后仍旧共线。</li>
 </ol>
+
+<h2 id="三维空间中的变换">三维空间中的变换</h2>
+<ul>
+  <li>
+    <p>欧式变换: 6个自由度，长度、夹角、体积不变
+<script type="math/tex">% <![CDATA[
+\left[ {\begin{array}{*{20}{c}} \mathbf{R} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right] %]]></script></p>
+  </li>
+  <li>
+    <p>相似变换: 7个自由度， 体积比不变
+<script type="math/tex">% <![CDATA[
+\left[ {\begin{array}{*{20}{c}} \mathbf{sR} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right] %]]></script></p>
+  </li>
+  <li>
+    <p>仿射变换: 12个自由度，平行性、体积比不变
+<script type="math/tex">% <![CDATA[
+\left[ {\begin{array}{*{20}{c}} \mathbf{A} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right] %]]></script></p>
+  </li>
+  <li>
+    <p>射影变换: 15个自由度，接触平面的相交与相切不变
+<script type="math/tex">% <![CDATA[
+\left[ {\begin{array}{*{20}{c}} \mathbf{A} & \mathbf{t} \\ {\mathbf{a}^T} & \mathbf{v} \end{array}} \right] %]]></script></p>
+  </li>
+</ul>
 
 <h1 id="单应变换">单应变换</h1>
 <p>如下面公式，实际上单应变换实现的是两个平面之间的映射关系。(意思是<strong>只要是从一个平面到另一个平面的映射都可以用单应矩阵表示</strong>)</p>
@@ -223,6 +245,10 @@ p_{uv2} &amp;= K(RP_w + t)/Z_2 <br />
       <div class="recent_list">
         
           
+            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
+          
+        
+          
             <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
           
         
@@ -240,10 +266,6 @@ p_{uv2} &amp;= K(RP_w + t)/Z_2 <br />
         
           
             <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
-          
-        
-          
-            <a href="/linked-list-cycle/" class="recent_item" style="background-image: url( /assets/img/sword/sword4.jpg )"><span>带环链表问题</span></a>
           
         
       </div>

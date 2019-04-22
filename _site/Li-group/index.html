@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>李群与李代数 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword10.jpg alt="李群与李代数">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Apr 22</p>
+        <h1 class="post_title">李群与李代数</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>这部分内容是在slam中经常会用到的数学内容。</p>
+
+<h1 id="群">群</h1>
+<p>群(group)是一种代数结构，由两部分(一个集合A与一种运算$\cdot$)构成，可以记作$G=(A, \cdot)$,并且群满足如下条件:</p>
+<ol>
+  <li>封闭性:     $ \quad \forall a_1, a_2, \quad a_1 \cdot a_2 \in A $</li>
+  <li>结合律:     $ \quad \forall a_1, a_2, a_3, \quad (a_1 \cdot a_2) \cdot a_3 = a_1 \cdot ( a_2 \cdot a_3) $</li>
+  <li>幺元:       $ \quad \exists a_0 \in A, \quad s.t. \quad \forall a \in A, \quad a_0 \cdot a = a \cdot a_0 = a $</li>
+  <li>逆:        $ \quad \forall a \in A, \quad \exists a^{-1} \in A, \quad s.t. \quad a \cdot a^{-1} = a_0 $</li>
+</ol>
+
+<p>由上面我们可以知道了群的定义，下面例举几个群：</p>
+<ul>
+  <li>
+    <p><strong>一般线性群</strong>$GL(n)$: n×n的可逆矩阵与矩阵乘法构成一个群，幺元是E矩阵</p>
+  </li>
+  <li>
+    <p><strong>旋转矩阵群</strong>$SO(n)$: 旋转矩阵与矩阵乘法构成的一个群，满足上面任何一个性质，幺元是旋转角度0的矩阵。
+<script type="math/tex">\begin{equation} SO(n) = \{ \mathbf{R} \in \mathbb{R}^{n \times n} | \mathbf{R R}^T = \mathbf{I}, det(\mathbf{R})=1 \} \end{equation}</script></p>
+  </li>
+  <li>
+    <p><strong>特殊欧式群</strong>$SE(n)$: 欧式变换矩阵(旋转加平移)与矩阵乘法也构成一个群，它的幺元是旋转角度为0，平移也是0的变换矩阵。
+<script type="math/tex">% <![CDATA[
+\begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}} \mathbf{R} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script></p>
+  </li>
+</ul>
+
+<h2 id="李群">李群</h2>
+<p>李群是指具有连续性质的群。比如向整数群Z那样的离散的群就没有连续性质，所以不是李群。而$SO(n)$与$SE(n)$是李群</p>
+
+<h3 id="李代数">李代数</h3>
+<p>每个李群都有与之对应的李代数。李代数描述了李群的局部性质。</p>
+
+<p>通常李代数由一个集合V，一个数域F和一个二元运算[]组成。通常如果我们说$(\mathbb{V}, \mathbb{F}, [])$是一个李代数，那么它具有如下性质:</p>
+<ul>
+  <li>
+    <p>封闭性: $\forall \mathbf{X}, \mathbf{Y} \in \mathbb{V}, [\mathbf{X} \mathbf{Y}] \in \mathbb{V}$</p>
+  </li>
+  <li>
+    <p>双线性: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, a,b \in \mathbb{F},$有
+<script type="math/tex">[a\mathbf{X}+b\mathbf{Y}, \mathbf{Z}] = a[\mathbf{X}\mathbf{Z}] + b [ \mathbf{Y} \mathbf{Z} ] \quad [\mathbf{Z}, a \mathbf{X}+b\mathbf{Y}] = a [\mathbf{Z} \mathbf{X} ]+ b [\mathbf{ZY}]</script></p>
+  </li>
+  <li>
+    <p>自反性: $\forall \mathbf{X} \in \mathbb{V}, [\mathbf{X} \mathbf{X}] = \mathbf{0}$</p>
+  </li>
+  <li>
+    <p>雅可比等价: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, [\mathbf{X}, [\mathbf{YZ}] ] + [\mathbf{Z}, [\mathbf{YX}] ] + [\mathbf{Y}, [\mathbf{ZX}]]$</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>通常我们成李代数中的二元运算为<strong>李括号</strong>。相比于群中较为简单的二元运算，李括号通常的含义是计算集合中两个元素的差异。一般它不要求结合律，但是满足反对称性，以及元素和自己做李括号之后为0的性质。一个典型的例子是$\mathfrak{g} = (\mathbb{R}^3, \mathbb{R}, \times)$是一个李代数。</p>
+</blockquote>
+
+<h2 id="三维旋转群so3与其对应的李代数mathfrakso3">三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$</h2>
+<p>三维旋转群描述三维空间中的旋转，其集合元素为3×3的正交且行列式为1的矩阵R，我们知道$RR^T=I$。如果将R看作一个随着时间t变化的函数R(t),则有$\mathbf{R}(t) \mathbf{R}(t) ^T = \mathbf{I}$。在等式两边分别对时间求导，可以得到:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} + \mathbf{R} (t) \mathbf{\dot{R}} {(t)^T} = 0 \end{equation}</script>
+
+<p>对上式进行整理，可以得到:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} = - \left(  \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} \right)^T \end{equation}</script>
+
+<p>从上面的公式我们可以看出$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$是一个<strong>反对称矩阵</strong>。</p>
+
+<h3 id="反对称矩阵与叉乘">反对称矩阵与叉乘</h3>
+<p>对于三维向量a与b之间的外积，其中$\mathbf{a}=[a_1, a_2, a_3]^T$,如下公式:</p>
+
+<script type="math/tex; mode=display">a×b = a^{\wedge} b</script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   {\mathbf{a}^ \wedge } = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&\\ &0&{ - {a_1}}\\ { - {a_2}}&&0 \end{array}} \right] \end{equation} %]]></script>
+
+<hr />
+
+<p>回到刚才的话题，对于$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$这个反对称矩阵，我们将其记为A。可以将其对应到一个向量$\mathbf{a}=[a_1, a_2, a_3]^T$。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   {\mathbf{a}^ \wedge } = \mathbf{A} = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&\\ &0&{ - {a_1}}\\ { - {a_2}}&&0 \end{array}} \right] \end{equation} %]]></script>
+
+<p>上式也就可以写做</p>
+
+<script type="math/tex; mode=display">\begin{equation}   \mathbf{ \dot{R} } (t) \mathbf{R}(t)^T = \mathbf{\phi} (t) ^ {\wedge} \end{equation}</script>
+
+<p>将上式左右各右乘$\mathbf{R}(t)$，由于R是正交的，所以有</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   \mathbf{ \dot{R} } (t)  = \mathbf{\phi} (t)^{\wedge} \mathbf{R}(t) =   \left[ {\begin{array}{*{20}{c}}    0&{ - {\phi _3}}&{\phi _2}\\      {\phi _3}&0&{ - {\phi _1}}\\      { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \mathbf{R} (t) \end{equation} %]]></script>
+
+<p>由上式我们可以发现，每次<strong>对旋转矩阵求导数</strong>，只需要左乘一个$\mathbf{\phi}$矩阵即可。这表明$\mathbf{\phi}$反映了R的导数性质，所以称其在$SO(3)$的正切空间上。同时对上面微分方程进行求解，我们可以得到</p>
+
+<script type="math/tex; mode=display">\begin{equation} \label{eq:so3ode} \mathbf{R}(t) = \exp \left( \mathbf{\phi} (t) ^\wedge \right) \mathbf{R}(t_0) \end{equation}</script>
+
+<hr />
+
+<p>由上我们可以知道，<strong>三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数</strong>。它描述了三维旋转群$SO(3)$的局部性质。</p>
+
+<h3 id="三维向量与其叉乘等价的反对称矩阵的两条性质">三维向量与其叉乘等价的反对称矩阵的两条性质</h3>
+<p>第一个是</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \| \mathbf{\phi} \|^2 \mathbf{I}_{3 \times 3} \end{equation}</script>
+
+<p>在$\mathbf{\phi}$为单位向量时为</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \mathbf{I}1 \end{equation}</script>
+
+<p>另一个是</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} = - \mathbf{\phi}^{\wedge} \end{equation}</script>
+
+<h1 id="参考文献">参考文献</h1>
+<p>[1] 视觉SLAM十四讲:从理论到实践</p>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=李群与李代数&url=http://localhost:4000/Li-group/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/Li-group/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/Li-group/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
+          
+        
+          
+            <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
+          
+        
+          
+            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
+          
+        
+          
+            <a href="/bow/" class="recent_item" style="background-image: url( /assets/img/sword/sword7.jpg )"><span>基于词袋模型的图像匹配</span></a>
+          
+        
+          
+            <a href="/vnc-rdp/" class="recent_item" style="background-image: url( /assets/img/sword/sword5.jpg )"><span>vnc与rdp的对比</span></a>
+          
+        
+          
+            <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

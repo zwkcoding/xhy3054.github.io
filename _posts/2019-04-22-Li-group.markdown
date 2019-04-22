@@ -1,0 +1,98 @@
+---
+layout: post
+title: 李群与李代数
+date: 2019-04-22 10:07:24.000000000 +09:00
+img:  sword/sword10.jpg # Add image post (optional)
+tag: [数学]
+---
+
+这部分内容是在slam中经常会用到的数学内容。
+
+# 群
+群(group)是一种代数结构，由两部分(一个集合A与一种运算$\cdot$)构成，可以记作$G=(A, \cdot)$,并且群满足如下条件:
+1. 封闭性:     $ \quad \forall a_1, a_2, \quad a_1 \cdot a_2 \in A $
+2. 结合律:     $ \quad \forall a_1, a_2, a_3, \quad (a_1 \cdot a_2) \cdot a_3 = a_1 \cdot ( a_2 \cdot a_3) $
+3. 幺元:       $ \quad \exists a_0 \in A, \quad s.t. \quad \forall a \in A, \quad a_0 \cdot a = a \cdot a_0 = a $
+4. 逆:        $ \quad \forall a \in A, \quad \exists a^{-1} \in A, \quad s.t. \quad a \cdot a^{-1} = a_0 $
+
+由上面我们可以知道了群的定义，下面例举几个群：
+- **一般线性群**$GL(n)$: n×n的可逆矩阵与矩阵乘法构成一个群，幺元是E矩阵
+
+- **旋转矩阵群**$SO(n)$: 旋转矩阵与矩阵乘法构成的一个群，满足上面任何一个性质，幺元是旋转角度0的矩阵。
+$$\begin{equation} SO(n) = \{ \mathbf{R} \in \mathbb{R}^{n \times n} | \mathbf{R R}^T = \mathbf{I}, det(\mathbf{R})=1 \} \end{equation}$$
+
+- **特殊欧式群**$SE(n)$: 欧式变换矩阵(旋转加平移)与矩阵乘法也构成一个群，它的幺元是旋转角度为0，平移也是0的变换矩阵。
+$$\begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}} \mathbf{R} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} $$
+
+## 李群
+李群是指具有连续性质的群。比如向整数群Z那样的离散的群就没有连续性质，所以不是李群。而$SO(n)$与$SE(n)$是李群
+
+### 李代数
+每个李群都有与之对应的李代数。李代数描述了李群的局部性质。
+
+通常李代数由一个集合V，一个数域F和一个二元运算[]组成。通常如果我们说$(\mathbb{V}, \mathbb{F}, [])$是一个李代数，那么它具有如下性质:
+- 封闭性: $\forall \mathbf{X}, \mathbf{Y} \in \mathbb{V}, [\mathbf{X} \mathbf{Y}] \in \mathbb{V}$
+
+- 双线性: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, a,b \in \mathbb{F},$有
+$$[a\mathbf{X}+b\mathbf{Y}, \mathbf{Z}] = a[\mathbf{X}\mathbf{Z}] + b [ \mathbf{Y} \mathbf{Z} ] \quad [\mathbf{Z}, a \mathbf{X}+b\mathbf{Y}] = a [\mathbf{Z} \mathbf{X} ]+ b [\mathbf{ZY}]$$
+
+- 自反性: $\forall \mathbf{X} \in \mathbb{V}, [\mathbf{X} \mathbf{X}] = \mathbf{0}$
+
+- 雅可比等价: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, [\mathbf{X}, [\mathbf{YZ}] ] + [\mathbf{Z}, [\mathbf{YX}] ] + [\mathbf{Y}, [\mathbf{ZX}]]$
+
+> 通常我们成李代数中的二元运算为**李括号**。相比于群中较为简单的二元运算，李括号通常的含义是计算集合中两个元素的差异。一般它不要求结合律，但是满足反对称性，以及元素和自己做李括号之后为0的性质。一个典型的例子是$\mathfrak{g} = (\mathbb{R}^3, \mathbb{R}, \times)$是一个李代数。
+
+## 三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$
+三维旋转群描述三维空间中的旋转，其集合元素为3×3的正交且行列式为1的矩阵R，我们知道$RR^T=I$。如果将R看作一个随着时间t变化的函数R(t),则有$\mathbf{R}(t) \mathbf{R}(t) ^T = \mathbf{I}$。在等式两边分别对时间求导，可以得到:
+
+$$ \begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} + \mathbf{R} (t) \mathbf{\dot{R}} {(t)^T} = 0 \end{equation} $$
+
+对上式进行整理，可以得到:
+
+$$ \begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} = - \left(  \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} \right)^T \end{equation}$$
+
+从上面的公式我们可以看出$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$是一个**反对称矩阵**。
+
+### 反对称矩阵与叉乘
+对于三维向量a与b之间的外积，其中$\mathbf{a}=[a_1, a_2, a_3]^T$,如下公式:
+
+$$ a×b = a^{\wedge} b $$
+
+$$\begin{equation}   {\mathbf{a}^ \wedge } = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{{a_2}}\\ {{a_3}}&0&{ - {a_1}}\\ { - {a_2}}&{{a_1}}&0 \end{array}} \right] \end{equation} $$
+
+---
+回到刚才的话题，对于$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$这个反对称矩阵，我们将其记为A。可以将其对应到一个向量$\mathbf{a}=[a_1, a_2, a_3]^T$。
+
+$$\begin{equation}   {\mathbf{a}^ \wedge } = \mathbf{A} = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{{a_2}}\\ {{a_3}}&0&{ - {a_1}}\\ { - {a_2}}&{{a_1}}&0 \end{array}} \right] \end{equation}$$
+
+上式也就可以写做
+
+$$ \begin{equation}   \mathbf{ \dot{R} } (t) \mathbf{R}(t)^T = \mathbf{\phi} (t) ^ {\wedge} \end{equation} $$
+
+将上式左右各右乘$\mathbf{R}(t)$，由于R是正交的，所以有
+
+$$ \begin{equation}   \mathbf{ \dot{R} } (t)  = \mathbf{\phi} (t)^{\wedge} \mathbf{R}(t) =   \left[ {\begin{array}{*{20}{c}}    0&{ - {\phi _3}}&{\phi _2}\\      {\phi _3}&0&{ - {\phi _1}}\\      { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \mathbf{R} (t) \end{equation}$$
+
+由上式我们可以发现，每次**对旋转矩阵求导数**，只需要左乘一个$\mathbf{\phi}$矩阵即可。这表明$\mathbf{\phi}$反映了R的导数性质，所以称其在$SO(3)$的正切空间上。同时对上面微分方程进行求解，我们可以得到
+
+$$\begin{equation} \label{eq:so3ode} \mathbf{R}(t) = \exp \left( \mathbf{\phi} (t) ^\wedge \right) \mathbf{R}(t_0) \end{equation}$$
+
+---
+由上我们可以知道，**三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数**。它描述了三维旋转群$SO(3)$的局部性质。
+
+### 三维向量与其叉乘等价的反对称矩阵的两条性质
+第一个是
+
+$$ \begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \| \mathbf{\phi} \|^2 \mathbf{I}_{3 \times 3} \end{equation} $$
+
+在$\mathbf{\phi}$为单位向量时为
+
+$$ \begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \mathbf{I}1 \end{equation} $$
+
+另一个是
+
+$$ \begin{equation} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} = - \mathbf{\phi}^{\wedge} \end{equation} $$
+
+# 参考文献
+[1] 视觉SLAM十四讲:从理论到实践
+
