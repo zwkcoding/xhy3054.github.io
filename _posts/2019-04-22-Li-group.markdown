@@ -80,18 +80,62 @@ $$\begin{equation} \label{eq:so3ode} \mathbf{R}(t) = \exp \left( \mathbf{\phi} (
 ---
 由上我们可以知道，**三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数**。它描述了三维旋转群$SO(3)$的局部性质。
 
-### 三维向量与其叉乘等价的反对称矩阵的两条性质
-第一个是
+此处我们发现SO(3)对应的李代数是定义在$\mathbb{R}^3$上的向量，我们记作$\mathbf{\phi}$（注意这是个向量，虽然希腊字母的粗体不明显）。而每个$\mathbf{\phi}$都可以生成一个反对称矩阵:
 
-$$ \begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \| \mathbf{\phi} \|^2 \mathbf{I}_{3 \times 3} \end{equation} $$
+$$ \begin{equation} \label{eq:phi} \mathbf{\Phi} = \mathbf{\phi}^{\wedge} = \left[ {\begin{array}{*{20}{c}}     0&{ - {\phi _3}}&{\phi _2}\\  {\phi _3}&0&{ - {\phi _1}}\\  { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \in \mathbb{R}^{3 \times 3} \end{equation} $$
 
-在$\mathbf{\phi}$为单位向量时为
+在此定义下，两个向量$\mathbf{\phi}_1, \mathbf{\phi}_2$的李括号为:
 
-$$ \begin{equation} \mathbf{\phi} \mathbf{\phi}^T = \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} + \mathbf{I}1 \end{equation} $$
+$$ \begin{equation} [\mathbf{\phi}_1, \mathbf{\phi}_2] = \mathbf{ \Phi }_1 \mathbf{ \Phi }_2 - \mathbf{ \Phi }_2 \mathbf{ \Phi }_1 \end{equation} $$
 
-另一个是
+由于向量与其对应的反对称矩阵关系密切，所以我们说旋转矩阵群的李代数的元素是3维向量或者3维反对称矩阵，都是可以的。
 
-$$ \begin{equation} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} \mathbf{\phi}^{\wedge} = - \mathbf{\phi}^{\wedge} \end{equation} $$
+$$ \begin{equation} \mathfrak{so}(3) = \left\{ \Phi = \mathbf{\phi^\wedge} \in \mathbb{R}^{3 \times 3} | \mathbf{\phi} \in \mathbb{R}^3 \right\} \end{equation} $$
+
+### $SO(3)$上的指数映射
+首先，任意矩阵的指数映射可以写成一个泰勒展开，当然，只有在收敛的情况下才会有结果，其结果仍然是一个矩阵。
+
+$$\begin{equation} \exp(\mathbf{A}) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{ \mathbf{A}^n}} \end{equation}$$
+
+同样，对$$\mathfrak{so}(3)$$中任意一个元素$\mathbf{\phi}$，它的指数映射是:
+
+$$ \begin{equation} \exp(\mathbf{\phi}^\wedge) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{ (\mathbf{\phi}^{\wedge})^n}} \end{equation} $$
+
+仔细推导这个定义，首先$\mathbf{\phi}$是一个三维向量，我们可以定义它的模长和方法，分别记作$\theta$与$\mathbf{a}$(注意此处的$\mathbf{a}$是一个单位长度的向量)，于是有$\mathbf{\phi} = {\theta} {a}$，首先此处说明的是，$a^{\wedge}$具有如下两条性质:
+
+$$\begin{equation} \mathbf{a} \mathbf{a}^T = \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} + \mathbf{I} \end{equation}$$
+
+$$ \begin{equation} \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} = - \mathbf{a}^{\wedge} \end{equation} $$
+
+上述性质有时间可以尝试证明一下，利用这两个性质，我们可以进行如下推导:
+
+$$ \begin{align*} \exp \left( {\mathbf{\phi} ^ \wedge } \right) &= \exp \left( {\theta {\mathbf{a}^ \wedge }} \right) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{\left( {\theta {\mathbf{a}^ \wedge }} \right)}^n} \\ &= \mathbf{I} + \theta {\mathbf{a}^ \wedge } + \frac{1}{2!}{\theta ^2}{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \frac{1}{3!}{\theta ^3}{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \frac{1}{4!}{\theta ^4}{\left( {\mathbf{a}^ \wedge } \right)^4} + ...\\ &= \mathbf{a} {\mathbf{a}^T} - {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \theta {\mathbf{a}^ \wedge } + \frac{1}{2!}\theta {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } - \frac{1}{3!}{\theta ^3}{\mathbf{a}^ \wedge } + \frac{1}{4!}{\theta ^4}{\left( {\mathbf{a}^ \wedge } \right)^4} + ...\\ &= \mathbf{a}{\mathbf{a}^T} + \left( {\theta  - \frac{1}{3!}{\theta ^3} + \frac{1}{5!}{\theta ^5} - ...} \right){\mathbf{a}^ \wedge } - \left( {1 - \frac{1}{2!}{\theta ^2} + \frac{1}{4!}{\theta ^4} - ...} \right){\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }\\ &= {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \mathbf{I} + \sin \theta {\mathbf{a}^ \wedge } - \cos \theta {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }\\ &= (1 - \cos \theta ){\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + I + \sin \theta {\mathbf{a}^ \wedge }\\ &= \cos \theta \mathbf{I} + (1 - \cos \theta )\mathbf{a}{\mathbf{a}^T} + \sin \theta {\mathbf{a}^ \wedge } \\ \end{align*} $$
+
+记住最后的这个公式:
+
+$$ \begin{equation} \exp( \theta \mathbf{a} ) = \cos \theta \mathbf{I} + (1 - \cos \theta )\mathbf{a}{\mathbf{a}^T} + \sin \theta {\mathbf{a}^ \wedge } \end{equation} $$
+
+这时**罗德里格斯公式**，这个公式本身的作用是将旋转向量变换成旋转矩阵。所以从这里我们知道$$\mathfrak{so}(3)$$实际上是由旋转向量组成的空间。而指数映射就是罗德里格斯公式映射，通过他们我们可以将$$\mathfrak{so}(3)$$中的任意一个旋转向量对应到一个$SO(3)$中的一个旋转矩阵。
+
+> 这里需要提到的一点是，指数映射不是一个双射，但他是一个满射。这一意味着每一个旋转矩阵都可以找到一个向量与之对应，但是可能存在多个向量对应到同一个矩阵。这个很好理解，因为旋转角度具有周期性，多转360度效果一样。
+
+## 三维欧式群$SE(3)$与其对应的李代数$\mathfrak{se}(3)$
+首先，列出三维欧式群$SE(3)$的定义:
+
+$$\begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}}     \mathbf{R} & \mathbf{t} \\  {\mathbf{0}^T} & 1    \end{array}} \right] \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation}$$
+
+由于每个欧式变换矩阵具有六个自由度，所以其对应的李代数位于$\mathbb{R}^6$中:
+
+$$\begin{equation} \mathfrak{se}(3) = \left\{ \mathbf{ \Xi } = \mathbf{\xi}^\wedge \in \mathbb{R}^{4 \times 4} | \mathbf{\xi} \in \mathbb{R}^6 \right\} \end{equation}$$
+
+不过需要注意的是，此处我们对$^\wedge$的作用进行拓展，使得其不再是一个反对称关系，而是讲一个六维度向量转换成四维矩阵。如下:
+
+$$\begin{equation} \mathbf{\xi}^\wedge = {\left[ \begin{array}{l}   \mathbf{\rho} \\    \mathbf{\phi}   \end{array} \right]^ \wedge } = \left[ {\begin{array}{*{20}{c}}     {\mathbf{\phi} ^ \wedge }&\mathbf{\rho} \\    {\mathbf{0}^T}&0  \end{array}} \right] = \mathbf{\Xi} \end{equation}$$
+
+其中，前三维是平移分量，后三位为旋转分量，这个分量是$\mathfrak{so}(3)$的元素。在此处，该李代数对应的微分方程是:
+
+$$\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}$$
+
 
 # 参考文献
 [1] 视觉SLAM十四讲:从理论到实践
