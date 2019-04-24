@@ -64,7 +64,7 @@
 
 <h2 id="冒泡排序bubble-sort">冒泡排序(bubble sort)</h2>
 <blockquote>
-  <p>原理: 每次从左向右两两进行比较，将较大/小的交换到后面。每一个循环可以确定排好一个数，循环n-1次，完全排序完毕。</p>
+  <p>原理：每次从左向右两两进行比较，将较大/小的交换到后面。每一个循环可以确定排好一个数，循环n-1次，完全排序完毕。</p>
 </blockquote>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">bubble_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">nums</span><span class="p">){</span>
@@ -82,12 +82,12 @@
 <hr />
 
 <blockquote>
-  <p>复杂度分析: 重复n-1次循环，每次循环比较平均n/2步，因此时间复杂度是o(n^2)，空间复杂度是o(n)</p>
+  <p>复杂度分析：重复<code class="highlighter-rouge">n-1</code>次循环，每次循环比较平均<code class="highlighter-rouge">n/2</code>步，因此时间复杂度是<code class="highlighter-rouge">o(n^2)</code>，空间复杂度是<code class="highlighter-rouge">o(n)</code></p>
 </blockquote>
 
 <h2 id="插入排序insertion-sort">插入排序(Insertion sort)</h2>
 <blockquote>
-  <p>原理: 循环n-1次，每次将当前的(从1开始)数插入到前面已经排序完毕序列中合适的位置。</p>
+  <p>原理：循环n-1次，每次将当前的(从1开始)数插入到前面已经排序完毕序列中合适的位置。</p>
 </blockquote>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void insert_sort(vector&lt;int&gt; &amp;nums){
@@ -103,7 +103,7 @@
 <hr />
 
 <blockquote>
-  <p>复杂度分析: 重复n-1次循环，每次循环平均n/4步，因此时间复杂度是o(n^2),空间复杂度是o(n)</p>
+  <p>复杂度分析: 重复<code class="highlighter-rouge">n-1</code>次循环，每次循环平均<code class="highlighter-rouge">n/4</code>步，因此时间复杂度是<code class="highlighter-rouge">o(n^2)</code>,空间复杂度是<code class="highlighter-rouge">o(n)</code></p>
 </blockquote>
 
 <h2 id="选择排序selection-sort">选择排序(selection sort)</h2>
@@ -126,7 +126,7 @@
 <hr />
 
 <blockquote>
-  <p>复杂度分析: 重复n-1次循环，每次循环平均n/2步，因此时间复杂度是o(n^2)，空间复杂度是o(n)</p>
+  <p>复杂度分析: 重复<code class="highlighter-rouge">n-1</code>次循环，每次循环平均<code class="highlighter-rouge">n/2</code>步，因此时间复杂度是<code class="highlighter-rouge">o(n^2)</code>，空间复杂度是<code class="highlighter-rouge">o(n)</code></p>
 </blockquote>
 
 <h2 id="希尔排序shell-sort">希尔排序(shell sort)</h2>
@@ -204,15 +204,157 @@
 <hr />
 
 <blockquote>
-  <p>复杂度分析: 希尔排序的复杂度与步长选择有很大关系，最坏情况为o(n^2)，最好复杂度为o(n(logn)^2)，目前已知最好步长序列是(1,5,19,41,109,…)</p>
+  <p>复杂度分析：希尔排序的复杂度与步长选择有很大关系，最坏情况为<code class="highlighter-rouge">o(n^2)</code>，最好复杂度为<code class="highlighter-rouge">o(n(logn)^2)</code>，目前已知最好步长序列是(1,5,19,41,109,…)</p>
 </blockquote>
 
 <h2 id="归并排序merge-sort">归并排序(merge sort)</h2>
+<blockquote>
+  <p>原理：采用分冶思想，首先将数组不断二等分成小数组，然后合并小数组进行排序。具体过程可以参考下图</p>
+</blockquote>
 
-<h2 id="快速排序fast-sort">快速排序(fast sort)</h2>
+<div style="text-align: center">
+<img src="/assets/img/sort/merge.png" width="800" height="600" />
+</div>
+<p>从上图中，我们发现归并排序主要分两个阶段，分与冶。其中冶就是合并序列，合并细节如下:</p>
+<div style="text-align: center">
+<img src="/assets/img/sort/merge1.png" width="800" height="800" />
+</div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">merge_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">temp</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="n">merge_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">temp</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">merge_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">e</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">temp</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;</span><span class="n">e</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="n">e</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+        <span class="n">merge_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">temp</span><span class="p">);</span>
+        <span class="n">merge_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">temp</span><span class="p">);</span>
+        <span class="n">merge</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">temp</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">merge</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="kt">int</span> <span class="n">e</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">temp</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span> <span class="o">&amp;&amp;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">e</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]){</span>
+            <span class="n">temp</span><span class="p">[</span><span class="n">t</span><span class="o">++</span><span class="p">]</span><span class="o">=</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="o">++</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="n">temp</span><span class="p">[</span><span class="n">t</span><span class="o">++</span><span class="p">]</span><span class="o">=</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="o">++</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">){</span>
+        <span class="n">temp</span><span class="p">[</span><span class="n">t</span><span class="o">++</span><span class="p">]</span><span class="o">=</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="o">++</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">j</span><span class="o">&lt;=</span><span class="n">e</span><span class="p">){</span>
+        <span class="n">temp</span><span class="p">[</span><span class="n">t</span><span class="o">++</span><span class="p">]</span><span class="o">=</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="o">++</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="c1">//将排序好的数拷贝到原数组</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;=</span><span class="n">e</span><span class="p">){</span>
+        <span class="n">nums</span><span class="p">[</span><span class="n">b</span><span class="o">++</span><span class="p">]</span><span class="o">=</span><span class="n">temp</span><span class="p">[</span><span class="n">t</span><span class="o">++</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>评价：归并排序是稳定排序，它也是一种十分高效的排序。每次合并操作的平均时间复杂度是<code class="highlighter-rouge">o(n)</code>，而完全二叉树的深度是<code class="highlighter-rouge">log_2(n)</code>，所以总的时间复杂度是<code class="highlighter-rouge">o(nlogn)</code>。归并排序的最好、最坏、平均时间复杂度都是<code class="highlighter-rouge">o(nlogn)</code></p>
+</blockquote>
+
+<h2 id="快速排序quick-sort">快速排序(quick sort)</h2>
+<blockquote>
+  <p>原理：快速排序也利用了<strong>分冶</strong>思想。它的做法是：每次选择一个基准数，将比基准数小的挪到左边，大的挪到右边。然后对左右两部分执行相同操作，直到有序。</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">quick_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="n">quick_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="n">quick_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">e</span><span class="p">){</span>
+    <span class="c1">//每次以第一个元素作为基准数</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;</span><span class="n">e</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">l</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">e</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">l</span><span class="o">&lt;</span><span class="n">r</span><span class="p">){</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">r</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">nums</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">r</span><span class="o">&gt;</span><span class="n">l</span><span class="p">)</span>  <span class="n">r</span><span class="o">--</span><span class="p">;</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">nums</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">l</span><span class="o">&lt;</span><span class="n">r</span><span class="p">)</span>  <span class="n">l</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">swap</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">l</span><span class="p">]);</span>
+        <span class="p">}</span>
+        <span class="n">swap</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">l</span><span class="p">]);</span>
+        <span class="n">quick_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="p">);</span>
+        <span class="n">quick_sort</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">e</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>评价：快速排序是不稳定排序，平均时间复杂度是<code class="highlighter-rouge">o(nlogn)</code>，上面这种解法不需要辅助空间。</p>
+</blockquote>
 
 <h2 id="堆排序heap-sort">堆排序(heap sort)</h2>
+<p>堆是一种<strong>完全二叉树</strong>，<strong>大顶堆</strong>：每个节点的值都大于或等于其左右孩子节点的值。<strong>小顶堆</strong>：每个节点的值都小于或等于其左右孩子节点的值。如下:</p>
+<div style="text-align: center">
+<img src="/assets/img/sort/heap.png" width="800" height="400" />
+</div>
+<p>上述性质的完全二叉树可以直接存储在一个数组中，只要数组中元素满足如下两个条件：</p>
+<ol>
+  <li><strong>大顶堆</strong> : <code class="highlighter-rouge">arr[i] &gt;= arr[2i+1] &amp;&amp; arr[i] &gt;= arr[2i+2]</code></li>
+  <li><strong>小顶堆</strong> : <code class="highlighter-rouge">arr[i] &lt;= arr[2i+1] &amp;&amp; arr[i] &lt;= arr[2i+2]</code></li>
+</ol>
+<div style="text-align: center">
+<img src="/assets/img/sort/heap1.png" width="600" height="120" />
+</div>
 
+<blockquote>
+  <p>原理：利用<strong>堆</strong>这种数据结构进行排序，将待排序序列构造成一个<strong>大顶堆</strong>，此时整个序列的最大值就是堆顶的根节点。将其与末尾元素进行交换，此时末尾就为最大值。然后将剩余n-1个元素重新构造成一个大顶堆，得到n-1个元素中的最大值…如此反复，就能得到一个有序序列了。</p>
+</blockquote>
+
+<p>在一个数组上构造大顶堆时，只需要调整父节点就可以了（如果子节点中有比自己大的，选择最大的子节点与自己交换值）。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">heap_sort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">){</span>
+    <span class="c1">//构建大顶堆</span>
+    <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">){</span>
+        <span class="c1">//从最后一个非叶子节点开始调整</span>
+        <span class="n">heap_adjust</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">//交换堆顶与末尾元素并重新调整堆结构</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">len</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">swap</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">heap_adjust</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+<span class="p">}</span>
+<span class="c1">//这个函数是调整堆，只是为了服务上面函数，所以并不是一个完整的构造堆的函数</span>
+<span class="kt">void</span> <span class="n">heap_adjust</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">e</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">father</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">son</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">father</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">son</span><span class="o">&lt;=</span><span class="n">e</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">son</span><span class="o">+</span><span class="mi">1</span><span class="o">&lt;=</span><span class="n">e</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="p">[</span><span class="n">son</span><span class="p">]</span><span class="o">&lt;</span><span class="n">nums</span><span class="p">[</span><span class="n">son</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>   <span class="n">son</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">father</span><span class="p">]</span><span class="o">&lt;</span><span class="n">nums</span><span class="p">[</span><span class="n">son</span><span class="p">]){</span>
+            <span class="n">swap</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">father</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">son</span><span class="p">]);</span>
+            <span class="n">father</span><span class="o">=</span><span class="n">son</span><span class="p">;</span>
+            <span class="n">son</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">father</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>    <span class="k">break</span><span class="p">;</span>  <span class="c1">//此处break是因为下面的本来是调整过的都，如果这一步已经满足了，下面就没有继续的必要了</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>评价：堆排序是不稳定排序，堆执行一次调整需要<code class="highlighter-rouge">o(logn)</code>时间，在排序过程中需要遍历所有元素执行堆调整，所以最终时间复杂度是<code class="highlighter-rouge">o(nlogn)</code>。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] http://yansu.org/2015/09/07/sort-algorithms.html</li>
+  <li>[2] https://www.cnblogs.com/chengxiao</li>
+  <li>[3] 维基百科</li>
+</ul>
 
     </div>
     

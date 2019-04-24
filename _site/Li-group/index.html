@@ -171,6 +171,7 @@
 <script type="math/tex; mode=display">\begin{equation} \mathfrak{so}(3) = \left\{ \Phi = \mathbf{\phi^\wedge} \in \mathbb{R}^{3 \times 3} | \mathbf{\phi} \in \mathbb{R}^3 \right\} \end{equation}</script>
 
 <h3 id="so3上的指数映射">$SO(3)$上的指数映射</h3>
+
 <p>首先，任意矩阵的指数映射可以写成一个泰勒展开，当然，只有在收敛的情况下才会有结果，其结果仍然是一个矩阵。</p>
 
 <script type="math/tex; mode=display">\begin{equation} \exp(\mathbf{A}) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{ \mathbf{A}^n}} \end{equation}</script>
@@ -200,6 +201,10 @@
   <p>这里需要提到的一点是，指数映射不是一个双射，但他是一个满射。这一意味着每一个旋转矩阵都可以找到一个向量与之对应，但是可能存在多个向量对应到同一个矩阵。这个很好理解，因为旋转角度具有周期性，多转360度效果一样。</p>
 </blockquote>
 
+<blockquote>
+  <p>同理，<strong>指数映射</strong>作用是从向量到矩阵的映射，反过来，从矩阵到向量的映射是<strong>对数映射</strong>。</p>
+</blockquote>
+
 <h2 id="三维欧式群se3与其对应的李代数mathfrakse3">三维欧式群$SE(3)$与其对应的李代数$\mathfrak{se}(3)$</h2>
 <p>首先，列出三维欧式群$SE(3)$的定义:</p>
 
@@ -219,8 +224,19 @@
 
 <script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}</script>
 
+<blockquote>
+  <p>三维欧式群及其李代数的指数与对数映射类似。</p>
+</blockquote>
+
+<h2 id="总结">总结</h2>
+<div style="text-align: center">
+<img src="/assets/img/liqun/li-qun.png" width="700" height="600" />
+</div>
+
 <h1 id="参考文献">参考文献</h1>
-<p>[1] 视觉SLAM十四讲:从理论到实践</p>
+<ul>
+  <li>[1] 视觉SLAM十四讲:从理论到实践</li>
+</ul>
 
 
     </div>

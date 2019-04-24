@@ -9,7 +9,7 @@ tag: [算法与数据结构]
 排序问题是一个基础问题，这篇博客主要总结一下各种经典常用的有特色的排序算法。
 
 ## 冒泡排序(bubble sort)
-> 原理: 每次从左向右两两进行比较，将较大/小的交换到后面。每一个循环可以确定排好一个数，循环n-1次，完全排序完毕。
+> 原理：每次从左向右两两进行比较，将较大/小的交换到后面。每一个循环可以确定排好一个数，循环n-1次，完全排序完毕。
 
 ```cpp
 void bubble_sort(vector<int> & nums){
@@ -26,10 +26,10 @@ void bubble_sort(vector<int> & nums){
 ```
 ---
 
-> 复杂度分析: 重复n-1次循环，每次循环比较平均n/2步，因此时间复杂度是o(n^2)，空间复杂度是o(n)
+> 复杂度分析：重复`n-1`次循环，每次循环比较平均`n/2`步，因此时间复杂度是`o(n^2)`，空间复杂度是`o(n)`
 
 ## 插入排序(Insertion sort)
-> 原理: 循环n-1次，每次将当前的(从1开始)数插入到前面已经排序完毕序列中合适的位置。
+> 原理：循环n-1次，每次将当前的(从1开始)数插入到前面已经排序完毕序列中合适的位置。
 
 ```
 void insert_sort(vector<int> &nums){
@@ -44,7 +44,7 @@ void insert_sort(vector<int> &nums){
 ```
 ---
 
-> 复杂度分析: 重复n-1次循环，每次循环平均n/4步，因此时间复杂度是o(n^2),空间复杂度是o(n)
+> 复杂度分析: 重复`n-1`次循环，每次循环平均`n/4`步，因此时间复杂度是`o(n^2)`,空间复杂度是`o(n)`
 
 ## 选择排序(selection sort)
 > 原理: 每次从乱序数组中找处最大(小)的那个值，将其放在当前乱序数组的头部，最终使得数组有序
@@ -64,7 +64,7 @@ void selection_sort(vector<int> &nums){
 ```
 ---
 
-> 复杂度分析: 重复n-1次循环，每次循环平均n/2步，因此时间复杂度是o(n^2)，空间复杂度是o(n)
+> 复杂度分析: 重复`n-1`次循环，每次循环平均`n/2`步，因此时间复杂度是`o(n^2)`，空间复杂度是`o(n)`
 
 ## 希尔排序(shell sort)
 插入排序的改进版，是一种非稳定排序算法。插入排序的特点:
@@ -133,16 +133,141 @@ void shell_sort(vector<int> &nums)
 ```
 ---
 
-> 复杂度分析: 希尔排序的复杂度与步长选择有很大关系，最坏情况为o(n^2)，最好复杂度为o(n(logn)^2)，目前已知最好步长序列是(1,5,19,41,109,...)
+> 复杂度分析：希尔排序的复杂度与步长选择有很大关系，最坏情况为`o(n^2)`，最好复杂度为`o(n(logn)^2)`，目前已知最好步长序列是(1,5,19,41,109,...)
 
 
 ## 归并排序(merge sort)
+> 原理：采用分冶思想，首先将数组不断二等分成小数组，然后合并小数组进行排序。具体过程可以参考下图
 
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/sort/merge.png"  width="800" height="600"/>
+</div>
+从上图中，我们发现归并排序主要分两个阶段，分与冶。其中冶就是合并序列，合并细节如下:
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/sort/merge1.png"  width="800" height="800"/>
+</div>
 
-## 快速排序(fast sort)
+```cpp
+void merge_sort(vector<int> &nums){
+    int size = nums.size();
+    vector<int> temp(size);
+    merge_sort(nums, 0, size-1, temp);
+}
 
+void merge_sort(vector<int> &nums, int b, int e, vector<int> &temp){
+    if(b<e){
+        int m = (b+e)/2;
+        merge_sort(nums, b, m, temp);
+        merge_sort(nums, m+1, e, temp);
+        merge(nums, b, m, e, temp);
+    }
+}
+
+void merge(vector<int> &nums, int b, int m, int e, vector<int> &temp){
+    int i=b;
+    int j=m+1;
+    int t=0;
+    while(i<=m && j<=e){
+        if(nums[i]<=nums[j]){
+            temp[t++]=nums[i++];
+        }
+        else temp[t++]=nums[j++];
+    }
+    while(i<=m){
+        temp[t++]=nums[i++];
+    }
+    while(j<=e){
+        temp[t++]=nums[j++];
+    }
+    t=0;
+    //将排序好的数拷贝到原数组
+    while(b<=e){
+        nums[b++]=temp[t++];
+    }
+}
+```
+---
+
+> 评价：归并排序是稳定排序，它也是一种十分高效的排序。每次合并操作的平均时间复杂度是`o(n)`，而完全二叉树的深度是`log_2(n)`，所以总的时间复杂度是`o(nlogn)`。归并排序的最好、最坏、平均时间复杂度都是`o(nlogn)`
+
+## 快速排序(quick sort)
+> 原理：快速排序也利用了**分冶**思想。它的做法是：每次选择一个基准数，将比基准数小的挪到左边，大的挪到右边。然后对左右两部分执行相同操作，直到有序。
+
+```cpp
+void quick_sort(vector<int> &nums){
+    int size = nums.size();
+    quick_sort(nums, 0, size-1);
+}
+void quick_sort(vector<int> &nums, int b, int e){
+    //每次以第一个元素作为基准数
+    if(b<e){
+        int l=b, r=e;
+        while(l<r){
+            while(nums[r]>=nums[b] && r>l)  r--;
+            while(nums[l]<=nums[b] && l<r)  l++;
+            swap(nums[r], nums[l]);
+        }
+        swap(nums[b], nums[l]);
+        quick_sort(nums, b, l);
+        quick_sort(nums, l+1, e);
+    }
+}
+```
+---
+
+> 评价：快速排序是不稳定排序，平均时间复杂度是`o(nlogn)`，上面这种解法不需要辅助空间。
 
 ## 堆排序(heap sort)
+堆是一种**完全二叉树**，**大顶堆**：每个节点的值都大于或等于其左右孩子节点的值。**小顶堆**：每个节点的值都小于或等于其左右孩子节点的值。如下:
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/sort/heap.png"  width="800" height="400"/>
+</div>
+上述性质的完全二叉树可以直接存储在一个数组中，只要数组中元素满足如下两个条件：
+1. **大顶堆** : `arr[i] >= arr[2i+1] && arr[i] >= arr[2i+2]`
+2. **小顶堆** : `arr[i] <= arr[2i+1] && arr[i] <= arr[2i+2]`
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/sort/heap1.png"  width="600" height="120"/>
+</div>
 
+> 原理：利用**堆**这种数据结构进行排序，将待排序序列构造成一个**大顶堆**，此时整个序列的最大值就是堆顶的根节点。将其与末尾元素进行交换，此时末尾就为最大值。然后将剩余n-1个元素重新构造成一个大顶堆，得到n-1个元素中的最大值...如此反复，就能得到一个有序序列了。
 
+在一个数组上构造大顶堆时，只需要调整父节点就可以了（如果子节点中有比自己大的，选择最大的子节点与自己交换值）。
+```cpp
+void heap_sort(vector<int> &nums){
+    //构建大顶堆
+    int size = nums.size();
+    for(int i=size/2-1; i>0; --i){
+        //从最后一个非叶子节点开始调整
+        heap_adjust(nums, i, size-1)
+    }
 
+    //交换堆顶与末尾元素并重新调整堆结构
+    for(int i=len-1; i>0; ++i){
+        swap(nums[0], nums[i]);
+        heap_adjust(nums, 0, i-1);
+    }
+    
+}
+//这个函数是调整堆，只是为了服务上面函数，所以并不是一个完整的构造堆的函数
+void heap_adjust(vector<int> &nums, int b, int e){
+    int father = i;
+    int son = 2*father+1;
+    while(son<=e){
+        if(son+1<=e && nums[son]<nums[son+1])   son++;
+        if(nums[father]<nums[son]){
+            swap(nums[father], nums[son]);
+            father=son;
+            son=2*father+1;
+        }
+        else    break;  //此处break是因为下面的本来是调整过的都，如果这一步已经满足了，下面就没有继续的必要了
+    }
+}
+```
+---
+
+> 评价：堆排序是不稳定排序，堆执行一次调整需要`o(logn)`时间，在排序过程中需要遍历所有元素执行堆调整，所以最终时间复杂度是`o(nlogn)`。
+
+# 参考文献
+- [1] http://yansu.org/2015/09/07/sort-algorithms.html
+- [2] https://www.cnblogs.com/chengxiao
+- [3] 维基百科
