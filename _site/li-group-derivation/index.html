@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>李代数求导与扰动模型 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword11.jpg alt="李代数求导与扰动模型">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Apr 25</p>
+        <h1 class="post_title">李代数求导与扰动模型</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>在<a href="https://xhy3054.github.io/Li-group/">上一篇</a>博客中我们了解了李群与李代数的定义，那么知道这些有什么用呢？</p>
+
+<p>我们使用李代数是为了进行优化位姿，而在优化过程中导数是非常必要的信息.拿旋转矩阵群与欧式变换群举例，这两个李群上定义的运算不是加法，即李群上没有加法，因此导数无从定义。我们希望利用李代数解决这个问题(李代数定义时就表示的是李群的局部性质)。</p>
+
+<script type="math/tex; mode=display">\begin{equation} \label{eq:so3ode} \mathbf{R}(t) = \exp \left( \mathbf{\phi} (t) ^\wedge \right) \mathbf{R}(t_0) \end{equation}</script>
+
+<blockquote>
+  <p>上面看到了，因为SO(3)上没有定义加法，所以我们不能求R的导数。但是我们上一节中可以用$\mathfrak{so}(3)$通过指数映射来得到SO(3)，所以我们可以将求李代数的导数。</p>
+</blockquote>
+
+<h2 id="bch公式">BCH公式</h2>
+<p>但是此处必须说明的一点是，指数映射时，下式是不满足的。</p>
+
+<script type="math/tex; mode=display">\begin{equation} \exp \left( {\phi _1^ \wedge } \right)\exp \left( {\phi _2^ \wedge } \right) = \exp \left( {\left( {\phi _1} + {\phi _2} \right)}^ {\wedge } \right) \end{equation}</script>
+
+<p>如果上述公式中${\phi^ \wedge }$是标量的话，那么肯定是成立的，但是很遗憾，它是一个矩阵。所以，它到底是什么呢？这需要用到BCH(Baker-Campbell-Hausdorff)公式。完整形式比较复杂，我们此处就不贴出了，直接上有用的。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+R_1 R_2 = \textbf{exp}({\phi_1}^{\wedge})\textbf{exp}({\phi_2}^{\wedge}) \approx \begin{equation} \begin{cases} \textbf{exp}(( J_l(\phi_2)^{-1} \phi_1 + \phi_2    )^{\wedge})  & \textbf{if  } \phi_1 \textbf{ is small}\\ \textbf{exp}(( J_r(\phi_1)^{-1} \phi_2+ \phi_1    )^{\wedge})   & \textbf{if  } \phi_2 \textbf{ is small} \end{cases} \end{equation} %]]></script>
+
+<p>其中，第一个称为左乘模型，第二个称为右乘模型。</p>
+
+<p>$J_l$即$\mathfrak{se}(3)$到$SE(3)$转换时求得的J，称为左乘近似雅可比:</p>
+
+<script type="math/tex; mode=display">J_l = J=\dfrac{\sin \theta}{\theta} I + (1- \dfrac{\sin \theta}{\theta})aa^T + \dfrac{1-\cos \theta}{\theta}a^{\wedge}</script>
+
+<p>它的逆为:</p>
+
+<script type="math/tex; mode=display">J_l^{-1} = \dfrac{\theta}{2} \cot \dfrac{\theta}{2} I + (1- \dfrac{\theta}{2}\cot \dfrac{\theta}{2})aa^T - \dfrac{\theta}{2}a^{\wedge}</script>
+
+<p>而右乘雅可比仅需要对自变量取负号即可:</p>
+
+<script type="math/tex; mode=display">J_r(\phi)=J_l(-\phi)</script>
+
+<p>此时，如果将上面的结果反过来，在李代数上做加法，则有:</p>
+
+<script type="math/tex; mode=display">\textbf{exp}((\phi+ \Delta\phi)^{\wedge}) = \textbf{exp}((J_l \Delta\phi)^{\wedge}) \textbf{exp}({\phi}^{\wedge})=\textbf{exp}({\phi}^{\wedge})\textbf{exp}((J_r \Delta\phi)^{\wedge})</script>
+
+<blockquote>
+  <p>在$\mathfrak{se}(3)$上的运算与$\mathfrak{so}(3)$类似，只是雅可比矩阵的求法稍有不同，而且有些复杂，所以这里先跳过了。</p>
+</blockquote>
+
+<h1 id="基于李代数对姿态求导">基于李代数对姿态求导</h1>
+<p>本来我们想求得是</p>
+
+<script type="math/tex; mode=display">\frac{d\left( {RP} \right)}{dR} = \mathop {\lim }\limits_{\Delta R \to 0} \frac{\left( {R + \Delta R} \right)P - RP}{\Delta R}</script>
+
+<p>但是，$R+\Delta R$不再是旋转矩阵。因此我们需要另想办法。有了上面的工作，下面我们就可以完成基于李代数的求导操作了，此处介绍两种模型，因为扰动模型的形式会简单一些，因此大家一般都是使用扰动模型，微分模型也了解一下</p>
+<h2 id="so3李代数上的微分模型">$SO(3)$李代数上的微分模型</h2>
+<blockquote>
+  <p>用李代数表示姿态，然后根据李代数加法来对李代数求导。即<strong>把增量直接定义在李代数上</strong>。</p>
+</blockquote>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} \begin{aligned} \dfrac{\partial(\textbf {RP})}{\partial\phi} &= \lim_{\Delta \phi \rightarrow 0} \dfrac{\textbf{exp}((\phi + \Delta \phi)^{\wedge})p-\textbf{exp}({\phi}^{\wedge}) p}{\Delta \phi} \\ &= … \\ &= -(Rp)^{\wedge}J_l \end{aligned} \end{equation} %]]></script>
+
+<blockquote>
+  <p>上面最后一步跳过一些细节，并且微分模型的结果最后需要计算一个雅可比矩阵，要麻烦一些。</p>
+</blockquote>
+
+<h2 id="so3李代数上的扰动模型左扰动">$SO(3)$李代数上的扰动模型(左扰动)</h2>
+<blockquote>
+  <p>对李群<strong>左乘</strong>或者<strong>右乘</strong>微小扰动，然后对该扰动求导，称为左扰动和右扰动模型。即<strong>把增量直接乘在R上</strong></p>
+</blockquote>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} \begin{aligned} \dfrac{\partial(\textbf {RP})}{\partial R} &=  \lim_{\Delta \phi \rightarrow 0} \dfrac{\textbf{exp}((\Delta \phi)^{\wedge})  \textbf RP-\textbf RP}{\Delta \phi} \\ &= \lim_{\Delta \phi \rightarrow 0} \dfrac{\textbf{exp}((\Delta \phi)^{\wedge})\textbf{exp}({\phi}^{\wedge}) p-\textbf{exp}({\phi}^{\wedge}) p}{\Delta \phi} \\ &= … \\ &= -(RP)^{\wedge} \end{aligned} \end{equation} %]]></script>
+
+<blockquote>
+  <p>这一种方法直接将小量乘在李群上，而不是李代数上。并且需要注意的是这种模型需要区别是左乘还是右乘。左扰动模型比微分模型要少一个雅可比矩阵。</p>
+</blockquote>
+
+<h2 id="se3上的扰动模型">$SE(3)$上的扰动模型</h2>
+<p>含义是：考虑一个空间点P（需要是齐次坐标，否则维数不对），受到刚体变换T，得到$TP$。下面要求解$TP$是如何随着T变化的。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} \begin{aligned} \dfrac{\partial(\textbf {TP})}{\partial T} &=  \lim_{\delta \xi \rightarrow 0} \dfrac{\textbf{exp}((\delta \xi)^{\wedge})  \textbf TP-\textbf TP}{\delta \xi} \\ &= (TP)^{\odot} \end{aligned} \end{equation} %]]></script>
+
+<p>其中，$^ \odot$将一个<code class="highlighter-rouge">4×4</code>的矩阵变换成一个<code class="highlighter-rouge">4×6</code>的矩阵</p>
+
+<h2 id="总结">总结</h2>
+<p>我们讲解了如何对位姿进行求导，这是后面对位姿进行非线性优化的基础。</p>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1]. https://zhehangt.github.io/2017/03/16/SLAM/Basic/LieAlgebra-02/</li>
+  <li>[2]. 视觉SLAM十四讲-从理论到实践</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=李代数求导与扰动模型&url=http://localhost:4000/li-group-derivation/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/li-group-derivation/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/li-group-derivation/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/li-group-derivation/" class="recent_item" style="background-image: url( /assets/img/sword/sword11.jpg )"><span>李代数求导与扰动模型</span></a>
+          
+        
+          
+            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
+          
+        
+          
+            <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
+          
+        
+          
+            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
+          
+        
+          
+            <a href="/bow/" class="recent_item" style="background-image: url( /assets/img/sword/sword7.jpg )"><span>基于词袋模型的图像匹配</span></a>
+          
+        
+          
+            <a href="/vnc-rdp/" class="recent_item" style="background-image: url( /assets/img/sword/sword5.jpg )"><span>vnc与rdp的对比</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

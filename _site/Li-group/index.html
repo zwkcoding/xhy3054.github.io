@@ -85,6 +85,11 @@
 <script type="math/tex">% <![CDATA[
 \begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}} \mathbf{R} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script></p>
   </li>
+  <li>
+    <p><strong>相似变换群</strong>$Sim(n)$: 相似变换就是在旋转矩阵上再加上尺度变换，这个群主要会在<strong>单目视觉</strong>中使用，因为单目具有尺度不确定性。如果在单目slam中使用$SE(3)$来表示位姿，那么由于尺度不确定性与尺度漂移，整个slam过程中尺度会发生变化，而这在SE(3)中不能体现出来。所以在单目视觉中，我们一般在相似变换群上来进行位姿的优化。
+<script type="math/tex">% <![CDATA[
+\begin{equation} Sim(3) = \left\{ \mathbf{S} = \left[ {\begin{array}{*{20}{c}} \mathbf{sR} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script></p>
+  </li>
 </ul>
 
 <h2 id="李群">李群</h2>
@@ -131,14 +136,14 @@
 <script type="math/tex; mode=display">a×b = a^{\wedge} b</script>
 
 <script type="math/tex; mode=display">% <![CDATA[
-\begin{equation}   {\mathbf{a}^ \wedge } = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&\\ &0&{ - {a_1}}\\ { - {a_2}}&&0 \end{array}} \right] \end{equation} %]]></script>
+\begin{equation}   {\mathbf{a}^ \wedge } = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{a_2} \\ {a_3}&0&{ - {a_1}}\\ { - {a_2}}&{a_1}&0 \end{array}} \right] \end{equation} %]]></script>
 
 <hr />
 
 <p>回到刚才的话题，对于$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$这个反对称矩阵，我们将其记为A。可以将其对应到一个向量$\mathbf{a}=[a_1, a_2, a_3]^T$。</p>
 
 <script type="math/tex; mode=display">% <![CDATA[
-\begin{equation}   {\mathbf{a}^ \wedge } = \mathbf{A} = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&\\ &0&{ - {a_1}}\\ { - {a_2}}&&0 \end{array}} \right] \end{equation} %]]></script>
+\begin{equation}   {\mathbf{a}^ \wedge } = \mathbf{A} = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{a_2}\\ {a_3}&0&{ - {a_1}}\\ { - {a_2}}&{a_1}&0 \end{array}} \right] \end{equation} %]]></script>
 
 <p>上式也就可以写做</p>
 
@@ -155,18 +160,18 @@
 
 <hr />
 
-<p>由上我们可以知道，<strong>三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数</strong>。它描述了三维旋转群$SO(3)$的局部性质。</p>
+<p>由上我们可以知道，<strong>三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$(三维向量，实数，外积运算)，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数</strong>。它描述了三维旋转群$SO(3)$的局部性质。</p>
 
 <p>此处我们发现SO(3)对应的李代数是定义在$\mathbb{R}^3$上的向量，我们记作$\mathbf{\phi}$（注意这是个向量，虽然希腊字母的粗体不明显）。而每个$\mathbf{\phi}$都可以生成一个反对称矩阵:</p>
 
 <script type="math/tex; mode=display">% <![CDATA[
 \begin{equation} \label{eq:phi} \mathbf{\Phi} = \mathbf{\phi}^{\wedge} = \left[ {\begin{array}{*{20}{c}}     0&{ - {\phi _3}}&{\phi _2}\\  {\phi _3}&0&{ - {\phi _1}}\\  { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \in \mathbb{R}^{3 \times 3} \end{equation} %]]></script>
 
-<p>在此定义下，两个向量$\mathbf{\phi}_1, \mathbf{\phi}_2$的李括号为:</p>
+<p>在此定义下，两个向量$\mathbf{\phi}_1, \mathbf{\phi}_2$的李括号运算对应的反对称矩阵运算为:</p>
 
-<script type="math/tex; mode=display">\begin{equation} [\mathbf{\phi}_1, \mathbf{\phi}_2] = \mathbf{ \Phi }_1 \mathbf{ \Phi }_2 - \mathbf{ \Phi }_2 \mathbf{ \Phi }_1 \end{equation}</script>
+<script type="math/tex; mode=display">\begin{equation} [\mathbf{\phi}_1, \mathbf{\phi}_2]^{\wedge} = \mathbf{ \Phi }_1 \mathbf{ \Phi }_2 - \mathbf{ \Phi }_2 \mathbf{ \Phi }_1 \end{equation}</script>
 
-<p>由于向量与其对应的反对称矩阵关系密切，所以我们说旋转矩阵群的李代数的元素是3维向量或者3维反对称矩阵，都是可以的。</p>
+<p><strong>由于向量与其对应的反对称矩阵关系密切，所以我们说旋转矩阵群的李代数的元素是3维向量或者3维反对称矩阵，都是可以的。</strong></p>
 
 <script type="math/tex; mode=display">\begin{equation} \mathfrak{so}(3) = \left\{ \Phi = \mathbf{\phi^\wedge} \in \mathbb{R}^{3 \times 3} | \mathbf{\phi} \in \mathbb{R}^3 \right\} \end{equation}</script>
 
@@ -233,6 +238,10 @@
 <img src="/assets/img/liqun/li-qun.png" width="700" height="600" />
 </div>
 
+<blockquote>
+  <p>其中，J是雅克比矩阵，这个矩阵是在SE(3)上的指数映射中，平移部分经过指数映射后，发生了一次以J为系数矩阵的线性变换。旋转部分的指数映射还是罗德里格斯公式。</p>
+</blockquote>
+
 <h1 id="参考文献">参考文献</h1>
 <ul>
   <li>[1] 视觉SLAM十四讲:从理论到实践</li>
@@ -290,6 +299,10 @@
       <div class="recent_list">
         
           
+            <a href="/li-group-derivation/" class="recent_item" style="background-image: url( /assets/img/sword/sword11.jpg )"><span>李代数求导与扰动模型</span></a>
+          
+        
+          
             <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
           
         
@@ -307,10 +320,6 @@
         
           
             <a href="/vnc-rdp/" class="recent_item" style="background-image: url( /assets/img/sword/sword5.jpg )"><span>vnc与rdp的对比</span></a>
-          
-        
-          
-            <a href="/sort/" class="recent_item" style="background-image: url( /assets/img/sword/sword6.jpg )"><span>排序算法总结</span></a>
           
         
       </div>
