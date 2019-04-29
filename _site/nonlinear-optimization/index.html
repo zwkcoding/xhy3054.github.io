@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>非线性优化总结 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/sword/sword13.jpg alt="非线性优化总结">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Apr 29</p>
+        <h1 class="post_title">非线性优化总结</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h1 id="什么是非线性优化">什么是非线性优化</h1>
+<blockquote>
+  <p>对于最优化问题，如果目标函数是非线性的，那就是非线性优化问题，如果目标函数是凸函数，那就是凸优化问题。</p>
+</blockquote>
+
+<p>首先需要说明的是，最初的问题其实是一个<strong>最优化问题</strong>。所谓的最优化问题其实就是寻找最优解的问题，一般形式是寻找函数的最大值或者最小值(一般都是将问题转换成求解目标函数的最小值)。</p>
+
+<p>而<strong>非线性优化问题就是针对一个非线性函数求最值的问题</strong>。其实，在我们初高中的时候就已经求解过非线性优化的问题了，比如对于如下非线性函数:</p>
+
+<script type="math/tex; mode=display">f(x) = x^2 + 2x + 1</script>
+
+<p>求解上面这个非线性函数的最小值，我们可以很轻松的解决，因为这时一个及其简单的非线性优化问题，我们可以直接通过导数为0求解出最小值。<strong>但是对于机器学习中的很多非线性目标函数，我们很难像这样直接求解</strong>。此时一般使用如下迭代的方法求解最优化问题。</p>
+
+<ol>
+  <li>
+    <p>给定某个初始值$x_{0}$</p>
+  </li>
+  <li>
+    <p>对于第k次迭代，寻找一个增量${\Delta}x_{k}$，使得${\mid \mid f(x_{k} + {\Delta}x_{k}) \mid \mid}^2_{2}$达到极小值</p>
+  </li>
+  <li>
+    <p>若${\Delta}x_{k}$足够小，则停止</p>
+  </li>
+  <li>
+    <p>否则，另$x_{k+1} = x_{k} + {\Delta}x_{k}$，返回到第2步</p>
+  </li>
+</ol>
+
+<p>上述迭代中很重要的一点是增量$\Delta x_{k}$如何确定，下面会开始讲解一些代表性的方法。首先将目标函数在x附近进行泰勒展开：</p>
+
+<script type="math/tex; mode=display">{\mid \mid f(x + \Delta x ) \mid \mid}^2_{2} \approx {\mid \mid f(x) \mid \mid}^2_{2} + J(x) \Delta x + \dfrac{1}{2} \Delta x^T H \Delta x</script>
+
+<p>上面J是函数${\mid \mid f(x) \mid \mid}^2$关于x的<strong>雅可比(Jacobian)矩阵</strong>，而H是其<strong>海塞(Hessian)矩阵</strong>。</p>
+
+<blockquote>
+  <p>对于<strong>输入与输出都是向量的函数</strong>，雅可比矩阵是这个函数的一阶偏导数矩阵，海塞矩阵是二阶偏导数矩阵，详细可自行查阅相关资料，此处仅简短说明。</p>
+</blockquote>
+
+<h2 id="最速下降法梯度下降法一阶">最速下降法（梯度下降法，一阶）</h2>
+<p><strong>梯度下降法</strong>是只考虑一阶导数的优化方法，优化思想是使用当前位置负梯度方向作为搜索方向，因为该方向为当前位置的最快下降方向，所以也叫做最速下降法。</p>
+
+<script type="math/tex; mode=display">\Delta x = - \lambda J</script>
+
+<p>缺点：</p>
+<ol>
+  <li>靠近极小值时收敛速度减慢</li>
+  <li>直线搜索时会产生很多问题</li>
+  <li>可能会出现“之”字形的下降</li>
+</ol>
+
+<h3 id="梯度下降法的改进">梯度下降法的改进</h3>
+<p>由于梯度下降法在接近最优解的区域收敛速度明显变慢，因此会需要很多次的迭代，因此出现了一些改进的方法</p>
+<ol>
+  <li>批量梯度下降法(Batch Gradient Descent, BGD)</li>
+  <li>随机梯度下降法(Stochastic Gradient Descent, SGD)等</li>
+</ol>
+
+<h2 id="牛顿法">牛顿法</h2>
+<p><strong>牛顿法</strong>同时考虑一阶与二阶梯度信息，增量方程为</p>
+
+<script type="math/tex; mode=display">\Delta x = argmin [{\mid \mid f(x) \mid \mid}^2_{2} + J(x) \Delta x + \dfrac{1}{2} \Delta x^T H \Delta x ]</script>
+
+<p>上式中右侧等式关于$\Delta x$求导并另它为零，就得到了增量的解。</p>
+
+<script type="math/tex; mode=display">H \Delta x = -J^T</script>
+
+<blockquote>
+  <p>牛顿法很好，但是需要计算目标函数的海塞矩阵，这在问题规模较大时十分困难。因此出现了下面两种实用的改进方法</p>
+</blockquote>
+
+<h2 id="高斯牛顿法">高斯牛顿法</h2>
+<p>高斯牛顿法的做法是将$f(x)$(注意，上面都是${\mid \mid f(x) \mid \mid}^2$)进行泰勒展开：</p>
+
+<script type="math/tex; mode=display">f(x + \Delta x) \approx f(x) + J(x) \Delta x</script>
+
+<p>此处的$J(x)$是函数$f(x)$关于x的雅可比矩阵。因为目标是寻找一个下降矢量$\Delta x$使得${\mid \mid f(x + \Delta x) \mid \mid}^2$达到最小。为了求$\Delta x$，我们会求解如下的最小二乘问题</p>
+
+<script type="math/tex; mode=display">\Delta x^{\ast} = argmin \dfrac{1}{2} {\mid \mid f(x) + J(x) \Delta x \mid \mid }^2</script>
+
+<p>对上式右侧对$\Delta x$进行求导并另其为0，会得到如下方程组</p>
+
+<script type="math/tex; mode=display">{J(x)}^T J(x) \Delta x = - {J(x)}^T f(x)</script>
+
+<p>上面这个等式是一个关于$\Delta x$的线性方程组，我们称它为<strong>增量方程</strong>，也叫<strong>高斯牛顿方程</strong>或者<strong>正规方程</strong>。我们可以将左侧系数定义为$H$，右侧系数定义为$g$，上式变为</p>
+
+<script type="math/tex; mode=display">H \Delta x = g</script>
+
+<blockquote>
+  <p>与牛顿法对比，高斯牛顿法用$J^T J$作为牛顿法中海塞矩阵的近似，从而省略了H的计算。整个<strong>优化问题的核心变成求解增量方程</strong></p>
+</blockquote>
+
+<p><strong>缺点</strong>：</p>
+<ol>
+  <li>由于优化过程中我们需要求解增量方程，所以一般这要求H矩阵是可逆的（而且正定的），但实际数据中计算得到的$J^T J$却只有半正定性。也就是说，在使用高斯牛顿法时，可能出现$J^T J$为奇异矩阵或者病态的情况，此时增量稳定性较差，导致算法不收敛。</li>
+  <li>即使H非奇异也非病态，如果我们求出的步长$\Delta x$太大，也会导致我们采用的局部近似不够准确，甚至我们都没法保证它迭代收敛。</li>
+</ol>
+
+<h2 id="列文伯格-马夸尔特方法">列文伯格-马夸尔特方法</h2>
+<blockquote>
+  <p>由于高斯牛顿法中采用的近似二阶泰勒展开只能在展开点附近有较好的近似效果，所以我们很自然的想到给$\Delta$添加一个<strong>信赖区域</strong>，使得其不会过大。</p>
+</blockquote>
+
+<p>确定信赖区域的方法：根据我们的近似模型和实际函数之间的差异来确定信赖区域，如果差异小，我们就让范围尽可能大；如果差异大，我们就缩小这个近似范围。使用如下参数</p>
+
+<script type="math/tex; mode=display">\rho = \dfrac{f(x + \Delta x) - f(x)}{J(x) \Delta x}</script>
+
+<p>来判断泰勒近似是否够好，分子是实际函数下降的值，分母是近似模型下降的值。</p>
+
+<ol>
+  <li>给定初始值$x_{0}$，以及初始优化半径$\mu$</li>
+  <li>对于第k次迭代，求解 $\Delta x_{k} = argmin \dfrac{1}{2} {\mid \mid f(x_{k}) + J(x_{k}) \Delta x_{k}}^2 , s.t. {\mid \mid D \Delta x_{k} \le \mu}$，此处$\mu$是信赖区域的半径，D在后面会说明</li>
+  <li>计算$\rho$</li>
+  <li>若$\rho &gt; \dfrac{3}{4}$，则$\mu = 2 \mu$</li>
+  <li>若$\rho &lt; \dfrac{1}{4}$，则$\mu = 0.5 \mu$</li>
+  <li>如果$\rho$大于某阈值，则认为近似可行。另$x_{k+1} = x_{k} + \Delta x_{k}$</li>
+  <li>判断算法是否收敛。如果不收敛则返回第2步，否则结束。</li>
+</ol>
+
+<p>上面近似范围扩大的倍数与阈值都是经验值，可以替换成别的数值。在第二步$\Delta x$的求解中，我们将增量限定在一个半径为$\mu$的球里，带上D之后，这个球可以看成一个椭球。</p>
+
+<blockquote>
+  <p>列文伯格-马夸尔特方法可在一定程度上米面线性方程组的系数矩阵的非奇异和病态问题，提供更稳定、准确的增量$\Delta x$。尽管它的收敛速度可能会比高斯牛顿法更慢，也被叫做阻尼牛顿法。</p>
+</blockquote>
+
+<h2 id="非线性优化方法存在的问题">非线性优化方法存在的问题</h2>
+<ol>
+  <li>
+    <p>首先，对目标函数进行非线性优化有一个很大的前提，那就是<strong>目标函数连续可导</strong>。所以如果目标函数不连续或者不可导，我们就需要想办法使其变得连续可导。比如在slam中处理姿态估计的问题，当姿态使用旋转矩阵与平移变量表示时，显然是不可导的。此时由于欧式矩阵群是一个李群，所以我们会将目标函数映射到其李代数上，此时目标函数就会连续可导了。</p>
+  </li>
+  <li>
+    <p><strong>非线性优化方法求得的只是局部最优解</strong>，这个是由梯度下降的原理决定的，由于初始值不确定，使得很容易陷入局部最优中。一般<strong>凸优化</strong>可以在一定程度上解决这个问题。因为凸函数的局部最优就是全局最优，所以我们可以尝试着将目标函数转换成凸函数，然后再进行优化。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>本文中只是大概讲解了一个非线性优化的整体概念，并列举了几种优化方法，还有一些其他的优化方法也具有不错的效果，后面会慢慢补充。。。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 视觉slam十四讲</li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=非线性优化总结&url=http://localhost:4000/nonlinear-optimization/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/nonlinear-optimization/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/nonlinear-optimization/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/state-estimation-nonlinear-least-square/" class="recent_item" style="background-image: url( /assets/img/sword/sword12.jpg )"><span>状态估计之非线性最小二乘</span></a>
+          
+        
+          
+            <a href="/nonlinear-optimization/" class="recent_item" style="background-image: url( /assets/img/sword/sword13.jpg )"><span>非线性优化总结</span></a>
+          
+        
+          
+            <a href="/li-group-derivation/" class="recent_item" style="background-image: url( /assets/img/sword/sword11.jpg )"><span>李代数求导与扰动模型</span></a>
+          
+        
+          
+            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
+          
+        
+          
+            <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
+          
+        
+          
+            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

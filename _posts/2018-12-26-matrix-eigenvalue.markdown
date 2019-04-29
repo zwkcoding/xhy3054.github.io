@@ -95,7 +95,7 @@ $$  \mathbf{A} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}} $$
 <div style="text-align: center">
 <img src="{{site.baseurl}}/assets/img/matrix_eigenvalue/p11.jpg"/>
 </div>
-这个图片可以放到一个矩阵里面去，就是把每个像素的颜色值填入到一个512\times512的A矩阵中。
+这个图片可以放到一个矩阵里面去，就是把每个像素的颜色值填入到一个$512 \times 512$的A矩阵中。
 根据之前描述的有：
 $$  \mathbf{A} = \mathbf{V} \mathbf{D} \mathbf{V^{-1}} $$
 
