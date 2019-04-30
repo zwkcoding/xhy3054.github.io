@@ -110,5 +110,10 @@ $$ \rho = \dfrac{f(x + \Delta x) - f(x)}{J(x) \Delta x} $$
  
 > 本文中只是大概讲解了一个非线性优化的整体概念，并列举了几种优化方法，还有一些其他的优化方法也具有不错的效果，后面会慢慢补充。。。 
  
+## 实践
+1. [使用ceres进行函数拟合](https://github.com/xhy3054/myslam/tree/master/03-optimization/ceres_curve_fitting)
+
+2. [使用g2o进行函数拟合](https://github.com/xhy3054/myslam/tree/master/03-optimization/g20_curve_fitting)
+
 # 参考文献
 - [1] 视觉slam十四讲

@@ -103,6 +103,8 @@ Point2f pixel2cam ( const Point2d& p, const Mat& K )
 }
 ```
 
+> [代码地址](https://github.com/xhy3054/myslam/tree/master/04-VO-feature/triangulation)
+
 ## 使用概率方法更新矫正深度值
 从上述讲述中，我们已经知道通过两帧图像的匹配点，可以得到一个等式，可以计算出这一点的深度值，所以，如果有n副图像进行匹配，那我们会得到n-1个等式。此时我们就可以计算出这一点的n-1个空间位置的测量值。
 

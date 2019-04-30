@@ -49,7 +49,7 @@ tag: [计算机视觉]
 > 这种位姿估计的场景其实在视觉slam中一般用来估计与校正回环的累积误差，计算能使回环对齐的相似变换。不过在RGBD与双目相机系统中，也可以使用这种方法来计算位姿。
 
 ## 代码
-> 等我写完会贴出地址，未完待续。。。
+> [2d-2d](https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_2d2d)代码、[3d-2d](https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_3d2d)代码、[3d-3d](https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_3d3d)代码
 
 # 参考文献
 - [1] 视觉SLAM十四讲， 高翔，张涛等著
