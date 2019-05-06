@@ -71,6 +71,8 @@ $$ P(z_{k,j} {\mid} x_{k}, y_{j})  = N(h(y_{j}, x_{k}), Q_{k,j}) $$
 
 $$ P(x) = \dfrac{1}{\sqrt{(2\pi)^{N} det(\Sigma)}}exp(-{\dfrac{1}{2}}(x-{\mu})^{T} {\Sigma}^{-1}(x-{\mu})) $$
 
+> 上式中$\Sigma$是这个高斯噪声的协方差矩阵，在g2o中也叫信息矩阵。
+
 对上式取负对数，则变为
 
 $$ -ln(P(x)) = \dfrac{1}{2} ln((2{\pi})^N det(\Sigma)) + \dfrac{1}{2} (x-\mu)^T {\Sigma}^{-1} (x-\mu) $$

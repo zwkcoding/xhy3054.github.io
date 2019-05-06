@@ -170,7 +170,7 @@
 
 <ol>
   <li>给定初始值$x_{0}$，以及初始优化半径$\mu$</li>
-  <li>对于第k次迭代，求解 $\Delta x_{k} = argmin \dfrac{1}{2} {\mid \mid f(x_{k}) + J(x_{k}) \Delta x_{k}}^2 , s.t. {\mid \mid D \Delta x_{k} \le \mu}$，此处$\mu$是信赖区域的半径，D在后面会说明</li>
+  <li>对于第k次迭代，求解 $\Delta x_{k} = argmin \dfrac{1}{2} {\mid \mid f(x_{k}) + J(x_{k}) \Delta x_{k} \mid \mid}^2 , s.t. {\mid \mid D \Delta x_{k} \mid \mid}^2 \le \mu$，此处$\mu$是信赖区域的半径，D在后面会说明</li>
   <li>计算$\rho$</li>
   <li>若$\rho &gt; \dfrac{3}{4}$，则$\mu = 2 \mu$</li>
   <li>若$\rho &lt; \dfrac{1}{4}$，则$\mu = 0.5 \mu$</li>
@@ -180,9 +180,28 @@
 
 <p>上面近似范围扩大的倍数与阈值都是经验值，可以替换成别的数值。在第二步$\Delta x$的求解中，我们将增量限定在一个半径为$\mu$的球里，带上D之后，这个球可以看成一个椭球。</p>
 
+<p>现在我们来确定LM方法中的$\Delta x$，首先使用拉格朗日乘子法将上述带不等式约束的优化问题转换成一个无约束的优化问题</p>
+
+<script type="math/tex; mode=display">\Delta x_{k} = argmin \dfrac{1}{2} {\mid \mid f(x_{k}) + J(x_{k}) \Delta x_{k} \mid \mid}^2 + \dfrac{\lambda}{2} {\mid \mid D \Delta x \mid \mid}^2</script>
+
+<p>此处的$\lambda$为拉格朗日乘子。上述做法类似于高斯牛顿法中的做法，对上述问题求解，我们得到下式：</p>
+
+<script type="math/tex; mode=display">(H + \lambda D_{T}D)\Delta x = g</script>
+
+<p>由上我们发现该问题的核心仍然是计算增量的线性方程，相比较高斯牛顿法的方程，LM中多了一项$\lambda D_{T}D$。考虑上式的简化版本，我们另$D=I$，这个方程变为：</p>
+
+<script type="math/tex; mode=display">(H + \lambda I)\Delta x = g</script>
+
+<p>我们发现，<strong>当$\lambda$比较小时，LM方法近似与高斯牛顿法；当$\lambda$比较大时，说明附近的二次近似不太好，LM方法近似于最速下降法。</strong></p>
+
 <blockquote>
   <p>列文伯格-马夸尔特方法可在一定程度上米面线性方程组的系数矩阵的非奇异和病态问题，提供更稳定、准确的增量$\Delta x$。尽管它的收敛速度可能会比高斯牛顿法更慢，也被叫做阻尼牛顿法。</p>
 </blockquote>
+
+<h2 id="dogleg方法">Dogleg方法</h2>
+<p>这种方法与LM方法思想类似，它是高斯牛顿与梯度下降法的混合。</p>
+
+<p>它的做法是，在信任区域内部，使用高斯牛顿法；否则，使用最速下降法。如果最速下降方向在有效范围内部，使用高斯牛顿与梯度下降的混合，在外部，缩小到Region的边界。</p>
 
 <h2 id="非线性优化方法存在的问题">非线性优化方法存在的问题</h2>
 <ol>
@@ -190,7 +209,7 @@
     <p>首先，对目标函数进行非线性优化有一个很大的前提，那就是<strong>目标函数连续可导</strong>。所以如果目标函数不连续或者不可导，我们就需要想办法使其变得连续可导。比如在slam中处理姿态估计的问题，当姿态使用旋转矩阵与平移变量表示时，显然是不可导的。此时由于欧式矩阵群是一个李群，所以我们会将目标函数映射到其李代数上，此时目标函数就会连续可导了。</p>
   </li>
   <li>
-    <p><strong>非线性优化方法求得的只是局部最优解</strong>，这个是由梯度下降的原理决定的，由于初始值不确定，使得很容易陷入局部最优中。一般<strong>凸优化</strong>可以在一定程度上解决这个问题。因为凸函数的局部最优就是全局最优，所以我们可以尝试着将目标函数转换成凸函数，然后再进行优化。</p>
+    <p><strong>初值敏感，并且非线性优化方法求得的只是局部最优解</strong>，这个是由梯度下降的原理决定的，由于初始值不确定，使得很容易陷入局部最优中。一般<strong>凸优化</strong>可以在一定程度上解决这个问题。因为凸函数的局部最优就是全局最优，所以我们可以尝试着将目标函数转换成凸函数，然后再进行优化。</p>
   </li>
 </ol>
 
@@ -264,6 +283,10 @@
       <div class="recent_list">
         
           
+            <a href="/state-estimation-filter/" class="recent_item" style="background-image: url( /assets/img/sword/sword14.jpg )"><span>状态估计之卡尔曼滤波</span></a>
+          
+        
+          
             <a href="/state-estimation-nonlinear-least-square/" class="recent_item" style="background-image: url( /assets/img/sword/sword12.jpg )"><span>状态估计之非线性最小二乘</span></a>
           
         
@@ -281,10 +304,6 @@
         
           
             <a href="/pose-estimation/" class="recent_item" style="background-image: url( /assets/img/sword/sword9.jpg )"><span>特征点法slam中位姿估计方法总结</span></a>
-          
-        
-          
-            <a href="/triangulation/" class="recent_item" style="background-image: url( /assets/img/sword/sword8.jpg )"><span>单目vo中的深度确定方法--三角测量</span></a>
           
         
       </div>
