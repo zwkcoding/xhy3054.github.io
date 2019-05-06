@@ -56,6 +56,7 @@ $$ x_{distorted} = x + [ 2p_1xy + p_2(r^2+2x^2)]  \\ y_{distorted} = y + [ p_1(r
 
 $$ x_{distorted} = x( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + [ 2p_1xy + p_2(r^2+2x^2)]  \\ y_{distorted} = y( 1 + k_1 r^2 + k_2 r^4 + k_3 r^6) + [ p_1(r^2+ 2y^2)+ 2p_2xy]   $$
 
+
 - 最后一步，利用内参K，将归一化相机坐标转换成**像素坐标**： $ P_{uv} = KP_{distorted} $
 
 $$ u = f_x x_{distorted} + c_x \\ v = f_y y_{distorted} + c_y  $$

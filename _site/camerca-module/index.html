@@ -122,6 +122,10 @@
 </div>
 <p>其中相机坐标系坐标<code class="highlighter-rouge">(X,Y,Z)</code>到投影平面上的齐次坐标<code class="highlighter-rouge">(x,y,1)</code>可以表示如上。</p>
 
+<blockquote>
+  <p>注意，此处主要是两步，第一步是$(X,Y,Z)$变为$(\dfrac{X}{Z}, \dfrac{Y}{Z}, 1)$，即<strong>从相机坐标系坐标变换到归一化平面上</strong>。第二步是将$(\dfrac{X}{Z}, \dfrac{Y}{Z})$变换为$(f \dfrac{X}{Z}, f \dfrac{Y}{Z})$，<strong>即将坐标从归一化平面变换到成像平面上</strong>。这里的第二步其实是包含在了内参操作里的。</p>
+</blockquote>
+
 <h2 id="转换为像素坐标">转换为像素坐标</h2>
 <p>由上已经知道，空间点相机坐标系坐标<code class="highlighter-rouge">(X,Y,Z)</code>到成像平面投影的坐标<code class="highlighter-rouge">(x,y)</code>变换为</p>
 
@@ -154,35 +158,20 @@
   <p>还有一点可以观察到，在相机坐标系下，<strong>从原点出发的射线上的点全部都投影到一个像素坐标上了</strong>。这个可以通过将上式右边的三维坐标<code class="highlighter-rouge">(X,Y,Z)</code>任意乘以一个常数，由于齐次坐标的尺度等价性，最后的投影结果不会改变。</p>
 </blockquote>
 
-<h1 id="总结1">总结1</h1>
-<p>由上，我们简单归纳一下，大概可以将相机投影几何主要用两步来归纳。</p>
-<ol>
-  <li>
-    <p>从世界坐标转换为相机坐标系坐标（需要相机外参）。</p>
-  </li>
-  <li>
-    <p>从相机坐标系坐标转换为像素坐标（需要相机内参）。</p>
-  </li>
-</ol>
-
-<p>整个过程可以使用如下公式合并表示：</p>
-
-<script type="math/tex; mode=display">ZP_{uv} = K(RP_w + t)</script>
-
-<h1 id="总结2从公式变换的角度进行步骤总结实际中应用更多">总结2：从公式变换的角度进行步骤总结（实际中应用更多）</h1>
+<h1 id="总结公式变换过程">总结：公式变换过程</h1>
 <p>换一种方式更详细地进行总结(此处有简化细节)：</p>
 <ol>
   <li>
     <p>首先，世界坐标系下有一个固定的点P，<strong>世界坐标</strong>是 $P_w$</p>
   </li>
   <li>
-    <p>获得点P的<strong>相机坐标系坐标</strong>，可以利用相机外参R与t得到 $ P_c = RP_w + t $</p>
+    <p>获得点P的<strong>相机坐标系坐标</strong>，可以利用<strong>相机外参</strong>R与t得到 $ P_c = RP_w + t $</p>
   </li>
   <li>
-    <p>在2中获得的 $P_c$ 仍然是三维的 (X,Y,Z) ，将其投影到归一化平面 $Z=1$ 上，得到<strong>归一化相机坐标</strong>：$ P_C = [X/Z, Y/Z, 1]^T $</p>
+    <p>在2中获得的 $P_c$ 仍然是三维的 (X,Y,Z) ，将其<strong>投影到归一化平面</strong> $Z=1$ 上，得到<strong>归一化相机坐标</strong>：$ P_C = [X/Z, Y/Z, 1]^T $</p>
   </li>
   <li>
-    <p>最后一步，利用内参K，将归一化相机坐标转换成<strong>像素坐标</strong>： $ P_{uv} = KP_C $</p>
+    <p>最后一步，利用<strong>内参K</strong>，将归一化相机坐标转换成<strong>像素坐标</strong>： $ P_{uv} = KP_C $</p>
   </li>
 </ol>
 
@@ -191,7 +180,7 @@
 <script type="math/tex; mode=display">ZP_{uv} = K(RP_w + t)</script>
 
 <blockquote>
-  <p>参考上面详细的成像原理，其实总结2中的第三步与第四步是可以没有先后关系的。因为都是线性的运算，所以谁先谁后都不影响最后结果。</p>
+  <p>参考上面详细的成像原理，其实总结中的第三步与第四步是可以没有先后关系的。因为都是线性的运算，所以谁先谁后都不影响最后结果。</p>
 </blockquote>
 
 <h1 id="参考资料">参考资料</h1>
