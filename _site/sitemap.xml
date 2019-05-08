@@ -265,6 +265,10 @@
 <lastmod>2019-05-06T09:07:24+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/bundle-adjustment-solve/</loc>
+<lastmod>2019-05-07T09:07:24+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
@@ -290,6 +294,12 @@
 </url>
 <url>
 <loc>http://localhost:4000/page6/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/page7/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/page8/</loc>
 </url>
 <url>
 <loc>http://localhost:4000/assets/img/gdb/GDB%E6%89%8B%E5%86%8C%E4%B8%AD%E6%96%87%E7%89%88.pdf</loc>
