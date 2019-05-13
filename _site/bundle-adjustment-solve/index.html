@@ -256,6 +256,27 @@ H(e)=\left\{\begin{array}{ll}{\frac{1}{2} e^{2}} & {\text { if }|e| \leq \delta}
   </li>
 </ol>
 
+<h1 id="拓展">拓展</h1>
+<h2 id="pose-graph的优化">pose graph的优化</h2>
+<blockquote>
+  <p>通常在slam的后端优化中，在经过几轮的ba迭代后（几轮观测后），地图点的位置便已经近乎固定了，此时如果继续在新的相机帧进来后进行全局的ba优化，会有些浪费计算资源。</p>
+</blockquote>
+
+<p>此时，我们一般倾向于只优化相机位姿节点，即构建一个只由pose组成的图，并对其进行优化，这就叫做<strong>位姿图(pose graph)的优化</strong>，具体推导过程与ba类似，计算雅克比什么的，可以自行翻阅资料。</p>
+
+<h2 id="因子图优化">因子图优化</h2>
+<blockquote>
+  <p><strong>因子图</strong>是基于概率图（主要是贝叶斯网络）的图优化。</p>
+</blockquote>
+
+<p>因子图是一种无向图，节点有两种，一种是需要优化的<strong>变量节点</strong>（比如slam中的位姿与路标），一种是不需要优化的<strong>因子节点</strong>（比如slam中的观测与输入）。因子图与普通的图优化都是最小二乘问题，并且稀疏性也类似。</p>
+
+<p>因子图比较特殊的地方在于，其可以<strong>增量式</strong>的处理后端优化。比如，在<strong>里程计的因子图优化</strong>中，当新的节点与边被加入到图中时，我们只需要考虑最后一个与之相连的节点，可以近似的认为早先节点的估计值不发生变换（其实还是会有影响的，不过相比于最近的节点而言很小），因此可以节省很多计算量，<strong>每次新加节点时，没必要对整个图进行优化</strong>。</p>
+
+<blockquote>
+  <p>需要注意的一点是，如果图中包含回环检测的部分，那么受影响的范围应该是当前回环上的所有节点，也就是这部分回环的轨迹都需要进行调整。</p>
+</blockquote>
+
 <h1 id="参考文献">参考文献</h1>
 <ul>
   <li>[1]. 视觉slam十四讲</li>
@@ -274,7 +295,7 @@ H(e)=\left\{\begin{array}{ll}{\frac{1}{2} e^{2}} & {\text { if }|e| \leq \delta}
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#数学" class="tag">数学</a>
+          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
           
         </div>
       </footer>
