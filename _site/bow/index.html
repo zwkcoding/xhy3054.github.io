@@ -92,7 +92,7 @@
 </blockquote>
 
 <h2 id="构造离线词典">构造离线词典</h2>
-<p>在构造离线词典时，使用了分层K-means树的存储结构，这个结构在快速寻找k近邻里面也会经常用到。大概流程如下</p>
+<p>在构造离线词典时，使用了分层K-means树的存储结构，这个结构在快速寻找k近邻里面也会经常用到。大概流程如下（构造必须参数有聚类个数k与深度d）</p>
 
 <ol>
   <li>
@@ -105,8 +105,13 @@
     <p>在上一步中划分的每个子空间中，继续利用<code class="highlighter-rouge">k-means</code>聚类算法进行聚类</p>
   </li>
   <li>
-    <p>重复上述第三步，将描述子空间通过一个k叉树进行划分</p>
+    <p>重复上述第三步，将描述子空间通过一个k叉树（深度为d）进行划分</p>
   </li>
+</ol>
+
+<h2 id="单词查找与构造bag-of-word">单词查找与构造Bag-of-Word</h2>
+
+<ol>
   <li>
     <p>对每一副图片，提取orb特征点</p>
   </li>
@@ -121,6 +126,48 @@
 <blockquote>
   <p>从上述构造与查找的过程中，我们发现仍然是在叶子层构建了单词，而树结构中的中间节点仅供快速查找时使用。一支深度为d的kmeans的分层聚类树可以容纳$k^{d}$个单词。在查找某个给定特征对应的单词时，在每一层上只需要与k个聚类中心进行距离度量，一共d层，可以保证对数级别的查找效率。</p>
 </blockquote>
+
+<h2 id="bag-of-word的构造与相似性度量">Bag-of-Word的构造与相似性度量</h2>
+<p>我们此处需要讨论一下匹配中的相似度计算的问题。首先考虑的是每个单词的权重应该是不同的，因为我们知道在一个句子中比如“的”、“是”这样的词可能出现的频率非常高，我们无法根据他们判断句子的类型。但是类似“足球”、“壁画”这样的单词对判别句子的作用就更大。所以上面的简单的确定的词袋向量其实是可以改进的。</p>
+
+<p>在文本检索中，常用的一种做法是<strong>TF-IDF(Term Frequency-Inverse Document Frequency，频率-逆文档频率)</strong>。其中，$TF$部分的思想是<strong>单词在一副图像中出现的频率</strong>越高，他的区分度就越高。$IDF$部分的思想是<strong>单词在字典中出现的频率</strong>越高，那他的区分度就越低。</p>
+
+<p>这种方法在建立字典时就可以统计出$IDF$的值，比如某个叶子节点$w_{i}$中的特征数量相对于所有特征数量的比例，就是次叶子节点的$IDF$值。假设所有特征数量为$n$，$w_{i}$中的特征数量为$n_{i}$，那么该单词的$IDF$为：</p>
+
+<script type="math/tex; mode=display">\operatorname{IDF}_{i}=\log \frac{n}{n_{i}}</script>
+
+<p>此外，$TF$部分是指某个特征在单个图像中出现的频率。假设图像$A$中，单词$w_{i}$出现了$n_{i}$次，而一共出现的单词次数为$n$，那么$TF$为：</p>
+
+<script type="math/tex; mode=display">\mathrm{TF}_{i}=\frac{n_{i}}{n}</script>
+
+<p>最后，对于单词$w_{i}$在这幅图像中的权重等于$TF$与$IDF$的乘积：</p>
+
+<script type="math/tex; mode=display">\eta_{i}=\mathrm{TF}_{i} \times \operatorname{IDF}_{i}</script>
+
+<p>在考虑权重之后，对于某个图像$A$，它的特征点可对应到许多个单词，组成它的$Bag-of-Words$：</p>
+
+<script type="math/tex; mode=display">A=\left\{\left(w_{1}, \eta_{1}\right),\left(w_{2}, \eta_{2}\right), \ldots,\left(w_{N}, \eta_{N}\right)\right\} \triangleq v_{A}</script>
+
+<blockquote>
+  <p>由于一般字典会比较大，一副图像中包含的单词种类有限，因此$v_{A}$中会存在大量的零。不过通过词袋向量我们还是可以描述一个图像，只不过这个词袋向量是稀疏的。</p>
+</blockquote>
+
+<h3 id="相似性对量">相似性对量</h3>
+<p>接下来便是如何表示两个词袋向量之间的差异，这个问题其实可以使用很多种方法，在$DBoW$库中如果不指定会默认是$L_{1}$范数形式：</p>
+
+<script type="math/tex; mode=display">s\left(\boldsymbol{v}_{A}-\boldsymbol{v}_{B}\right)=2 \sum_{i=1}^{N}\left|\boldsymbol{v}_{A i}\right|+\left|\boldsymbol{v}_{B i}\right|-\left|\boldsymbol{v}_{A i}-\boldsymbol{v}_{B i}\right|</script>
+
+<h2 id="代码实例">代码实例</h2>
+<p>下面代码都是基于$DBoW3$库，这时一个$cmake$工程，直接默认方式编译安装即可，使用$cmake$使用它时与其他库一样。，$github$地址是<code class="highlighter-rouge">https://github.com/rmsalinas/DBow3</code></p>
+
+<ol>
+  <li>
+    <p><a href="">训练字典</a></p>
+  </li>
+  <li>
+    <p><a href="">生成词袋向量并计算相似度</a></p>
+  </li>
+</ol>
 
 <h1 id="参考文献">参考文献</h1>
 <ul>
@@ -181,7 +228,11 @@
       <div class="recent_list">
         
           
-            <a href="/bundle-adjustment-solve/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece1.jpg )"><span>Bundle Adjustment在视觉slam中的应用与求解</span></a>
+            <a href="/loop-closing/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece2.jpg )"><span>视觉slam中的回环检测概述</span></a>
+          
+        
+          
+            <a href="/bundle-adjustment-solve/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece1.jpg )"><span>Bundle Adjustment等优化方法在视觉slam中的应用与求解</span></a>
           
         
           
@@ -198,10 +249,6 @@
         
           
             <a href="/li-group-derivation/" class="recent_item" style="background-image: url( /assets/img/sword/sword11.jpg )"><span>李代数求导与扰动模型</span></a>
-          
-        
-          
-            <a href="/Li-group/" class="recent_item" style="background-image: url( /assets/img/sword/sword10.jpg )"><span>李群与李代数</span></a>
           
         
       </div>
