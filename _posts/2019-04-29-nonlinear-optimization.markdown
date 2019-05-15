@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 非线性最小二乘总结
+title: 非线性最小二乘优化方法总结
 date: 2019-04-29 10:07:24.000000000 +09:00
 img:  sword/sword13.jpg # Add image post (optional)
 tag: [数学]

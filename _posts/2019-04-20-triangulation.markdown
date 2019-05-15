@@ -44,7 +44,61 @@ $$ Z_2 x_2^{\land} x_2 = 0 = Z_1 x_2^{\land}Rx_1 + x_1^{\land}t $$
 
 如上，可以直接求出$p_{uv1}$的深度$Z_1$了，然后$Z_1$也可以很轻松地求出。
 
-## 代码实现
+## 代码实现（自己实现）
+此处使用的求解方法是$Cramer's$法则。这是另一种求解三角化的方式，推导如下：
+
+$$ Z_{2} x_{2} - Z_{1} Rx_{1} = t $$
+
+对公式两侧同时乘以$x_{2}^T$，得到：
+
+$$ Z_{2} x_{2}^T x_{2} - Z_{1} x_{2}^T R x_{1} = x_{2}^T t $$
+
+公式两侧同时乘以$(Rx_{1})^T$，得到：
+
+$$ Z_{2} (Rx_{1})^T x_{2} - Z_{1} (Rx_{1})^T Rx_{1} = (Rx_{1})^Tt $$
+
+对于上述两个公式组成的方程组，利用克莱默法则求解
+
+$$
+\left[ \begin{array}{cc}{\mathrm{x}_{2}^{T} x_{2}} & {-\mathrm{x}_{2}^{T} R x_{1}} \\ {\left(R x_{1}\right)^{\mathrm{T}} x_{2}} & {-\left(R x_{1}\right)^{\mathrm{T}}\left(R x_{1}\right)}\end{array}\right] \left[ \begin{array}{c}{Z_{2}} \\ {Z_{1}}\end{array}\right]=\left[ \begin{array}{c}{\mathrm{x}_{2}^{T} t} \\ {\left(R x_{1}\right)^{\mathrm{T}} t}\end{array}\right]
+$$
+
+克莱默法则是，对于$Ax=b$这样的方程，如果$A$的行列式不为0，方程可以通过如下方式求解：
+
+$$
+x_{1}=\frac{\operatorname{det} B_{1}}{\operatorname{det} A} \quad x_{2}=\frac{\operatorname{det} B_{2}}{\operatorname{det} A} \quad x_{n}=\frac{\operatorname{det} B_{n}}{\operatorname{det} A}
+$$
+
+其中$B_{j}$是$A$的第$j$列被$b$替换后得到的新的矩阵。
+
+```cpp
+// 方程
+    // d_ref * f_ref = d_cur * ( R_RC * f_cur ) + t_RC
+    // => [ f_ref^T f_ref, -f_ref^T f_cur ] [d_ref] = [f_ref^T t]
+    //    [ f_cur^T f_ref, -f_cur^T f_cur ] [d_cur] = [f_cur^T t]
+    // 二阶方程用克莱默法则求解并解之
+    Vector3d t = T_R_C.translation();
+    Vector3d f2 = T_R_C.rotation_matrix() * f_curr; 
+    Vector2d b = Vector2d ( t.dot ( f_ref ), t.dot ( f2 ) );
+    // 此处计算出系数矩阵A
+    double A[4];
+    A[0] = f_ref.dot ( f_ref );
+    A[2] = f_ref.dot ( f2 );
+    A[1] = -A[2];
+    A[3] = - f2.dot ( f2 );
+    // 此处计算A的行列式
+    double d = A[0]*A[3]-A[1]*A[2];
+    Vector2d lambdavec = 
+        Vector2d (  A[3] * b ( 0,0 ) - A[1] * b ( 1,0 ),
+                    -A[2] * b ( 0,0 ) + A[0] * b ( 1,0 )) /d;
+    Vector3d xm = lambdavec ( 0,0 ) * f_ref;
+    Vector3d xn = t + lambdavec ( 1,0 ) * f2;
+    Vector3d d_esti = ( xm+xn ) / 2.0;  // 三角化算得的深度向量
+    double depth_estimation = d_esti.norm();   // 深度值
+```
+---
+
+## 代码实现（使用opencv提供的接口）
 ```cpp
 void triangulation ( 
     const vector< KeyPoint >& keypoint_1, 
@@ -114,7 +168,6 @@ Point2f pixel2cam ( const Point2d& p, const Mat& K )
 
 - 在LSD中，使用卡尔曼滤波进行深度测量值的滤波
 
-> 此处，尚需查看具体操作，未完待续
 
 ## 其他测距方法
 1. 主动方法
