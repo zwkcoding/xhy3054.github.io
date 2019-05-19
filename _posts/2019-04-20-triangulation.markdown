@@ -45,7 +45,27 @@ $$ Z_2 x_2^{\land} x_2 = 0 = Z_1 x_2^{\land}Rx_1 + x_1^{\land}t $$
 如上，可以直接求出$p_{uv1}$的深度$Z_1$了，然后$Z_1$也可以很轻松地求出。
 
 ## 代码实现（自己实现）
-此处使用的求解方法是$Cramer's$法则。这是另一种求解三角化的方式，推导如下：
+首先是上述思路的解法
+```cpp
+bool depthFromTriangulation(
+    const SE3& T_search_ref,
+    const Vector3d& f_ref,
+    const Vector3d& f_cur,
+    double& depth)
+{
+    Matrix<double,3,2> A;
+    A << T_search_ref.rotation_matrix()*f_ref, f_cur;
+    const Matrix2d AtA = A.transpose()*A;
+    if(AtA.determinant() < 0.000001)
+        return false;
+    const Vector2d depth2 = - AtA.inverse()*A.transpose()*T_search_ref.translation();
+    depth = fabs(depth2[0]);
+    return true;
+}
+```
+---
+
+然后此处使用的求解方法是$Cramer's$法则。这是另一种求解三角化的方式，推导如下：
 
 $$ Z_{2} x_{2} - Z_{1} Rx_{1} = t $$
 
@@ -97,6 +117,7 @@ $$
     double depth_estimation = d_esti.norm();   // 深度值
 ```
 ---
+
 
 ## 代码实现（使用opencv提供的接口）
 ```cpp

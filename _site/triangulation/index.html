@@ -109,7 +109,26 @@
 <p>如上，可以直接求出$p_{uv1}$的深度$Z_1$了，然后$Z_1$也可以很轻松地求出。</p>
 
 <h2 id="代码实现自己实现">代码实现（自己实现）</h2>
-<p>此处使用的求解方法是$Cramer’s$法则。这是另一种求解三角化的方式，推导如下：</p>
+<p>首先是上述思路的解法</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="nf">depthFromTriangulation</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">SE3</span><span class="o">&amp;</span> <span class="n">T_search_ref</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Vector3d</span><span class="o">&amp;</span> <span class="n">f_ref</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Vector3d</span><span class="o">&amp;</span> <span class="n">f_cur</span><span class="p">,</span>
+    <span class="kt">double</span><span class="o">&amp;</span> <span class="n">depth</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">;</span>
+    <span class="n">A</span> <span class="o">&lt;&lt;</span> <span class="n">T_search_ref</span><span class="p">.</span><span class="n">rotation_matrix</span><span class="p">()</span><span class="o">*</span><span class="n">f_ref</span><span class="p">,</span> <span class="n">f_cur</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">Matrix2d</span> <span class="n">AtA</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">*</span><span class="n">A</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">AtA</span><span class="p">.</span><span class="n">determinant</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.000001</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">Vector2d</span> <span class="n">depth2</span> <span class="o">=</span> <span class="o">-</span> <span class="n">AtA</span><span class="p">.</span><span class="n">inverse</span><span class="p">()</span><span class="o">*</span><span class="n">A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">*</span><span class="n">T_search_ref</span><span class="p">.</span><span class="n">translation</span><span class="p">();</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">fabs</span><span class="p">(</span><span class="n">depth2</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>然后此处使用的求解方法是$Cramer’s$法则。这是另一种求解三角化的方式，推导如下：</p>
 
 <script type="math/tex; mode=display">Z_{2} x_{2} - Z_{1} Rx_{1} = t</script>
 
