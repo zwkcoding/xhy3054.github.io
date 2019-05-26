@@ -193,6 +193,10 @@ Type rostopic &lt;command&gt; -h for more detailed usage, e.g. 'rostopic echo -h
 <h3 id="msg文件">msg文件</h3>
 <p>$msg$文件就是一个描述$ROS$中所使用消息类型的简单文本。通常$msg$文件存放在$package$的$msg$目录下</p>
 
+<blockquote>
+  <p>ros中在一个包里消息$msg$与服务$srv$的创建教程详细可以查看<a href="http://wiki.ros.org/cn/ROS/Tutorials/CreatingMsgAndSrv">官网教程</a></p>
+</blockquote>
+
 <h2 id="ros的服务">ros的服务</h2>
 <p>ros中还存在服务，可以直接在终端中调用服务，允许当前终端向一个节点发送请求，并获得一个响应。使用<code class="highlighter-rouge">rosservice</code>可以轻松使用ros客户端、服务器框架提供的服务。</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rosservice list         输出可用服务的信息
@@ -217,6 +221,26 @@ rosparam list           列出参数名
 </code></pre></div></div>
 <hr />
 
+<h2 id="ros实际案例">ros实际案例</h2>
+<ul>
+  <li>
+    <p><a href="http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29">编写消息发布器与订阅器c++版本</a></p>
+  </li>
+  <li>
+    <p><a href="http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28python%29">编写消息发布器与订阅器python版本</a></p>
+  </li>
+  <li>
+    <p><a href="http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28c%2B%2B%29">编写简单的服务器与客户端c++版本</a></p>
+  </li>
+  <li>
+    <p><a href="http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28python%29">编写简单的服务器与客户端python版本</a></p>
+  </li>
+</ul>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1]. http://wiki.ros.org/cn/ROS/Tutorials</li>
+</ul>
 
     </div>
     

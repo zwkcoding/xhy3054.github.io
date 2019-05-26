@@ -125,6 +125,7 @@ ros消息是ros中信息流动方式，一个节点发送某种类型的消息�
 ### msg文件
 $msg$文件就是一个描述$ROS$中所使用消息类型的简单文本。通常$msg$文件存放在$package$的$msg$目录下
 
+> ros中在一个包里消息$msg$与服务$srv$的创建教程详细可以查看[官网教程](http://wiki.ros.org/cn/ROS/Tutorials/CreatingMsgAndSrv)
 
 ## ros的服务
 ros中还存在服务，可以直接在终端中调用服务，允许当前终端向一个节点发送请求，并获得一个响应。使用`rosservice`可以轻松使用ros客户端、服务器框架提供的服务。
@@ -151,4 +152,14 @@ rosparam list           列出参数名
 ```
 ---
 
+## ros实际案例
+- [编写消息发布器与订阅器c++版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29)
 
+- [编写消息发布器与订阅器python版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28python%29)
+
+- [编写简单的服务器与客户端c++版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28c%2B%2B%29)
+
+- [编写简单的服务器与客户端python版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28python%29)
+
+# 参考文献
+- [1]. http://wiki.ros.org/cn/ROS/Tutorials
