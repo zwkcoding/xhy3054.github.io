@@ -8,7 +8,11 @@ tag: [tools]
 很长时间没有用ros了，刚好这几天手头有一台闲置的$turtlebot$，于是就想用它验证一些导航算法。重新看ros的官网教程，写的很好，但是每一节讲的东西很少，而我这里网速不快，每次打开新的网页都要等一会，超级费时间，所以写篇博客将ros的常用操作概括归纳一些，以后忘记了方便查阅。
 
 # ros
-ros是一种分布式机器人操作系统，依赖于$linux$（一般支持的linux系统有$ubuntu$系列与$debian$系列），由加州大学伯克利大学发布，目前，很多机器人的研究都是基于它。
+ros是一种分布式机器人操作系统，依赖于$linux$（一般支持的linux系统有$ubuntu$系列与$debian$系列），由斯坦福发布，目前，很多机器人的研究都是基于它。其基本框架如下：
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/ros/kuangjia.PNG"/>
+</div>
+
 
 ## 在Ubuntu16.04上安装ros
 $ros$有很多的版本，一般都是和$linux$系统的版本绑定的，在$Ubuntu16.04$上，我们可以安装的是$kinetic$版本。安装过程可以按照[官网教程](http://wiki.ros.org/kinetic/Installation/Ubuntu)进行，建议直接安装$desktop-full$版。
@@ -30,7 +34,14 @@ source /devel/setup.bash
 ```
 ---
 
-## 包的创建与编译
+
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/ros/file.PNG"   width="800" height="350"/>
+</div>
+
+
+## ros文件系统相关命令
+### 包的创建与编译
 - 在工作空间中创建包`new_package`，依赖于包`depend_p1`与`depend_p2`
 ```bash
 cd ~/catkin_ws/src
@@ -49,7 +60,7 @@ catkin_make
 ```
 ---
 
-## ros文件系统相关命令
+### 其他常用命令
 - 查找ros包`roscpp`:`rospack find roscpp`
 
 - 进入ros文件系统的某个目录下：`roscd 包名称/子目录`
@@ -61,6 +72,11 @@ catkin_make
 - ros命令行工具支持`tab`自动补全功能
 
 - 使用`rosed`快速编辑指定文件(默认编辑器是vim)：`rosed [package_name] [filename]`,例如`rosed roscpp Logger.msg`
+
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/ros/ros_cmd.PNG"/>
+</div>
+
 
 ## ros节点
 ros节点是整个机器人控制系统的一个功能单元，运行起来一个ros节点，即运行一个ros程序包中的一个可执行文件。例如`rosrun turtlesim turtle_teleop_key`
@@ -94,10 +110,10 @@ launch文件语法解析，运行如下launch文件会启动两个节点
 ---
 
 
-## ros话题
+## ros通信
+### ros话题（topic）
 ros话题是ros中不同节点之间的通信方式，一个节点在一个话题上发布消息，另一个节点订阅该话题以接收该消息。
 
-### rostopic的使用
 我们通常使用rostopic来进行话题的相关操作
 ```
 rostopic -h
@@ -119,15 +135,14 @@ Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
 ```
 ---
 
-## ros消息
+### ros消息（msg）
 ros消息是ros中信息流动方式，一个节点发送某种类型的消息到一个话题，另一个节点订阅话题并接收相同类型的消息。依次他们完成通信。消息是有类型的，进行通信的两个节点必须发送与接收相同类型的消息。
 
-### msg文件
 $msg$文件就是一个描述$ROS$中所使用消息类型的简单文本。通常$msg$文件存放在$package$的$msg$目录下
 
 > ros中在一个包里消息$msg$与服务$srv$的创建教程详细可以查看[官网教程](http://wiki.ros.org/cn/ROS/Tutorials/CreatingMsgAndSrv)
 
-## ros的服务
+### ros的服务
 ros中还存在服务，可以直接在终端中调用服务，允许当前终端向一个节点发送请求，并获得一个响应。使用`rosservice`可以轻松使用ros客户端、服务器框架提供的服务。
 ```bash
 rosservice list         输出可用服务的信息
@@ -137,9 +152,12 @@ rosservice find         依据类型寻找服务find services by service type
 rosservice uri          输出服务的ROSRPC uri
 ```
 ---
-### srv文件
-一个$srv$文件描述一项服务。它包含两个部分：请求与响应。一般$srv$文件存放在$package$的$srv$目录下。
 
+> 一个$srv$文件描述一项服务。它包含两个部分：请求与响应。一般$srv$文件存放在$package$的$srv$目录下。
+
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/ros/topic_service.PNG"/>
+</div>
 ## ros中的参数
 ros中还存在参数服务器，上面存储一些服务的参数设置，可以使用`rosparam`进行如下操作
 ```bash
@@ -152,7 +170,7 @@ rosparam list           列出参数名
 ```
 ---
 
-## ros实际案例
+## ros基础案例
 - [编写消息发布器与订阅器c++版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29)
 
 - [编写消息发布器与订阅器python版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingPublisherSubscriber%28python%29)
@@ -160,6 +178,12 @@ rosparam list           列出参数名
 - [编写简单的服务器与客户端c++版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28c%2B%2B%29)
 
 - [编写简单的服务器与客户端python版本](http://wiki.ros.org/cn/ROS/Tutorials/WritingServiceClient%28python%29)
+
+- [验证流程可以查看这里，python节点无需编译，直接运行脚本即可](http://wiki.ros.org/cn/ROS/Tutorials/ExaminingServiceClient)
+
+- [录制话题数据，通过bag文件](http://wiki.ros.org/cn/ROS/Tutorials/Recording%20and%20playing%20back%20data)   
+ 
+> [我的教程工作空间](https://github.com/xhy3054/catkin_ws)
 
 # 参考文献
 - [1]. http://wiki.ros.org/cn/ROS/Tutorials
