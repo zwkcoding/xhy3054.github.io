@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>RANSAC算法的理解与使用 - line - 千里之行</title>
+	<title>自动驾驶系统描述 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,86 +51,63 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/game4.jpg alt="RANSAC算法的理解与使用">
+        <img src=/assets/img/one-piece/one-piece5.jpg alt="自动驾驶系统描述">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Jan 26</p>
-        <h1 class="post_title">RANSAC算法的理解与使用</h1>
+        <p class="post_meta">2019, May 30</p>
+        <h1 class="post_title">自动驾驶系统描述</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p><strong>随机抽样一致算法(random sample consensus, RANSAC)</strong>，其实就是采用迭代的方法从一组包含离群的被观测数据中估算出数学模型的参数。(比如通过一群点拟合一条直线等)</p>
+      <p>虽然很多人都说自动驾驶是坑，，，但是我就是喜欢在坑里玩泥巴。入坑也有一段时间了，今天主要将要填这个坑需要做的工作总结一下。</p>
+<h1 id="自动驾驶">自动驾驶</h1>
+<p>一些有的没得今天就不扯了，毕竟历史、事件、定义之类的经常看，经常忘。</p>
 
-<h2 id="基本假设">基本假设</h2>
-<ul>
-  <li>
-    <p>模型假设：事先知道真实数据满足的数学模型，不知道的只是模型的具体参数；</p>
-  </li>
-  <li>
-    <p>输入假设：输入数据中包含正确数据（即inliers，可以被假设模型描述的数据）；同时也包含异常数据（即outliers，偏离正常范围很远、不能用假设模型描述的数据）；即输入数据集中含有噪声；</p>
-  </li>
-  <li>
-    <p>有解假设：给定一组(通常很小，比如直线模型两个点就够了)内群数据，存在一种解法，可以通过这组内群数据求解出最适用于这一数据模型的一组参数；</p>
-  </li>
-</ul>
+<p>我理解的自动驾驶系统是是由两部分组成的：<strong>感知与决策</strong>。本文主要从这两个大方向入手，对其麾下的一些不可或缺的功能模块进行描述。</p>
+
+<h2 id="1-感知系统">1. 感知系统</h2>
 
 <blockquote>
-  <p>一般当有效数据占绝大多数，无效数据只是少量时，我们可以通过<strong>最小二乘法</strong>或类似的方法来确定模型的参数与误差；如果无效数据很多，最小二乘法可能就不适用了</p>
+  <p>我将感知问题分为两部分，第一是<strong>对世界的感知与理解</strong>，第二个就是<strong>对自身的感知与理解</strong>。</p>
 </blockquote>
+
+<p>不过这样将有些过于抽象，实际在自动驾驶中我们并不会那么泾渭分明的完成它们，甚至我们更多的是完成的第一部分，第二部分很多往往是预设的东西。一般我们通过实现以下一些功能模块来完成自动驾驶中的感知问题。</p>
+
+<h3 id="11-定位">1.1 定位</h3>
+<p>定位模块解决的问题就是弄清楚自己在哪里，具体化的说就是估计出汽车相对于地图的位姿（位置与姿态）。</p>
+
+<h3 id="12-静态物体建图">1.2 静态物体建图</h3>
+<p>其实静态建图模块与定位在一定程度上来说是很多模块（比如定位）的基础。而且地图也分为局部地图与全局地图两部分。</p>
+
+<h3 id="13-动态目标跟踪">1.3 动态目标跟踪</h3>
+<p>对于动态物体，我们最好不要将它放入地图中，就算放入也要放入可以随时更新的局部地图。由于在行驶过程中动态物体本身的运动是我们需要考虑的因素，因此动态目标检测与跟踪模块必不可少。</p>
+
+<h3 id="14-交通信号检测与识别">1.4 交通信号检测与识别</h3>
+<p>这个模块本质是一种<strong>交通工具之间的交互行为模块</strong>，也许以后随着交通工具之间交互方式的改变，也许这个模块的具体形式也会随之改变。</p>
+
+<h2 id="2-决策系统">2. 决策系统</h2>
+<p>好的，既然已经对于外在的内在的情况有了一定的认知，接下来就是我们<strong>发挥主观能动性达成目的</strong>的时候了。</p>
+
+<p>在自动驾驶中的决策系统我觉得主要由以下部分组成。</p>
+<h3 id="21-路线规划">2.1 路线规划</h3>
+<p>路线规划模块负责规划出一条穿过道路网的路线，让自动驾驶汽车能从起始位置到达终点位置。</p>
 
 <blockquote>
-  <p>最小二乘法通过<strong>最小化误差的平方和</strong>来寻找数据的最佳函数匹配。</p>
+  <p>所以路线规划输出的已经可以保持汽车一直在一条路线上，下面需要做的就是如何在这条路线上行驶的更好了。</p>
 </blockquote>
 
-<h2 id="算法步骤概述">算法步骤概述</h2>
-<ol>
-  <li>在数据中随机选择几个点设定为内群；</li>
-  <li>计算适合此内群的一组模型参数；</li>
-  <li>把刚才没有选到的点带入刚才建立的模型中，计算误差的平方和（或者统计输入内群点的数量）；</li>
-  <li>重复以上1、2、3步骤多次；</li>
-  <li>选取其中使误差平方和最小的（或者内群点数量最多的）的那组模型参数作为我们要求的解；</li>
-</ol>
+<h3 id="22-路径规划">2.2 路径规划</h3>
+<p>路径规划模块会根据汽车状态与外部环境计算出一组路径，路径指的是一系列位姿的序列，路径应该是路线上尽可能最好的路径。</p>
 
-<h2 id="参数选择">参数选择</h2>
-<p>上述算法步骤中最重要的参数就是迭代的次数k了，这个参数的确定可以通过如下推导理解一下：</p>
-
-<ul>
-  <li>
-    <p>假设任取一个点是内群点的概率为w，则有<code class="highlighter-rouge">w = 数据中内群点的数量/数据中点的总数</code>；</p>
-  </li>
-  <li>
-    <p>则任取n个点都是内群点的概率为$w^n$(此处假设了数据中点的总数远大于n)；</p>
-  </li>
-  <li>
-    <p>所以我们所选择的n个点至少有一个不是内群点的概率为$1 - w^n$；</p>
-  </li>
-  <li>
-    <p>所以我们连续重复k次都不能有一次全是内群点的概率$p_e$为$(1 - w^n)^k$;</p>
-  </li>
-</ul>
+<h3 id="23-行为规划">2.3 行为规划</h3>
+<p>行为规划模块负责选择当前的驾驶行为，比如车道保持、超车等。通常是在一条路径上小范围内的调整行为，目的是让乘坐者更安全舒适、行驶速度更快等。</p>
 
 <blockquote>
-  <p>由上，我们发现当w保持不变时，我们要想让$p_e$尽量小，则n越大，k就需要越大。</p>
+  <p>现在广泛使用的壁障模块就是属于这一模块。</p>
 </blockquote>
 
-<h2 id="在关键点匹配对筛选中的应用">在关键点匹配对筛选中的应用</h2>
-<ul>
-  <li>模型假设：模型是单应矩阵表示的对极几何模型；</li>
-  <li>输入假设：输入的数据中包含正确的匹配(inliers)与误匹配(outliers);</li>
-  <li>有解假设：可以通过四对匹配特征点求解处自由度为8的单应矩阵；</li>
-</ul>
-
-<blockquote>
-  <p>具体代码效果可以见<a href="">我的github</a>，不过我直接调用了opencv自带的ransac的实现，并没有自己手写。</p>
-</blockquote>
-
-<h1 id="参考资料">参考资料</h1>
-<ul>
-  <li>[1] https://blog.csdn.net/laobai1015/article/details/51682596</li>
-  <li>[2] https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95</li>
-  <li>[3] https://docs.opencv.org/3.4.1/d9/d0c/group__calib3d.html#gae420abc34eaa03d0c6a67359609d8429</li>
-</ul>
+<h1 id="参考文献">参考文献</h1>
 
 
     </div>
@@ -139,16 +116,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=RANSAC算法的理解与使用&url=http://localhost:4000/ransac/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ransac/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/ransac/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=自动驾驶系统描述&url=http://localhost:4000/auto-drive/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/auto-drive/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/auto-drive/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
-          
-          <a href="/tags#机器学习" class="tag">机器学习</a>
+          <a href="/tags#人工智能" class="tag">人工智能</a>
           
         </div>
       </footer>
