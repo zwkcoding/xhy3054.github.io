@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ros操作系统
+title: ros操作系统入门
 date: 2019-05-25 10:07:24.000000000 +09:00
 img:  one-piece/one-piece4.jpg # Add image post (optional)
 tag: [tools]
@@ -13,6 +13,7 @@ ros是一种分布式机器人操作系统，依赖于$linux$（一般支持的l
 <img src="{{site.baseurl}}/assets/img/ros/kuangjia.PNG"/>
 </div>
 
+> 上图是一个在机器人上跑起来的ros的整体框架图，下面我的介绍会依次从 安装、环境配置、文件系统、通信机制、基础实践 来展开。
 
 ## 在Ubuntu16.04上安装ros
 $ros$有很多的版本，一般都是和$linux$系统的版本绑定的，在$Ubuntu16.04$上，我们可以安装的是$kinetic$版本。安装过程可以按照[官网教程](http://wiki.ros.org/kinetic/Installation/Ubuntu)进行，建议直接安装$desktop-full$版。
@@ -24,7 +25,12 @@ $ros$有很多的版本，一般都是和$linux$系统的版本绑定的，在$U
 
 同时，通常除了系统的环境变量外，我们基于$ros$的开发通常会存在于一个工作空间中，在这个工作空间中我们也会新建一些包，此时我们也会需要导入这个工作空间的环境变量，使用`source ws/devel/setup.bash`。
 
-## 工作空间的管理
+## ros文件系统
+ros文件系统主要指的是在硬盘上ROS源代码的组织形式。主要有包（package）、元包（meta package）、工作空间（workspace）等概念。
+### 工作空间
+
+> 通常工作空间是我们开发某个应用的地方，在这里我们会新开发出一些专用的包来共我们的应用（node）使用。
+
 - 创建一个名叫`catkin_ws`的工作空间
 ```bash
 mkdir -p ~/catkin_ws/src
@@ -39,9 +45,9 @@ source /devel/setup.bash
 <img src="{{site.baseurl}}/assets/img/ros/file.PNG"   width="800" height="350"/>
 </div>
 
+### 包
+> ros软件以包的方式组织起来，包包含节点、ROS依赖库、消息服务定义、配置文件、第三方软件、或任何其他逻辑构成。**包的目标**是提供一种易于使用的结构以便于软件的重复使用。
 
-## ros文件系统相关命令
-### 包的创建与编译
 - 在工作空间中创建包`new_package`，依赖于包`depend_p1`与`depend_p2`
 ```bash
 cd ~/catkin_ws/src
@@ -60,7 +66,8 @@ catkin_make
 ```
 ---
 
-### 其他常用命令
+
+### 常用命令
 - 查找ros包`roscpp`:`rospack find roscpp`
 
 - 进入ros文件系统的某个目录下：`roscd 包名称/子目录`
@@ -81,7 +88,7 @@ catkin_make
 ## ros节点
 ros节点是整个机器人控制系统的一个功能单元，运行起来一个ros节点，即运行一个ros程序包中的一个可执行文件。例如`rosrun turtlesim turtle_teleop_key`
 
-> ros系统在启动之前，首先需要运行`rosore`
+> ros系统在启动之前，首先需要运行`rosore`，我们可以将node看做ros操作系统上的应用软件。
 
 ### roslaunch
 使用`rosrun`每次只能启动一个节点，我们可以使用`roslaunch`来启动定义在$launch$文件中的多个节点。
@@ -110,7 +117,8 @@ launch文件语法解析，运行如下launch文件会启动两个节点
 ---
 
 
-## ros通信
+## ros通信（计算图级网络形式）
+了解ros的通信主要需要了解以下四个概念：节点（node）、消息（messages）、话题（topic）、服务（service）
 ### ros话题（topic）
 ros话题是ros中不同节点之间的通信方式，一个节点在一个话题上发布消息，另一个节点订阅该话题以接收该消息。
 
@@ -184,6 +192,9 @@ rosparam list           列出参数名
 - [录制话题数据，通过bag文件](http://wiki.ros.org/cn/ROS/Tutorials/Recording%20and%20playing%20back%20data)   
  
 > [我的教程工作空间](https://github.com/xhy3054/catkin_ws)
+
+## 总结
+这篇博客主要是对ros的整体概念进行介绍，并且介绍了ros官网基础教程中我个人认为最值得介绍的点。至此，ros的入门算是基本完成了，接下来就是需要使用仿真或者实战对ros进行进一步的操作与体验了。
 
 # 参考文献
 - [1]. http://wiki.ros.org/cn/ROS/Tutorials
