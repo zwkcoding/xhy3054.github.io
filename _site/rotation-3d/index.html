@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece6.jpg alt="三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jun 19</p>
+        <h1 class="post_title">三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>三维空间中的旋转有很多种表示方式，欧拉角，旋转矩阵，旋转向量，四元数。由于在slam与机器人中会大量用到这方面的知识，所以在这里将此方面的知识总结一下，方便以后查阅。</p>
+
+<h2 id="欧拉角euler-angle">欧拉角（Euler Angle）</h2>
+<p>在上面这些表示方式中，我们最容易理解的就是欧拉角了。这种表示方式在飞行器中使用的很多。</p>
+<div style="text-align: center">
+<img src="/assets/img/rotation/euler_angle.png" />
+</div>
+
+<p>在欧拉角的表示中，yaw、pitch、roll的顺序对旋转结果是有影响的。即<strong>给定一组欧拉角角度值，比如yaw=45度，pitch=30度，roll=60度，按照yaw-pitch-roll的顺序旋转和按照yaw-roll-pitch的顺序旋转，最终刚体的朝向是不同的！</strong>换言之，若刚体需要按照两种不同的旋转顺序旋转到相同的朝向，所需要的欧拉角角度值则是不同的！</p>
+
+<blockquote>
+  <p>另外需要注意的是，在欧拉角的表示方式里，三个旋转轴一般是随着刚体在运动，即wikipedia中所谓的intrinsic rotation，见下图动画所示(图来自wikipedia)。相对应的另一种表示方式是，三个旋转轴是固定的，不随刚体旋转而旋转，即extrinsic rotation，这种表示方式在计算机视觉中不是很常用。</p>
+</blockquote>
+
+<p>欧拉角的优点是非常直观，但是会有以下几个缺点：</p>
+
+<ol>
+  <li>
+    <p>欧拉角表示方式不唯一。由上面分析知道当yaw、pitch、roll的顺序变换后，会有不同的组合可以达到同样的效果。</p>
+  </li>
+  <li>
+    <p>万向锁问题。</p>
+  </li>
+</ol>
+
+<h2 id="旋转矩阵">旋转矩阵</h2>
+<p>其实在计算坐标变换时，我们使用最多的表示旋转的方式是其实旋转矩阵。三维空间中的旋转矩阵是<strong>3×3</strong>的矩阵，将欧拉叫变换为旋转矩阵的计算方式如下：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{array}{rlr}{R(\alpha, \beta, \gamma)} & {=R_{z}(\alpha) R_{y}(\beta) R_{x}(\gamma)=} \\ {} & {\left(\begin{array}{cc}{\cos \alpha \cos \beta} & {\cos \alpha \sin \beta \sin \gamma-\sin \alpha \cos \gamma} & {\cos \alpha \sin \beta \cos \gamma+\sin \alpha \sin \gamma} \\ {\sin \alpha \cos \beta} & {\sin \alpha \sin \beta \sin \gamma+\cos \alpha \cos \gamma} & {\sin \alpha \sin \beta \cos \gamma-\cos \alpha \sin \gamma} \\ {-\sin \beta} & {\cos \beta \sin \gamma} & {\cos \beta \cos \gamma}\end{array}\right)}\end{array} %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+R_{z}(\alpha)=\left(\begin{array}{ccc}{\cos \alpha} & {-\sin \alpha} & {0} \\ {\sin \alpha} & {\cos \alpha} & {0} \\ {0} & {0} & {1}\end{array}\right) %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+R_{y}(\beta)=\left(\begin{array}{ccc}{\cos \beta} & {0} & {\sin \beta} \\ {0} & {1} & {0} \\ {-\sin \beta} & {0} & {\cos \beta}\end{array}\right) %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+R_{x}(\gamma)=\left(\begin{array}{ccc}{1} & {0} & {0} \\ {0} & {\cos \gamma} & {-\sin \gamma} \\ {0} & {\sin \gamma} & {\cos \gamma}\end{array}\right) %]]></script>
+
+<p>其中，$\alpha$、$\beta$、$\gamma$分别是欧拉角的yaw、pitch和roll角。上述结果是三个旋转矩阵（三个角度上的旋转）连续相乘的结果。</p>
+
+<p>由上，我们可以看出，如果yaw、pitch和roll的顺序发生改变，矩阵相乘的顺序需要作出相应改变，所得的旋转矩阵的结果也会发生变化。</p>
+
+<blockquote>
+  <p>旋转矩阵虽然有9个元素，但是其实只有三个自由度，所以旋转矩阵一定要是正交矩阵（逆矩阵等于转置矩阵）</p>
+</blockquote>
+
+<p>此外，其实旋转矩阵也叫作<strong>方向余弦矩阵（Direction Cosine Matrix）</strong>，简称DCM，这种表示叫法在陀螺力学领域较为常用。DCM的名字来历其实是用欧拉角之外的另一种用三个角度值表示三维旋转的方式。这种表示方法原理是：假设刚体在起始朝向时三个坐标轴的向量为$I,J,K$，而刚体在目标朝向时的三个坐标轴的向量为$i,j,k$，则该旋转可以通过三个坐标轴分别与原始坐标轴的夹角表示，如下图所示：</p>
+<div style="text-align: center">
+<img src="/assets/img/rotation/dcm.png" />
+</div>
+
+<p>DCM可以通过三个夹角的余弦计算得到：</p>
+<div style="text-align: center">
+<img src="/assets/img/rotation/dcm_cal.png" />
+</div>
+
+<blockquote>
+  <p>DCM就是旋转矩阵。</p>
+</blockquote>
+
+<h2 id="旋转向量">旋转向量</h2>
+<p>旋转向量是使用三维向量的形式来表示旋转。三维空间中的任意一个旋转，都是可以用绕三维空间中的某个轴旋转过某个角度来表示，这就是所谓的$Axis-Angle$表示方法。这种表示方法中，轴$Axis$可以使用一个三维单位向量$(x,y,z)$来表示，$Angle$可以使用一个角度值$\theta$来表示。所以，客观来说，<strong>一个四维向量$(\theta, x, y, z)$就可以表示出三维空间任意的旋转。</strong>但是其实可以使用更紧凑的表示方式–旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$来表示三维空间中的任意旋转。</p>
+
+<blockquote>
+  <p>旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$的来源是轴角表示。</p>
+</blockquote>
+
+<h2 id="四元数">四元数</h2>
+<p>旋转矩阵的表示具有冗余性（使用9个量表示3个自由度的旋转），欧拉角和旋转向量是紧凑的，但是具有奇异性。所以，此处我们会再介绍一种常用的表示旋转的方式，<strong>四元数（Quaternion）</strong>。</p>
+
+<p>四元数使用复数的形式来表示旋转</p>
+
+<script type="math/tex; mode=display">\boldsymbol{q}=q_{0}+q_{1} i+q_{2} j+q_{3} k</script>
+
+<p>其中$i,j,k$是四元数的三个虚部。这三个虚部满足关系式：</p>
+
+<script type="math/tex; mode=display">\left\{\begin{array}{l}{i^{2}=j^{2}=k^{2}=-1} \\ {i j=k, j i=-k} \\ {j k=i, k j=-i} \\ {k i=j, i k=-j}\end{array}\right.</script>
+
+<p>所以，也可以使用一个标量与一个向量来表示四元数：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{q}=[s, \boldsymbol{v}], \quad s=q_{0} \in \mathbb{R}, \boldsymbol{v}=\left[q_{1}, q_{2}, q_{3}\right]^{T} \in \mathbb{R}^{3}</script>
+
+<blockquote>
+  <p>同时，我们一般使用<strong>单位四元数</strong>来表示三维空间中任意一个旋转。对于绕单位向量$\boldsymbol{n}=\left[n_{x}, n_{y}, n_{z}\right]^{T}$进行了角度为$\theta$的旋转，这个旋转的四元数形式为：</p>
+</blockquote>
+
+<script type="math/tex; mode=display">\boldsymbol{q}=\left[\cos \frac{\theta}{2}, n_{x} \sin \frac{\theta}{2}, n_{y} \sin \frac{\theta}{2}, n_{z} \sin \frac{\theta}{2}\right]^{T}</script>
+
+<blockquote>
+  <p>此处需要说明的是，对于旋转的角度$\theta$，我们将其加上$2 \pi$，得到的四元数$q$会变为$-q$，所以，四元数有一个性质，<strong>任意旋转可以使用两个互为相反数的四元数来表示。</strong>并且从上面这个公式，我们也可以看出，<strong>使用单位四元数可以表示任意一个旋转</strong>。</p>
+</blockquote>
+
+<p>并且，对于一个旋转角度为0的旋转，表示它的四元数是：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{q}_{0}=[ \pm 1,0,0,0]^{T}</script>
+
+<p>反之，从四元数中恢复出轴角可以使用如下：</p>
+
+<script type="math/tex; mode=display">\left\{\begin{array}{l}{\theta=2 \arccos q_{0}} \\ {\left[n_{x}, n_{y}, n_{z}\right]^{T}=\left[q_{1}, q_{2}, q_{3}\right]^{T} / \sin \frac{\theta}{2}}\end{array}\right.</script>
+
+<blockquote>
+  <p>之所以四元数会这么受欢迎（虽然它很不直观），是因为它有一些神奇的性质。</p>
+</blockquote>
+
+<h3 id="四元数的神奇1">四元数的神奇1</h3>
+
+<p>第一个，我们使用四元数对一个三维点$\boldsymbol{p}=[x, y, z] \in \mathbb{R}^{3}$进行旋转变换（旋转由一个轴角$\boldsymbol{n}, \theta$指定）。此时，首先将三维空间点用一个虚四元数来描述：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{p}=[0, x, y, z]=[0, \boldsymbol{v}]</script>
+
+<p>这相当于<strong>我们把四元数的三个虚部与空间中的三个轴相对应</strong>。然后用四元数$q$来表示这个旋转：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{q}=\left[\cos \frac{\theta}{2}, \boldsymbol{n} \sin \frac{\theta}{2}\right]</script>
+
+<p>那么旋转后的点$p^{prime}$可以表示为如下的乘积：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{p}^{\prime}=\boldsymbol{q} \boldsymbol{p} \boldsymbol{q}^{-1}</script>
+
+<blockquote>
+  <p>最后的计算结果的实部一定为0，所以是纯虚四元数表示一个空间点位置。</p>
+</blockquote>
+
+<h3 id="四元数的神奇2">四元数的神奇2</h3>
+<p>对于两个四元数</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{q}_{1}=\left(\begin{array}{llll}{a_{1}} & {b_{1}} & {c_{1}} & {d_{1}}\end{array}\right)^{T} %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{q}_{2}=\left(\begin{array}{llll}{a_{2}} & {b_{2}} & {c_{2}} & {d_{2}}\end{array}\right)^{T} %]]></script>
+
+<p>他们的乘积为：</p>
+
+<script type="math/tex; mode=display">\mathbf{q}_{1} \mathbf{q}_{2}=\left(\begin{array}{c}{a_{1} a_{2}-b_{1} b_{2}-c_{1} c_{2}-d_{1} d_{2}} \\ {a_{1} b_{2}+b_{1} a_{2}+c_{1} d_{2}-d_{1} c_{2}} \\ {a_{1} c_{2}-b_{1} d_{2}+c_{1} a_{2}+d_{1} b_{2}} \\ {a_{1} d_{2}+b_{1} c_{2}-c_{1} b_{2}+d_{1} a_{2}}\end{array}\right)</script>
+
+<blockquote>
+  <p>之所以介绍，四元数的乘法，是因为，对于两次旋转的叠加，是可以直接使用四元数的乘法实现的。</p>
+</blockquote>
+
+<p>并且，从上面的乘法，我们也可以看出，对于四元数来说，由于其单位向量的特性，四元数的逆其实就等于四元数的共轭（这样上面的结果就是（1,0,0,0）了）。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<p>[1] http://www.chrobotics.com/library/understanding-quaternions</p>
+
+<p>[2] https://blog.csdn.net/zhuquan945/article/details/72784274</p>
+
+<p>[3] 视觉slam十四讲</p>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数&url=http://localhost:4000/rotation-3d/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/rotation-3d/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/rotation-3d/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/rotation-3d/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece6.jpg )"><span>三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数</span></a>
+          
+        
+          
+            <a href="/auto-drive/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece5.jpg )"><span>自动驾驶系统描述</span></a>
+          
+        
+          
+            <a href="/ros/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece4.jpg )"><span>ros操作系统入门</span></a>
+          
+        
+          
+            <a href="/slam-map/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece3.jpg )"><span>视觉slam中的一种单目稠密建图方法</span></a>
+          
+        
+          
+            <a href="/loop-closing/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece2.jpg )"><span>视觉slam中的回环检测概述</span></a>
+          
+        
+          
+            <a href="/bundle-adjustment-solve/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece1.jpg )"><span>Bundle Adjustment等优化方法在视觉slam中的应用与求解</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
