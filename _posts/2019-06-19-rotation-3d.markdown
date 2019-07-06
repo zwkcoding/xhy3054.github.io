@@ -25,7 +25,7 @@ tag: [数学]
 2. 万向锁问题。
 
 ## 旋转矩阵
-其实在计算坐标变换时，我们使用最多的表示旋转的方式是其实旋转矩阵。三维空间中的旋转矩阵是**3×3**的矩阵，将欧拉叫变换为旋转矩阵的计算方式如下：
+其实在计算坐标变换时，我们使用最多的表示旋转的方式是其实旋转矩阵。三维空间中的旋转矩阵是**3×3**的矩阵，将欧拉角变换为旋转矩阵的计算方式如下：
 
 $$
 \begin{array}{rlr}{R(\alpha, \beta, \gamma)} & {=R_{z}(\alpha) R_{y}(\beta) R_{x}(\gamma)=} \\ {} & {\left(\begin{array}{cc}{\cos \alpha \cos \beta} & {\cos \alpha \sin \beta \sin \gamma-\sin \alpha \cos \gamma} & {\cos \alpha \sin \beta \cos \gamma+\sin \alpha \sin \gamma} \\ {\sin \alpha \cos \beta} & {\sin \alpha \sin \beta \sin \gamma+\cos \alpha \cos \gamma} & {\sin \alpha \sin \beta \cos \gamma-\cos \alpha \sin \gamma} \\ {-\sin \beta} & {\cos \beta \sin \gamma} & {\cos \beta \cos \gamma}\end{array}\right)}\end{array}
@@ -64,7 +64,7 @@ DCM可以通过三个夹角的余弦计算得到：
 ## 旋转向量
 旋转向量是使用三维向量的形式来表示旋转。三维空间中的任意一个旋转，都是可以用绕三维空间中的某个轴旋转过某个角度来表示，这就是所谓的$Axis-Angle$表示方法。这种表示方法中，轴$Axis$可以使用一个三维单位向量$(x,y,z)$来表示，$Angle$可以使用一个角度值$\theta$来表示。所以，客观来说，**一个四维向量$(\theta, x, y, z)$就可以表示出三维空间任意的旋转。**但是其实可以使用更紧凑的表示方式--旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$来表示三维空间中的任意旋转。
 
-> 旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$的来源是轴角表示。
+> 旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$的来源是轴角表示。它与旋转矩阵的转换可以通过指数映射与罗德里格斯公式完成。
 
 ## 四元数
 旋转矩阵的表示具有冗余性（使用9个量表示3个自由度的旋转），欧拉角和旋转向量是紧凑的，但是具有奇异性。所以，此处我们会再介绍一种常用的表示旋转的方式，**四元数（Quaternion）**。
@@ -138,7 +138,7 @@ $$\mathbf{q}_{1}=\left(\begin{array}{llll}{a_{1}} & {b_{1}} & {c_{1}} & {d_{1}}\
 
 $$\mathbf{q}_{2}=\left(\begin{array}{llll}{a_{2}} & {b_{2}} & {c_{2}} & {d_{2}}\end{array}\right)^{T}$$
 
-他们的乘积为：
+他们的乘积为（不可交换）：
 
 $$
 \mathbf{q}_{1} \mathbf{q}_{2}=\left(\begin{array}{c}{a_{1} a_{2}-b_{1} b_{2}-c_{1} c_{2}-d_{1} d_{2}} \\ {a_{1} b_{2}+b_{1} a_{2}+c_{1} d_{2}-d_{1} c_{2}} \\ {a_{1} c_{2}-b_{1} d_{2}+c_{1} a_{2}+d_{1} b_{2}} \\ {a_{1} d_{2}+b_{1} c_{2}-c_{1} b_{2}+d_{1} a_{2}}\end{array}\right)
@@ -147,6 +147,33 @@ $$
 > 之所以介绍，四元数的乘法，是因为，对于两次旋转的叠加，是可以直接使用四元数的乘法实现的。
 
 并且，从上面的乘法，我们也可以看出，对于四元数来说，由于其单位向量的特性，四元数的逆其实就等于四元数的共轭（这样上面的结果就是（1,0,0,0）了）。
+
+### 四元数相对时间的导数
+首先，先介绍一个四元数关于轴角的表示（上面也有讲过）：
+
+$$
+\boldsymbol{q}=\left[\cos \frac{\theta}{2}, \boldsymbol{n} \sin \frac{\theta}{2}\right]
+$$
+
+所以这样，在角度接近0时，四元数近似为$[1,  \Delta \phi_{\mathcal{L}} ]$，其中第二项是一个旋转向量。
+
+$$
+\begin{aligned} \dot{\mathbf{q}} & \triangleq \lim _{\Delta t \rightarrow 0} \frac{\mathbf{q}(t+\Delta t)-\mathbf{q}(t)}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q} \otimes \Delta \mathbf{q}_{\mathcal{L}}-\mathbf{q}}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q} \otimes\left(\left[\begin{array}{c}{1} \\ {\Delta \boldsymbol{\phi}_{\mathcal{L}} / 2}\end{array}\right]-\left[\begin{array}{l}{1} \\ {\mathbf{0}}\end{array}\right]\right)}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q}(t+\Delta t)-\mathbf{q}(t)}{\Delta t} \\=& \frac{1}{2} \mathbf{q} \otimes\left[\begin{array}{c}{0} \\ {\boldsymbol{\omega}_{\mathcal{L}}}\end{array}\right] \end{aligned}
+$$
+
+上式中：
+
+$$
+\omega_{\mathcal{L}}(t) \triangleq \frac{d \phi_{\mathcal{L}}(t)}{d t} \triangleq \lim _{\Delta t \rightarrow 0} \frac{\Delta \phi_{\mathcal{L}}}{\Delta t}
+$$
+
+是旋转向量对时间的导数，可以理解为角速度向量
+## 使用Eigen库
+Eigen库是一个开源的c++线性代数库，提供了快速的有关矩阵的线性代数运算，还包括解方程的功能。同时它还提供了几何模块，可以表示旋转的多种表示方式，包括上面提到的旋转矩阵、旋转向量、四元数等等。
+
+- [Eigen的基本矩阵类型与线性代数功能演示](https://github.com/xhy3054/myslam/blob/master/01-prepared/02-3d-motion/useEigen/eigenMatrix.cpp)
+
+- [Eigen的几何模块的使用，包括各种旋转表示的互相转换等](https://github.com/xhy3054/myslam/tree/master/01-prepared/02-3d-motion/useGeometry)
 
 # 参考资料
 [1] http://www.chrobotics.com/library/understanding-quaternions

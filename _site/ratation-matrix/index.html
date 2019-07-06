@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>旋转矩阵深度剖析 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece7.jpg alt="旋转矩阵深度剖析">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jul 03</p>
+        <h1 class="post_title">旋转矩阵深度剖析</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <h2 id="正交矩阵">正交矩阵</h2>
+<p>正交矩阵的定义如下：如果</p>
+
+<script type="math/tex; mode=display">AA^T = E</script>
+
+<p>其中E为单位矩阵，则称n阶实矩阵A为正交矩阵。</p>
+
+<p>所以正交矩阵的性质如下：</p>
+<ol>
+  <li>
+    <p>正交矩阵的每一列、行都是单位向量，并且两两正交。最简单的正交矩阵就是单位阵。</p>
+  </li>
+  <li>
+    <p>正交矩阵的逆等于正交矩阵的转置。由此可以推断出正交矩阵的行列式的值肯定为正负1。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>所有的矩阵都可以看成一种变换。正交矩阵的变换可以看成，如果作用在一组空间基向量上，它会<strong>将一组空间基向量(单位正交的)变换成另外一组空间基向量（还是单位正交的）</strong>。</p>
+</blockquote>
+
+<h2 id="向量与坐标">向量与坐标</h2>
+<p>对于三维空间中的任意一个向量$a$，它在一组基$\left(e_{1}, e_{2}, e_{3}\right)$下的表示如下：</p>
+
+<script type="math/tex; mode=display">\boldsymbol{a}=\left[\boldsymbol{e}_{1}, \boldsymbol{e}_{2}, \boldsymbol{e}_{3}\right]\left[\begin{array}{c}{a_{1}} \\ {a_{2}} \\ {a_{3}}\end{array}\right]=a_{1} e_{1}+a_{2} \boldsymbol{e}_{2}+a_{3} \boldsymbol{e}_{3}</script>
+
+<p>两个向量$a,b$的内积可以写成：</p>
+
+<script type="math/tex; mode=display">a \cdot b=a^{\mathrm{T}} b=\sum_{i=1}^{3} a_{i} b_{i}=|\boldsymbol{a}||\boldsymbol{b}| \cos \langle\boldsymbol{a}, \boldsymbol{b}\rangle</script>
+
+<p>外积写成：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{a} \times \boldsymbol{b}=\left\|\begin{array}{ccc}{\boldsymbol{e}_{1}} & {\boldsymbol{e}_{2}} & {\boldsymbol{e}_{3}} \\ {a_{1}} & {a_{2}} & {a_{3}} \\ {b_{1}} & {b_{2}} & {b_{3}}\end{array}\right\|=\left[\begin{array}{cc}{a_{2} b_{3}-a_{3} b_{2}} \\ {a_{3} b_{1}-a_{1} b_{3}} \\ {a_{1} b_{2}-a_{2} b_{1}}\end{array}\right]=\left[\begin{array}{ccc}{0} & {-a_{3}} & {a_{2}} \\ {a_{3}} & {0} & {-a_{1}} \\ {-a_{2}} & {a_{1}} & {0}\end{array}\right] \boldsymbol{b} \triangleq \boldsymbol{a}^{\wedge} \boldsymbol{b} %]]></script>
+
+<p>其中$\boldsymbol{a}^{\wedge}$是向量$a$对应的反对称矩阵：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{a}^{\wedge}=\left[\begin{array}{ccc}{0} & {-a_{3}} & {a_{2}} \\ {a_{3}} & {0} & {-a_{1}} \\ {-a_{2}} & {a_{1}} & {0}\end{array}\right] %]]></script>
+
+<h2 id="旋转矩阵是正交矩阵的证明">旋转矩阵(是正交矩阵的证明)</h2>
+<p>旋转矩阵，对应了一种变换，在三维空间中，这种变换可以看成将空间中物体绕一条轴旋转一定角度。很容易发现，这是一种正交矩阵。</p>
+
+<p>证明的话，可以按照如下思路。</p>
+
+<ul>
+  <li>
+    <p>首先对于一组单位正交基$\left(e_{1}, e_{2}, e_{3}\right)$经过一次旋转变换后变成了$\left(e_{1}^{\prime}, e_{2}^{\prime}, e_{3}^{\prime}\right)$</p>
+  </li>
+  <li>
+    <p>那么，对于同一个向量$a$(没有随着坐标系的旋转而发生运动)，所以会有如下等式成立，其中两个竖向量分别是$a$在两个单位正交基下的坐标：</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">\left[e_{1}, e_{2}, e_{3}\right]\left[\begin{array}{l}{a_{1}} \\ {a_{2}} \\ {a_{3}}\end{array}\right]=\left[e_{1}^{\prime}, e_{2}^{\prime}, e_{3}^{\prime}\right]\left[\begin{array}{c}{a_{1}^{\prime}} \\ {a_{2}^{\prime}} \\ {a_{3}^{\prime}}\end{array}\right]</script>
+
+<ul>
+  <li>上述公式左右同时左乘$\left[\begin{array}{c}{e_{1}^{\mathrm{T}}} \ {e_{2}^{\mathrm{T}}} \ {e_{3}^{\mathrm{T}}}\end{array}\right]$，我们会得到如下公式，其中$R$是这次旋转变换对向量$\left[a_{1}^{\prime}, a_{2}^{\prime}, a_{3}^{\prime}\right]^{\mathrm{T}}$的变换矩阵。</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{c}{a_{1}} \\ {a_{2}} \\ {a_{3}}\end{array}\right]=\left[\begin{array}{ccc}{e_{1}^{\mathrm{T}} e_{1}^{\prime}} & {e_{1}^{\mathrm{T}} e_{2}^{\prime}} & {e_{1}^{\mathrm{T}} e_{3}^{\prime}} \\ {e_{2}^{\mathrm{T}} \boldsymbol{e}_{1}^{\prime}} & {\boldsymbol{e}_{2}^{\mathrm{T}} \boldsymbol{e}_{2}^{\prime}} & {\boldsymbol{e}_{2}^{\mathrm{T}} \boldsymbol{e}_{3}^{\prime}} \\ {\boldsymbol{e}_{3}^{\mathrm{T}} \boldsymbol{e}_{1}^{\prime}} & {\boldsymbol{e}_{3}^{\mathrm{T}} \boldsymbol{e}_{2}^{\prime}} & {\boldsymbol{e}_{3}^{\mathrm{T}} \boldsymbol{e}_{3}^{\prime}}\end{array}\right]\left[\begin{array}{c}{a_{1}^{\prime}} \\ {a_{2}^{\prime}} \\ {a_{3}^{\prime}}\end{array}\right] = \boldsymbol{R} a^{\prime} %]]></script>
+
+<p>此处，矩阵$R$<strong>由两组基之间的内积</strong>组成，刻画了前后同一个向量经过一次旋转变换的坐标变换关系。因此，这个$R$就是一个旋转矩阵（只有两个正交基不变，它就不变）。这个矩阵按列看，是第二组基向量在第一组中的坐标表示，按行看，是第一组基向量在第二组中的坐标表示。它们肯定是相互正交的。</p>
+
+<blockquote>
+  <p>我们可以很清楚的发现，旋转矩阵R是一个<strong>正交矩阵</strong>。因为，如果将矩阵$R$转置，其实刚好就是一个$R$的逆操作，将两组正交基顺序交换了。</p>
+</blockquote>
+
+<h2 id="旋转向量与旋转矩阵的指数映射">旋转向量与旋转矩阵的指数映射</h2>
+<p>指数映射的数学意义就是罗德里杰斯公式。</p>
+
+<p>对于一个旋转向量a，其对应的矩阵是$R_a$，则有：</p>
+
+<ul>
+  <li>
+    <p>指数映射：$ exp(\mathbf{a}^{\wedge}) = R_a $</p>
+  </li>
+  <li>
+    <p>这个由叉乘时向量转矩阵形式决定，$ (\mathbf{a}^{\wedge})^T = - \mathbf{a}^{\wedge} $</p>
+  </li>
+  <li>
+    <p>这个右叉乘交换性质决定： $ \mathbf{a}^{\wedge} \mathbf{b} = - \mathbf{b}^{\wedge} \mathbf{a}$</p>
+  </li>
+  <li>
+    <p>SO(3)的伴随性质： $ \mathbf{R}^{T} \exp \left(\boldsymbol{\phi}^{\wedge}\right) \mathbf{R}=\exp \left(\left(\mathbf{R}^{T} \boldsymbol{\phi}\right)^{\wedge}\right) $</p>
+  </li>
+  <li>
+    <p>扰动模型1</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">\ln \left(\mathbf{R} \exp \left(\phi^{\wedge}\right)\right)^{\vee}=\ln (\mathbf{R})^{\vee}+\mathbf{J}_{r}^{-1} \boldsymbol{\phi}</script>
+
+<ul>
+  <li>BCH公式</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+R_1 R_2 = \textbf{exp}({\phi_1}^{\wedge})\textbf{exp}({\phi_2}^{\wedge}) \approx \begin{equation} \begin{cases} \textbf{exp}(( J_l(\phi_2)^{-1} \phi_1 + \phi_2    )^{\wedge})  & \textbf{if  } \phi_1 \textbf{ is small}\\ \textbf{exp}(( J_r(\phi_1)^{-1} \phi_2+ \phi_1    )^{\wedge})   & \textbf{if  } \phi_2 \textbf{ is small} \end{cases} \end{equation} %]]></script>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=旋转矩阵深度剖析&url=http://localhost:4000/ratation-matrix/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ratation-matrix/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/ratation-matrix/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵深度剖析</span></a>
+          
+        
+          
+            <a href="/rotation-3d/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece6.jpg )"><span>三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数</span></a>
+          
+        
+          
+            <a href="/auto-drive/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece5.jpg )"><span>自动驾驶系统描述</span></a>
+          
+        
+          
+            <a href="/ros/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece4.jpg )"><span>ros操作系统入门</span></a>
+          
+        
+          
+            <a href="/slam-map/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece3.jpg )"><span>视觉slam中的一种单目稠密建图方法</span></a>
+          
+        
+          
+            <a href="/loop-closing/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece2.jpg )"><span>视觉slam中的回环检测概述</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
