@@ -79,6 +79,8 @@ $$
 
 - 这个右叉乘交换性质决定： $ \mathbf{a}^{\wedge} \mathbf{b} = - \mathbf{b}^{\wedge} \mathbf{a}$
 
+- 矩阵叉乘性质：$R w^{\wedge} R ^{T} = (Rp)^{\wedge} $
+
 - SO(3)的伴随性质： $ \mathbf{R}^{T} \exp \left(\boldsymbol{\phi}^{\wedge}\right) \mathbf{R}=\exp \left(\left(\mathbf{R}^{T} \boldsymbol{\phi}\right)^{\wedge}\right) $
 
 - 扰动模型1
