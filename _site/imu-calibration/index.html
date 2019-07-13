@@ -185,6 +185,62 @@
     <span class="p">}</span>
 </code></pre></div></div>
 
+<blockquote>
+  <p>此处推荐一个生成imu数据、加噪声与测试的<a href="https://github.com/HeYijia/vio_data_simulation">工具</a>，这里中值积分与欧拉积分可以参考上面的我的代码，因为工具里可能不一定提供了。</p>
+</blockquote>
+
+<h3 id="旋转积分">旋转积分</h3>
+<blockquote>
+  <p>上面恢复轨迹的积分用了四元数的形式，下面我想多介绍几个</p>
+</blockquote>
+
+<p>此处$w$是imu的测量结果。因为这个<strong>旋转积分的结果是姿态</strong>，因此下面会分别介绍使用四元数、SO3还有欧拉角下的积分方式。</p>
+
+<ul>
+  <li>四元数的形式：</li>
+</ul>
+
+<script type="math/tex; mode=display">\mathbf{q}_{w b^{\prime}}=\mathbf{q}_{w b} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} \boldsymbol{\omega} \Delta t}\end{array}\right]</script>
+
+<ul>
+  <li>$SO3$形式：</li>
+</ul>
+
+<script type="math/tex; mode=display">\mathbf{R}_{w b^{\prime}}=\mathbf{R}_{w b} \exp (\boldsymbol{\omega} \cdot \Delta t)</script>
+
+<ul>
+  <li>欧拉角形式：</li>
+</ul>
+
+<script type="math/tex; mode=display">\vartheta w b^{\prime}=\vartheta_{w b}+E_{w b} \cdot \omega \Delta t</script>
+
+<p>这里欧拉角的形式里，$E_{w b}$表示将IMU body坐标系下的角速度转化成欧拉角速度。此处可以推导出$E_{w b}$，这个是三种方法中唯一一个需要转换的地方。</p>
+
+<h3 id="欧拉角速度到imu输出角速度">欧拉角速度到imu输出角速度</h3>
+<p>这个挺有必要的，因为用欧拉角来表示姿态还是很方便的。</p>
+
+<ul>
+  <li>
+    <p>step1:绕着惯性坐标系的z轴旋转，得到新的坐标系$b^{1}$</p>
+  </li>
+  <li>
+    <p>step2:绕着新坐标系$b^{1}$的y轴旋转得到坐标系$b^{2}$</p>
+  </li>
+  <li>
+    <p>step3:绕着新坐标系$b^{2}$的x轴旋转得到坐标系$b^{3}$，$b^{3}$就是我们的body坐标系</p>
+  </li>
+</ul>
+
+<p>欧拉角速度到body角速度：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \boldsymbol{\omega} &=R(\psi) R(\theta)\left\{\begin{array}{c}{0} \\ {0} \\ {\frac{d \phi}{d t}}\end{array}\right\}+R(\psi)\left\{\begin{array}{c}{0} \\ {\frac{d \theta}{d t}} \\ {0}\end{array}\right\}+\left\{\begin{array}{c}{\frac{d \psi}{d t}} \\ {0} \\ {0}\end{array}\right\} \\ &=\left[\begin{array}{ccc}{1} & {0} & {-\sin \theta} \\ {0} & {\cos \psi} & {\sin \psi \cos \theta} \\ {0} & {-\sin \psi} & {\cos \psi \cos \theta}\end{array}\right]\left\{\begin{array}{l}{\frac{d \psi}{d t}} \\ {\frac{d \psi}{d t}} \\ {\frac{d \phi}{d t}}\end{array}\right\} \end{aligned} %]]></script>
+
+<p>上面取逆就得到，如下body到欧拉角的变换：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\frac{d \boldsymbol{\vartheta}}{d t}=\left[\begin{array}{ccc}{1} & {\sin \psi \tan \theta} & {\cos \psi \tan \theta} \\ {0} & {\cos \psi} & {-\sin \psi} \\ {0} & {\sin \psi / \cos \theta} & {\cos \psi / \cos \theta}\end{array}\right] \vec{\omega} %]]></script>
+
 <h1 id="误差与标定">误差与标定</h1>
 <p>加速度计和陀螺仪的误差可以分为确定性误差与随机误差。</p>
 

@@ -147,6 +147,58 @@ $$
     }
 ```
 
+> 此处推荐一个生成imu数据、加噪声与测试的[工具](https://github.com/HeYijia/vio_data_simulation)，这里中值积分与欧拉积分可以参考上面的我的代码，因为工具里可能不一定提供了。
+
+### 旋转积分
+> 上面恢复轨迹的积分用了四元数的形式，下面我想多介绍几个
+
+此处$w$是imu的测量结果。因为这个**旋转积分的结果是姿态**，因此下面会分别介绍使用四元数、SO3还有欧拉角下的积分方式。
+
+- 四元数的形式：
+
+$$
+\mathbf{q}_{w b^{\prime}}=\mathbf{q}_{w b} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} \boldsymbol{\omega} \Delta t}\end{array}\right]
+$$
+
+- $SO3$形式：
+
+$$
+\mathbf{R}_{w b^{\prime}}=\mathbf{R}_{w b} \exp (\boldsymbol{\omega} \cdot \Delta t)
+$$
+
+- 欧拉角形式：
+
+$$
+\vartheta w b^{\prime}=\vartheta_{w b}+E_{w b} \cdot \omega \Delta t
+$$
+
+这里欧拉角的形式里，$E_{w b}$表示将IMU body坐标系下的角速度转化成欧拉角速度。此处可以推导出$E_{w b}$，这个是三种方法中唯一一个需要转换的地方。
+
+### 欧拉角速度到imu输出角速度
+这个挺有必要的，因为用欧拉角来表示姿态还是很方便的。
+
+- step1:绕着惯性坐标系的z轴旋转，得到新的坐标系$b^{1}$
+
+
+- step2:绕着新坐标系$b^{1}$的y轴旋转得到坐标系$b^{2}$
+
+
+- step3:绕着新坐标系$b^{2}$的x轴旋转得到坐标系$b^{3}$，$b^{3}$就是我们的body坐标系
+
+欧拉角速度到body角速度：
+
+$$
+\begin{aligned} \boldsymbol{\omega} &=R(\psi) R(\theta)\left\{\begin{array}{c}{0} \\ {0} \\ {\frac{d \phi}{d t}}\end{array}\right\}+R(\psi)\left\{\begin{array}{c}{0} \\ {\frac{d \theta}{d t}} \\ {0}\end{array}\right\}+\left\{\begin{array}{c}{\frac{d \psi}{d t}} \\ {0} \\ {0}\end{array}\right\} \\ &=\left[\begin{array}{ccc}{1} & {0} & {-\sin \theta} \\ {0} & {\cos \psi} & {\sin \psi \cos \theta} \\ {0} & {-\sin \psi} & {\cos \psi \cos \theta}\end{array}\right]\left\{\begin{array}{l}{\frac{d \psi}{d t}} \\ {\frac{d \psi}{d t}} \\ {\frac{d \phi}{d t}}\end{array}\right\} \end{aligned}
+$$
+
+上面取逆就得到，如下body到欧拉角的变换：
+
+$$
+\frac{d \boldsymbol{\vartheta}}{d t}=\left[\begin{array}{ccc}{1} & {\sin \psi \tan \theta} & {\cos \psi \tan \theta} \\ {0} & {\cos \psi} & {-\sin \psi} \\ {0} & {\sin \psi / \cos \theta} & {\cos \psi / \cos \theta}\end{array}\right] \vec{\omega}
+$$
+
+
+
 # 误差与标定
 加速度计和陀螺仪的误差可以分为确定性误差与随机误差。
 
