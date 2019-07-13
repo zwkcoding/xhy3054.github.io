@@ -1,6 +1,6 @@
 ---
 layout: post
-title: imu误差与标定问题
+title: imu的数学模型与误差标定问题
 date: 2019-07-11 10:07:24.000000000 +09:00
 img:  one-piece/one-piece8.jpg # Add image post (optional)
 tag: [多传感器融合]
@@ -341,7 +341,7 @@ Allan方差法是20世纪60年代由美国国家标准局的David Allan提出的
 
 下面给出两个github上的比较好用的标定工具。
 
-1. [imu_utils](https://github.com/gaowenliang/imu_utils)
+1. [imu_utils](https://github.com/gaowenliang/imu_utils)，额注意，这个工具其实是有bug的现在，以后可能会修复，网上也有其他人已经修复了这个bug，大家可以自己寻找一下。
 
 2. [kalibr_allan](https://github.com/rpng/kalibr_allan)
 
