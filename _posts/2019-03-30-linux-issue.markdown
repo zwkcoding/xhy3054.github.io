@@ -93,6 +93,56 @@ drwxrwxr-x 10 xhy xhy 4096 3月  20 15:33 book_note/
 <img src="{{site.baseurl}}/assets/img/linux/common_character.png"/>
 </div>
 
+## 修改文件权限
+语法：
+
+    chmod [-cfvR] [--help] [--version] mode file
+
+参数说明：
+
+- $-c$: 若该文件权限确实已经更改，才显示其更改动作
+
+- $-f$: 若该文件权限无法被更改也不要显示错误信息
+
+- $-v$: 显示权限变更的详细资料
+
+- $-R$: 对当前目录下的所有文件与子目录进行相同的权限变更
+
+- $--help$: 显示辅助说明
+
+- $--version$: 显示版本
+
+$mode$是设置权限，用字符串来表示，格式如下：
+
+    [ugoa...][[+-=][rwxX]...][,...]
+
+其中：
+- u 表示该文件的拥有者，g 表示与该文件的拥有者属于同一个群体(group)者，o 表示其他以外的人，a 表示这三者皆是。
+- $+$ 表示增加权限、$-$ 表示取消权限、$=$ 表示唯一设定权限。
+- r 表示可读取，w 表示可写入，x 表示可执行，X 表示只有当该文件是个子目录或者该文件已经被设定过为可执行。
+
+### 实例
+- 将文件$file1.txt$设为所有人皆可读取 :
+```
+    chmod ugo+r file1.txt
+    chmod a+r file1.txt
+```
+- 将文件 file1.txt 与 file2.txt 设为该文件拥有者，与其所属同一个群体者可写入，但其他以外的人则不可写入 :
+```
+    chmod ug+w,o-w file1.txt file2.txt
+```
+- 将目前目录下的所有文件与子目录皆设为任何人可读取 :
+```
+    chmod -R a+r *
+```
+- 也可以使用数字来表示权限（r=4，w=2，x=1），下面两组作用相同
+```
+    chmod 777 file
+    chmod a=rwx file
+
+    chmod ug=rwx,o=x file
+    chmod 771 file
+```
 
 # 参考资料
 - [1] 《鸟哥的linux私房菜》；
