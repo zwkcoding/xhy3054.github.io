@@ -43,7 +43,7 @@ $$ {\mid \mid f(x + \Delta x ) \mid \mid}^2_{2} \approx {\mid \mid f(x) \mid \mi
 > 对于**输入与输出都是向量的函数**，雅可比矩阵是这个函数的一阶偏导数矩阵，海塞矩阵是二阶偏导数矩阵，详细可自行查阅相关资料，此处仅简短说明。
 
 ## 最速下降法（梯度下降法，一阶）
-**梯度下降法**是只考虑一阶导数的优化方法，优化思想是使用当前位置负梯度方向作为搜索方向，因为该方向为当前位置的最快下降方向，所以也叫做最速下降法。
+**梯度下降法**是只考虑一阶导数的优化方法，优化思想是使用当前位置负梯度方向作为搜索方向，因为该方向为当前位置的最快下降方向，所以也叫做最速下降法。（没什么计算，单纯想法是向负梯度方向前进）
 
 $$ \Delta x = - \lambda J $$
 
@@ -110,7 +110,7 @@ $$ \rho = \dfrac{f(x + \Delta x) - f(x)}{J(x) \Delta x} $$
 6. 如果$\rho$大于某阈值，则认为近似可行。另$x_{k+1} = x_{k} + \Delta x_{k}$
 7. 判断算法是否收敛。如果不收敛则返回第2步，否则结束。
 
-上面近似范围扩大的倍数与阈值都是经验值，可以替换成别的数值。在第二步$\Delta x$的求解中，我们将增量限定在一个半径为$\mu$的球里，带上D之后，这个球可以看成一个椭球。
+上面近似范围扩大的倍数与阈值都是经验值，可以替换成别的数值。在第二步$\Delta x$的求解中，我们将增量限定在一个半径为$\mu$的球里，带上D之后，这个球可以看成一个椭球。通常D为单位矩阵时，是一个正球体。
 
 现在我们来确定LM方法中的$\Delta x$，首先使用拉格朗日乘子法将上述带不等式约束的优化问题转换成一个无约束的优化问题
 
@@ -128,10 +128,102 @@ $$ (H + \lambda I)\Delta x = g $$
 
 > 列文伯格-马夸尔特方法可在一定程度上米面线性方程组的系数矩阵的非奇异和病态问题，提供更稳定、准确的增量$\Delta x$。尽管它的收敛速度可能会比高斯牛顿法更慢，也被叫做阻尼牛顿法。
 
+## LM算法的另一种理解方式
+忽略上面对LM算法来源的说明，其实LM算法主要核心方程是：
+
+$$
+\left(\mathbf{J}^{\top} \mathbf{J}+\mu \mathbf{I}\right) \Delta \mathbf{x}_{\mathrm{lm}}=-\mathbf{J}^{\top} \mathbf{f} \quad \text { with } \quad \mu \geq 0
+$$
+
+上面这个式子的求解结果为（其中$\mathbf{F}^{\prime \top}$即为$\mathbf{J}^{\top} \mathbf{f}$）：
+
+$$
+\Delta \mathbf{x}_{\mathrm{lm}}=-\sum_{j=1}^{n} \frac{\mathbf{v}_{j}^{\top} \mathbf{F}^{\prime \top}}{\lambda_{j}+\mu} \mathbf{v}_{j}
+$$
+
+其中，$\lambda_j$ 是 $\mathbf{J}^{\top} \mathbf{J}$ 的第j个特征值，$\mathbf{v}_{j}$是其对应的特征向量。（这个式子可以自行推导）
+
+上面阻尼因子$\mu$作用如下：
+- $\mu$大于0保证了$\left(\mathbf{J}^{\top} \mathbf{J}+\mu \mathbf{I}\right)$正定，迭代朝着下降方向进行。
+
+- $\mu$非常大，说明此时高斯牛顿的一次泰勒展开近似效果不好，更新方式偏向近似最速下降法。
+
+- $\mu$比较小，说明此时高斯牛顿的一次泰勒展开近似效果挺好的，更新方式偏向近似高斯牛顿法。
+
+这种方法的核心问题其实是阻尼因子$\mu$的更新策略，更新一般是根据上面提到的$\rho$来进行的。首先，
+
+$$
+\begin{aligned} F(\mathbf{x}+\Delta \mathbf{x}) \approx L(\Delta \mathbf{x}) & \equiv \frac{1}{2} (\mathbf{f}(\mathbf{x}) + \mathbf{J} \Delta \mathbf{x})^2 \\ &=\frac{1}{2} \mathbf{f}^{\top} \mathbf{f}+\Delta \mathbf{x}^{\top} \mathbf{J}^{\top} \mathbf{f}+\frac{1}{2} \Delta \mathbf{x}^{\top} \mathbf{J}^{\top} \mathbf{J} \Delta \mathbf{x} \\ &=F(\mathbf{x})+\Delta \mathbf{x}^{\top} \mathbf{J}^{\top} \mathbf{f}+\frac{1}{2} \Delta \mathbf{x}^{\top} \mathbf{J}^{\top} \mathbf{J} \Delta \mathbf{x} \end{aligned}
+$$
+
+而$\rho$为（分母为更新前后目标函数的变化，分子为近似中应该变化的大小）：
+
+$$
+\rho=\frac{F(\mathbf{x})-F\left(\mathbf{x}+\Delta \mathbf{x}_{\operatorname{lm}}\right)}{L(\mathbf{0})-L\left(\Delta \mathbf{x}_{\mathrm{lm}}\right)} = \frac{F(\mathbf{x})-F\left(\mathbf{x}+\Delta \mathbf{x}_{\operatorname{lm}}\right)}{\frac{1}{2} \Delta \mathbf{x}_{\operatorname{lm}}^{\top}\left(\mu \Delta \mathbf{x}_{1 \mathrm{m}}+\mathbf{b}\right)}
+$$
+
+在上面已经提到了一种阻尼因子更新的策略（1963年由Marquardt提出）：
+
+$$
+\begin{aligned} \text { if } \rho &<0.25 \\ \mu & :=\mu * 2 \\ \text { elseif } \rho &>0.75 \\ \mu & :=\mu / 3 \end{aligned}
+$$
+
+但是这个策略不是很好，会出现阻尼因子来回波动的情况，目前在ceres与g2o等优化库中一般采用Nielsen策略：
+
+$$
+\begin{array}{l}{\text { if } \rho>0} \\ {\qquad \mu :=\mu * \max \left\{\frac{1}{3}, 1-(2 \rho-1)^{3}\right\} ; \quad \nu :=2} \\ {\text { else }} \\ {\qquad \mu :=\mu * \nu ; \quad \nu :=2 * \nu}\end{array}
+$$
+
+在设置阻尼因子$\mu$的初始值时，一般采取的策略是（最大的那个特征值乘以一个常数）：
+
+$$
+\mu_{0}=\tau \cdot \max \left\{\left(\mathbf{J}^{\top} \mathbf{J}\right)_{i i}\right\}
+$$
+
+其中可以按需设置$\tau \sim\left[10^{-8}, 1\right]$
+
 ## Dogleg方法
 这种方法与LM方法思想类似，它是高斯牛顿与梯度下降法的混合。
 
 它的做法是，在信任区域内部，使用高斯牛顿法；否则，使用最速下降法。如果最速下降方向在有效范围内部，使用高斯牛顿与梯度下降的混合，在外部，缩小到Region的边界。
+
+## 鲁棒核函数
+由于最小二乘法会将残差进行平方，因此如果出现outlier，此时它的误差也会进行平方，如果这个误差很大，会很影响优化的进行，所以通常会在残差上加上一个**鲁棒核函数**来最小化outlier的影响。作用形式如下：
+
+$$
+\min _{\mathbf{x}} \frac{1}{2} \sum_{k} \rho\left(\left\|f_{k}(\mathbf{x})\right\|^{2}\right)
+$$
+
+将误差的平方项记作$s_{k}=\left\|f_{k}(\mathbf{x})\right\|^{2}$，则鲁棒核误差函数进行二阶泰勒展开有：
+
+$$
+\frac{1}{2} \rho(s)=\frac{1}{2}\left(\text { const }+\rho^{\prime} \Delta s+\frac{1}{2} \rho^{\prime \prime} \Delta^{2} s\right)
+$$
+
+上述函数中的$\Delta s_{k}$的计算稍微复杂一点为：
+
+$$
+\begin{aligned} \Delta s_{k} &=\left\|f_{k}(\mathbf{x}+\Delta \mathbf{x})\right\|^{2}-\left\|f_{k}(\mathbf{x})\right\|^{2} \\ & \approx\left\|f_{k}+\mathbf{J}_{k} \Delta \mathbf{x}\right\|^{2}-\left\|f_{k}(\mathbf{x})\right\|^{2} \\ &=2 f_{k}^{\top} \mathbf{J}_{k} \Delta \mathbf{x}+(\Delta \mathbf{x})^{\top} \mathbf{J}_{k}^{\top} \mathbf{J}_{k} \Delta \mathbf{x} \end{aligned}
+$$
+
+将上面两式合并，最终可以近似得到下解：
+
+$$
+\begin{aligned} \sum_{k} \mathbf{J}_{k}^{\top}\left(\rho^{\prime} I+2 \rho^{\prime \prime} f_{k} f_{k}^{\top}\right) \mathbf{J}_{k} \Delta \mathbf{x} &=-\sum_{k} \rho^{\prime} \mathbf{J}_{k}^{\top} f_{k} \\ \sum_{k} \mathbf{J}_{k}^{\top} W \mathbf{J}_{k} \Delta \mathbf{x} &=-\sum_{k} \rho^{\prime} \mathbf{J}_{k}^{\top} f_{k} \end{aligned}
+$$
+
+### 柯西鲁棒核函数
+柯西鲁棒核函数定义为：
+
+$$
+\rho(s)=c^{2} \log \left(1+\frac{s}{c^{2}}\right)
+$$
+
+其中c为控制参数。对s的一阶导和二阶导为：
+
+$$
+\rho^{\prime}(s)=\frac{1}{1+\frac{s}{c^{2}}}, \quad \rho^{\prime \prime}(s)=-\frac{1}{c^{2}}\left(\rho^{\prime}(s)\right)^{2}
+$$
 
 ## 非线性优化方法存在的问题
 1. 首先，对目标函数进行非线性优化有一个很大的前提，那就是**目标函数连续可导**。所以如果目标函数不连续或者不可导，我们就需要想办法使其变得连续可导。比如在slam中处理姿态估计的问题，当姿态使用旋转矩阵与平移变量表示时，显然是不可导的。此时由于欧式矩阵群是一个李群，所以我们会将目标函数映射到其李代数上，此时目标函数就会连续可导了。
@@ -144,6 +236,8 @@ $$ (H + \lambda I)\Delta x = g $$
 1. [使用ceres进行函数拟合](https://github.com/xhy3054/myslam/tree/master/03-optimization/ceres_curve_fitting)
 
 2. [使用g2o进行函数拟合](https://github.com/xhy3054/myslam/tree/master/03-optimization/g20_curve_fitting)
+
+3. [只基于Eigen的手写优化算法](https://github.com/xhy3054/vio/tree/master/ch03/CurveFitting_LM)
 
 # 参考文献
 - [1] 视觉slam十四讲

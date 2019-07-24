@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>旋转矩阵深度剖析 - line - 千里之行</title>
+	<title>旋转矩阵是正交矩阵与伴随性质的证明 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,11 +51,11 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/one-piece/one-piece7.jpg alt="旋转矩阵深度剖析">
+        <img src=/assets/img/one-piece/one-piece7.jpg alt="旋转矩阵是正交矩阵与伴随性质的证明">
       </div>
       <div class="post_description">
         <p class="post_meta">2019, Jul 03</p>
-        <h1 class="post_title">旋转矩阵深度剖析</h1>
+        <h1 class="post_title">旋转矩阵是正交矩阵与伴随性质的证明</h1>
       </div>
     </header> <!-- End Header -->
 
@@ -129,6 +129,24 @@
   <p>我们可以很清楚的发现，旋转矩阵R是一个<strong>正交矩阵</strong>。因为，如果将矩阵$R$转置，其实刚好就是一个$R$的逆操作，将两组正交基顺序交换了。</p>
 </blockquote>
 
+<h2 id="伴随性质的证明">伴随性质的证明</h2>
+<blockquote>
+  <p>对任意的旋转矩阵$\bf R$和三维向量$\bf v$，都有$({\bf R v})^{\land} = {\bf Rv^{\land}R}^{T} $</p>
+</blockquote>
+
+<p>这个性质经常在机器人动力学中使用很频繁。今天不小心看到一个<a href="https://fzheng.me/2017/12/10/Rvhat/">证明</a>，于是记录一下。</p>
+
+<p>此处需要把$()^{\land}$运算符转换成叉乘。我们知道，对于任意${\bf v,u} \in \mathbb{R}^3$，总有${\bf v}^{\land}{\bf v \times u}$。于是：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} &(\mathbf{R} \mathbf{v})^{\wedge}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{R}^{T} \\ \Leftrightarrow &(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R}=\mathbf{R} \mathbf{v}^{\wedge} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R} \mathbf{u}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{u} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v}) \times(\mathbf{R} \mathbf{u})=\mathbf{R}(\mathbf{v} \times \mathbf{u}) \end{aligned} %]]></script>
+
+<p>所以上面是一直等价的，我们只需要证明最后一个式子即可，最后一个式子通过利用向量叉乘的旋转变换不变性（参照<a href="https://en.wikipedia.org/wiki/Cross_product#Algebraic_properties">Wikipedia</a>）。</p>
+
+<blockquote>
+  <p>其实最后一个式子很好理解，对于任意${\bf v,u} \in \mathbb{R}^3$，它们是任意三维向量，将他们经过同一个旋转，它们的相对位姿与模长都不会改变，所以$\bf Rv$与$\bf Ru$的叉乘仍然是相对它们垂直、大小也不变的三维向量。</p>
+</blockquote>
+
 <h2 id="旋转向量与旋转矩阵的指数映射">旋转向量与旋转矩阵的指数映射</h2>
 <p>指数映射的数学意义就是罗德里杰斯公式。</p>
 
@@ -171,7 +189,7 @@ R_1 R_2 = \textbf{exp}({\phi_1}^{\wedge})\textbf{exp}({\phi_2}^{\wedge}) \approx
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=旋转矩阵深度剖析&url=http://localhost:4000/ratation-matrix/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=旋转矩阵是正交矩阵与伴随性质的证明&url=http://localhost:4000/ratation-matrix/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
           <a href="https://facebook.com/sharer.php?u=http://localhost:4000/ratation-matrix/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
           <a href="https://plus.google.com/share?url=http://localhost:4000/ratation-matrix/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
@@ -220,7 +238,7 @@ R_1 R_2 = \textbf{exp}({\phi_1}^{\wedge})\textbf{exp}({\phi_2}^{\wedge}) \approx
           
         
           
-            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵深度剖析</span></a>
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
           
         
           

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 旋转矩阵深度剖析
+title: 旋转矩阵是正交矩阵与伴随性质的证明
 date: 2019-07-03 10:07:24.000000000 +09:00
 img:  one-piece/one-piece7.jpg # Add image post (optional)
 tag: [数学]
@@ -67,6 +67,22 @@ $$
 此处，矩阵$R$**由两组基之间的内积**组成，刻画了前后同一个向量经过一次旋转变换的坐标变换关系。因此，这个$R$就是一个旋转矩阵（只有两个正交基不变，它就不变）。这个矩阵按列看，是第二组基向量在第一组中的坐标表示，按行看，是第一组基向量在第二组中的坐标表示。它们肯定是相互正交的。
 
 > 我们可以很清楚的发现，旋转矩阵R是一个**正交矩阵**。因为，如果将矩阵$R$转置，其实刚好就是一个$R$的逆操作，将两组正交基顺序交换了。
+
+## 伴随性质的证明
+> 对任意的旋转矩阵$\bf R$和三维向量$\bf v$，都有$({\bf R v})^{\land} = {\bf Rv^{\land}R}^{T} $
+
+这个性质经常在机器人动力学中使用很频繁。今天不小心看到一个[证明](https://fzheng.me/2017/12/10/Rvhat/)，于是记录一下。
+
+此处需要把$()^{\land}$运算符转换成叉乘。我们知道，对于任意${\bf v,u} \in \mathbb{R}^3$，总有${\bf v}^{\land}{\bf v \times u}$。于是：
+
+$$
+\begin{aligned} &(\mathbf{R} \mathbf{v})^{\wedge}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{R}^{T} \\ \Leftrightarrow &(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R}=\mathbf{R} \mathbf{v}^{\wedge} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R} \mathbf{u}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{u} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v}) \times(\mathbf{R} \mathbf{u})=\mathbf{R}(\mathbf{v} \times \mathbf{u}) \end{aligned}
+$$
+
+所以上面是一直等价的，我们只需要证明最后一个式子即可，最后一个式子通过利用向量叉乘的旋转变换不变性（参照[Wikipedia](https://en.wikipedia.org/wiki/Cross_product#Algebraic_properties)）。
+
+> 其实最后一个式子很好理解，对于任意${\bf v,u} \in \mathbb{R}^3$，它们是任意三维向量，将他们经过同一个旋转，它们的相对位姿与模长都不会改变，所以$\bf Rv$与$\bf Ru$的叉乘仍然是相对它们垂直、大小也不变的三维向量。
+
 
 ## 旋转向量与旋转矩阵的指数映射
 指数映射的数学意义就是罗德里杰斯公式。

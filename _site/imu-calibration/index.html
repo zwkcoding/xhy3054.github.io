@@ -98,7 +98,7 @@
 <script type="math/tex; mode=display">w_{m}^{B} = w^{B}</script>
 
 <blockquote>
-  <p>此处没有介绍global坐标系与body坐标系的转换，是因为后面会介绍global下的欧拉角与此处$w^{B}$之间的变换关系。</p>
+  <p>我们会发现此处并没有向加速度计一样，将global坐标系下的角速度转换到陀螺仪的测量值，而是直接使用body系下的角速度。这是因为旋转叠加时（比如四元数和旋转矩阵表示姿态时），全局姿态是直接乘以body系下的更新量的就可以得到新的全局姿态的。</p>
 </blockquote>
 
 <h2 id="恢复运动轨迹">恢复运动轨迹</h2>
@@ -157,6 +157,7 @@
         Pwb = Pwb + Vw * dt + 0.5 * dt * dt * acc_w;
         Vw = acc_w * dt + Vw;
         Qwb = Qwb * dq;
+        Qwb.normalize();
 */</span>
 
         <span class="c1">/// 中值积分</span>
@@ -167,6 +168,7 @@
         <span class="n">dq</span><span class="p">.</span><span class="n">y</span><span class="p">()</span> <span class="o">=</span> <span class="n">dtheta_half</span><span class="p">.</span><span class="n">y</span><span class="p">();</span>
         <span class="n">dq</span><span class="p">.</span><span class="n">z</span><span class="p">()</span> <span class="o">=</span> <span class="n">dtheta_half</span><span class="p">.</span><span class="n">z</span><span class="p">();</span>
         <span class="n">Eigen</span><span class="o">::</span><span class="n">Quaterniond</span> <span class="n">Qwb1</span> <span class="o">=</span> <span class="n">Qwb</span> <span class="o">*</span> <span class="n">dq</span><span class="p">;</span>
+        <span class="n">Qwb1</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span>
         <span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span> <span class="n">acc_w</span> <span class="o">=</span> <span class="p">(</span><span class="n">Qwb</span> <span class="o">*</span> <span class="n">imupose</span><span class="p">.</span><span class="n">imu_acc</span> <span class="o">+</span> <span class="n">Qwb1</span> <span class="o">*</span> <span class="n">imupose1</span><span class="p">.</span><span class="n">imu_acc</span><span class="p">)</span><span class="o">*</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">gw</span><span class="p">;</span>
         <span class="n">Pwb</span> <span class="o">=</span> <span class="n">Pwb</span> <span class="o">+</span> <span class="n">Vw</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">acc_w</span><span class="p">;</span>
         <span class="n">Vw</span> <span class="o">=</span> <span class="n">acc_w</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">+</span> <span class="n">Vw</span><span class="p">;</span>  
@@ -191,10 +193,10 @@
 
 <h3 id="旋转积分">旋转积分</h3>
 <blockquote>
-  <p>上面恢复轨迹的积分用了四元数的形式，下面我想多介绍几个</p>
+  <p>上面恢复姿态轨迹的积分用了四元数的形式，下面我想多介绍几个</p>
 </blockquote>
 
-<p>此处$w$是imu的测量结果。因为这个<strong>旋转积分的结果是姿态</strong>，因此下面会分别介绍使用四元数、SO3还有欧拉角下的积分方式。</p>
+<p>此处$w$是imu的测量结果，也就是局部角速度。因为这个<strong>旋转积分的结果是姿态</strong>，因此下面会分别介绍使用四元数、SO3还有欧拉角下的积分方式。</p>
 
 <ul>
   <li>四元数的形式：</li>
@@ -214,7 +216,9 @@
 
 <script type="math/tex; mode=display">\vartheta w b^{\prime}=\vartheta_{w b}+E_{w b} \cdot \omega \Delta t</script>
 
-<p>这里欧拉角的形式里，$E_{w b}$表示将IMU body坐标系下的角速度转化成欧拉角速度。此处可以推导出$E_{w b}$，这个是三种方法中唯一一个需要转换的地方。</p>
+<blockquote>
+  <p>我们可以发现，这三种方法，<strong>对于全局姿态的变化</strong>，旋转矩阵与四元数都是直接使用imu的测量（也就是局部角速度）进行更新的。只有在欧拉角的形式里，$E_{w b}$表示将IMU body坐标系下的角速度转化成欧拉角速度。此处可以推导出$E_{w b}$，这个是三种方法中唯一一个需要转换的地方。<strong>原因的话，我觉得这是因为累加与累乘的区别，欧拉角不支持乘法。如果使用角度来表示旋转矩阵与四元数，此时对角度的更新也得使用加法（原来角度加上角速度与时间的积即为新的角度），但是四元数与旋转矩阵本身是只支持乘法的，它们是直接乘以局部扰动即可</strong>。</p>
+</blockquote>
 
 <h3 id="欧拉角速度到imu输出角速度">欧拉角速度到imu输出角速度</h3>
 <p>这个挺有必要的，因为用欧拉角来表示姿态还是很方便的。</p>
@@ -393,11 +397,15 @@
 <img src="/assets/img/vio/allan1.PNG" />
 </div>
 
+<blockquote>
+  <p>其中t=1，斜率为-0.5处纵坐标的值为<strong>高斯白噪声方差</strong>，斜率为0.5，t=3处的纵坐标的值为<strong>随机游走方差</strong>。</p>
+</blockquote>
+
 <p>下面给出两个github上的比较好用的标定工具。</p>
 
 <ol>
   <li>
-    <p><a href="https://github.com/gaowenliang/imu_utils">imu_utils</a>，额注意，这个工具其实是有bug的现在，以后可能会修复，网上也有其他人已经修复了这个bug，大家可以自己寻找一下。</p>
+    <p><a href="https://github.com/gaowenliang/imu_utils">imu_utils</a>，额注意，这个工具的结果关于bias那一项输出的是bias稳定性的方差，不是随机游走的方差，因此，我们需要此工具生成的艾伦方差曲线自行完成bias随机游走方差的获得。。</p>
   </li>
   <li>
     <p><a href="https://github.com/rpng/kalibr_allan">kalibr_allan</a></p>
@@ -485,7 +493,7 @@
           
         
           
-            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵深度剖析</span></a>
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
           
         
           
