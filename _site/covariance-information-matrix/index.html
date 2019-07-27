@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>多元高斯分布的协方差矩阵与信息矩阵 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece9.jpg alt="多元高斯分布的协方差矩阵与信息矩阵">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jul 25</p>
+        <h1 class="post_title">多元高斯分布的协方差矩阵与信息矩阵</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p><strong>零均值</strong>的多元高斯分布有如下概率形式：</p>
+
+<script type="math/tex; mode=display">p(\mathbf{x}) - \frac{1}{Z} \exp \left(-\frac{1}{2} \mathbf{x}^{\top} \mathbf{\Sigma}^{-1} \mathbf{x}\right)</script>
+
+<p>其中$\mathbf{\Sigma}$是<strong>协方差矩阵</strong>，协方差矩阵的逆可以记作$\mathbf{\Lambda}=\mathbf{\Sigma}^{-1}$，也叫<strong>信息矩阵</strong>。当变量$\mathbf{x}$是三维变量时，协方差矩阵为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{\Sigma} = \left[\begin{array}{ccc}{\Sigma_{11}} & {\Sigma_{12}} & {\Sigma_{13}} \\ {\Sigma_{21}} & {\Sigma_{22}} & {\Sigma_{23}} \\ {\Sigma_{31}} & {\Sigma_{32}} & {\Sigma_{33}} \end{array}\right] %]]></script>
+
+<p>其中$\Sigma_{i j} = E\left(x_{i} x_{j}\right)$</p>
+
+<blockquote>
+  <p>其实在应用中，往往我们直接操作的是信息矩阵，而不是协方差矩阵。下面从一个例子来体会一下协方差矩阵与信息矩阵。</p>
+</blockquote>
+
+<h1 id="example">example</h1>
+<p>假设$x_{2}$为室外的温度，$x_{1},x_{3}$分别是房间1与房间3的室内温度：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} x_{2} &= v_{2} \\ x_{1} &= w_{1} x_{2} + v_{1} \\ x_{3} &= w_{3} x_{2}+v_{3} \end{aligned} %]]></script>
+
+<p>其中，$v_{i}$为相互独立，且各自服从协方差为$\sigma_{i}^{2}$的高斯分布。根据上面它们之间的联系，我们可以求出$x$的协方差矩阵，首先：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \Sigma_{11}=E\left(x_{1} x_{1}\right) &=E\left(\left(w_{1} v_{2}+v_{1}\right)\left(w_{1} v_{2}+v_{1}\right)\right) \\ &=w_{1}^{2} E\left(v_{2}^{2}\right)+2 w_{1} E\left(v_{1} v_{2}\right)+E\left(v_{1}^{2}\right) \\ &=w_{1}^{2} \sigma_{2}^{2}+\sigma_{1}^{2} \end{aligned} %]]></script>
+
+<p>然后同理，可以求出另外两个对角元素为$\Sigma_{22}=\sigma_{2}^{2}, \Sigma_{33}=w_{3}^{2} \sigma_{2}^{2}+\sigma_{3}^{2}$。而对于协方差矩阵的非对角元素有：</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{\Sigma_{12}=E\left(x_{1} x_{2}\right)=E\left(\left(w_{1} v_{2}+v_{1}\right) v_{2}\right)=w_{1} \sigma_{2}^{2}} \\ {\Sigma_{13}=E\left(\left(w_{1} v_{2}+v_{1}\right)\left(w_{3} v_{2}+v_{3}\right)\right)=w_{1} w_{3} \sigma_{2}^{2}}\end{array}</script>
+
+<p>依次类似，可以得到完整的<strong>协方差矩阵</strong>为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{\Sigma}=\left[\begin{array}{ccc}{w_{1}^{2} \sigma_{2}^{2}+\sigma_{1}^{2}} & {w_{1} \sigma_{2}^{2}} & {w_{1} w_{3} \sigma_{2}^{2}} \\ {w_{1} \sigma_{2}^{2}} & {\sigma_{2}^{2}} & {w_{3} \sigma_{2}^{2}} \\ {w_{1} w_{3} \sigma_{2}^{2}} & {w_{3} \sigma_{2}^{2}} & {w_{3}^{2} \sigma_{2}^{2}+\sigma_{3}^{2}}\end{array}\right] %]]></script>
+
+<p><strong>信息矩阵是协方差矩阵的逆矩阵</strong>，此处我们可以通过计算联合高斯分布来得到协方差矩阵的逆：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} p\left(x_{1}, x_{2}, x_{3}\right) &=p\left(x_{2}\right) p\left(x_{1} | x_{2}\right) p\left(x_{3} | x_{2}\right) \\ &=\frac{1}{Z_{2}} \exp \left(-\frac{x_{2}^{2}}{2 \sigma_{2}^{2}}\right) \frac{1}{Z_{1}} \exp \left(-\frac{\left(x_{1}-w_{1} x_{2}\right)^{2}}{2 \sigma_{1}^{2}}\right) \frac{1}{Z_{3}} \exp \left(-\frac{\left(x_{3}-w_{3} x_{2}\right)^{2}}{2 \sigma_{3}^{2}}\right) \end{aligned} %]]></script>
+
+<p>利用指数性质，可以计算出联合概率分布如下：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{array}{l}{p\left(x_{1}, x_{2}, x_{3}\right)} \\ {\quad=\frac{1}{Z} \exp \left(-\frac{x_{2}^{2}}{2 \sigma_{2}^{2}}-\frac{\left(x_{1}-w_{1} x_{2}\right)^{2}}{2 \sigma_{1}^{2}}-\frac{\left(x_{3}-w_{3} x_{2}\right)^{2}}{2 \sigma_{3}^{2}}\right)} \\ {\quad=\frac{1}{Z} \exp \left(-x_{2}^{2}\left[\frac{1}{2 \sigma_{2}^{2}}+\frac{w_{1}^{2}}{2 \sigma_{1}^{2}}-\frac{w_{3}^{2}}{2 \sigma_{3}^{2}}\right]-x_{1}^{2} \frac{1}{2 \sigma_{1}^{2}}+2 x_{1} x_{2} \frac{w_{1}}{2 \sigma_{1}^{2}}-x_{3}^{2} \frac{1}{2 \sigma_{3}^{2}}+2 x_{3} x_{2} \frac{w_{3}}{2 \sigma_{3}^{2}}\right)} \\ {\quad=\frac{1}{Z} \exp \left(-\frac{1}{2}\left[\begin{array}{ccc}{x_{1}} & {x_{2}} & {x_{3}}\end{array}\right]\left[\begin{array}{cccc}{\frac{1}{\sigma_{1}^{2}}} & {-\frac{w_{1}}{\sigma_{1}^{2}}} & {0} \\ {-\frac{w_{1}}{\sigma_{1}^{2}}} & {\frac{w_{1}^{2}}{\sigma_{1}^{2}}+\frac{1}{\sigma_{2}^{2}}+\frac{w_{3}^{2}}{\sigma_{1}^{2}}} & {-\frac{w_{3}}{\sigma_{3}^{2}}} \\ {0} & {-\frac{w_{3}}{\sigma_{3}^{2}}} & {\frac{1}{\sigma_{3}^{2}}}\end{array}\right]\left[\begin{array}{c}{x_{1}} \\ {x_{2}} \\ {x_{3}}\end{array}\right]\right)}\end{array} %]]></script>
+
+<p>所以，这里上面矩阵就是协方差矩阵的逆，也就是信息矩阵：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{\Lambda}=\mathbf{\Sigma}^{-1}=\left[\begin{array}{ccc}{\frac{1}{\sigma_{1}^{2}}} & {-\frac{w_{1}}{\sigma_{1}^{2}}} & {0} \\ {-\frac{w_{1}}{\sigma_{1}^{2}}} & {\frac{w_{1}^{2}}{\sigma_{1}^{2}}+\frac{1}{\sigma_{1}^{2}}+\frac{w_{3}^{2}}{\sigma_{1}^{2}}} & {-\frac{w_{3}}{\sigma_{3}^{2}}} \\ {0} & {-\frac{w_{3}^{2}}{\sigma_{3}^{2}}} & {\frac{1}{\sigma_{3}^{2}}}\end{array}\right] %]]></script>
+
+<p>由上，可以看到当在协方差矩阵中，$x_{1}$与$x_{3}$之间是相关的，而在信息矩阵中，它们是相互独立的（相关系数为0）,这是因为，我们在推导信息矩阵时是使用了联合分布的<strong>链式法则</strong>，信息矩阵中$x_{1}$与$x_{3}$的相关性在$x_{2}$确定之后计算的，此时它们是相互独立的。</p>
+
+<h2 id="上述例子中去掉x_3">上述例子中去掉$x_{3}$</h2>
+<p>协方差矩阵直接只计算前两个相关的协方差矩阵即可，也就是去掉划线的部分</p>
+<div style="text-align: center">
+<img src="/assets/img/math/cov.PNG" />
+</div>
+<p>变为：</p>
+<div style="text-align: center">
+<img src="/assets/img/math/cov1.PNG" />
+</div>
+
+<p>至于信息矩阵，只需要把信息矩阵公式中$x_{3}$相关的部分（蓝色）去掉：</p>
+<div style="text-align: center">
+<img src="/assets/img/math/information.PNG" />
+</div>
+<p>得到：</p>
+<div style="text-align: center">
+<img src="/assets/img/math/information1.PNG" />
+</div>
+
+<blockquote>
+  <p>之所以要移除一个变量，然后再算它的信息矩阵，是因为在实际应用中经常会用到这样的操作，上面只讲了原理，下面会抽时间讲讲如何快速实现，会需要<strong>舒尔补(Schur’s complement)</strong>与<strong>边缘化(marginalization)</strong>。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 深蓝学院vio课程讲义</li>
+  <li>[2] David Mackay. “The humble Gaussian distribution”. In:(2006).</li>
+</ul>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=多元高斯分布的协方差矩阵与信息矩阵&url=http://localhost:4000/covariance-information-matrix/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/covariance-information-matrix/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/covariance-information-matrix/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/schur-complement-marginalization/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece10.jpg )"><span>舒尔补与marginalization</span></a>
+          
+        
+          
+            <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
+          
+        
+          
+            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
+          
+        
+          
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
+          
+        
+          
+            <a href="/rotation-3d/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece6.jpg )"><span>三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数</span></a>
+          
+        
+          
+            <a href="/auto-drive/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece5.jpg )"><span>自动驾驶系统描述</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

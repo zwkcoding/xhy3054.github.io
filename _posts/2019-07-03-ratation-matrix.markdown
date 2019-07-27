@@ -79,7 +79,7 @@ $$
 \begin{aligned} &(\mathbf{R} \mathbf{v})^{\wedge}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{R}^{T} \\ \Leftrightarrow &(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R}=\mathbf{R} \mathbf{v}^{\wedge} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v})^{\wedge} \mathbf{R} \mathbf{u}=\mathbf{R} \mathbf{v}^{\wedge} \mathbf{u} \\ \Leftrightarrow & \forall \mathbf{u} \in \mathbb{R}^{3},(\mathbf{R} \mathbf{v}) \times(\mathbf{R} \mathbf{u})=\mathbf{R}(\mathbf{v} \times \mathbf{u}) \end{aligned}
 $$
 
-所以上面是一直等价的，我们只需要证明最后一个式子即可，最后一个式子通过利用向量叉乘的旋转变换不变性（参照[Wikipedia](https://en.wikipedia.org/wiki/Cross_product#Algebraic_properties)）。
+所以上面是一直等价的（倒数第二个式子到最后一个式子等价，因为矩阵乘法满足结合律），我们只需要证明最后一个式子即可，最后一个式子通过利用向量叉乘的旋转变换不变性（参照[Wikipedia](https://en.wikipedia.org/wiki/Cross_product#Algebraic_properties)）。
 
 > 其实最后一个式子很好理解，对于任意${\bf v,u} \in \mathbb{R}^3$，它们是任意三维向量，将他们经过同一个旋转，它们的相对位姿与模长都不会改变，所以$\bf Rv$与$\bf Ru$的叉乘仍然是相对它们垂直、大小也不变的三维向量。
 

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>舒尔补与marginalization - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece10.jpg alt="舒尔补与marginalization">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jul 27</p>
+        <h1 class="post_title">舒尔补与marginalization</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>在slam中经常会使用滑动窗口法来控制非线性优化的计算量级，此时当从现有的窗口中去除旧的变量时，如何调整<a href="https://xhy3054.github.io/covariance-information-matrix/">信息矩阵</a>就成为了一个棘手的问题。这篇博客就是要介绍如何使用舒尔补来简单的完成这个任务。</p>
+
+<h1 id="舒尔补">舒尔补</h1>
+<p>给定任意的矩阵块M，如下所示：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{M}=\left[\begin{array}{ll}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right] %]]></script>
+
+<ul>
+  <li>如果，矩阵块D是可逆的，则$\mathbf{A}-\mathbf{B D}^{-1} \mathbf{C}$称之为D关于M的舒尔补。</li>
+  <li>如果，矩阵块A是可逆的，则$\mathbf{D}-\mathbf{C A}^{-1} \mathbf{B}$称之为A关于M的舒尔补。</li>
+</ul>
+
+<h2 id="舒尔补的来由">舒尔补的来由</h2>
+<p>当我们想要将矩阵M变成上三角或者下三角过程中，都会遇到舒尔补，如下：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{0}} \\ {-\mathbf{C A}^{-1}} & {\mathbf{I}}\end{array}\right]\left[\begin{array}{ll}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right]=\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{0}} & {\Delta_{\mathbf{A}}}\end{array}\right] %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{I}} & {-\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]=\left[\begin{array}{cc}{\mathbf{A}} & {0} \\ {\mathbf{C}} & {\Delta_{\mathbf{A}}}\end{array}\right] %]]></script>
+
+<p>其中，不论是上三角还是下三角，都是$\Delta_{\mathrm{A}}=\mathbf{D}-\mathbf{C A}^{-1} \mathbf{B}$。联合起来，可以<strong>将M便形成对角形</strong>：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{0}} \\ {-\mathbf{C A}^{-1}} & {\mathbf{I}}\end{array}\right]\left[\begin{array}{ll}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right]\left[\begin{array}{rr}{\mathbf{I}} & {-\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]=\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{0}} \\ {\mathbf{0}} & {\Delta_{\mathbf{A}}}\end{array}\right] %]]></script>
+
+<p>反过来，我们又能<strong>从对角形恢复成矩阵M</strong>:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{0}} \\ {\mathbf{C A}^{-1}} & {\mathbf{I}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{0}} \\ {\mathbf{0}} & {\Delta_{\mathbf{A}}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]=\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right] %]]></script>
+
+<p>此处注意有这么个性质：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{I}} & {-\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]=\mathbf{I} %]]></script>
+
+<p>所以还可以这样<strong>计算M的的逆</strong>：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{\mathbf{A}} & {\mathbf{B}} \\ {\mathbf{C}} & {\mathbf{D}}\end{array}\right]^{-1}=\left[\begin{array}{cc}{\mathbf{I}} & {-\mathbf{A}^{-1} \mathbf{B}} \\ {\mathbf{0}} & {\mathbf{I}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{A}^{-1}} & {\mathbf{0}} \\ {\mathbf{0}} & {\Delta_{\mathbf{A}}^{-1}}\end{array}\right]\left[\begin{array}{cc}{\mathbf{I}} & {\mathbf{0}} \\ {-\mathbf{C A}^{-1}} & {\mathbf{I}}\end{array}\right] %]]></script>
+
+<h1 id="将舒尔补应用于多元高斯分布">将舒尔补应用于多元高斯分布</h1>
+<p>假设多元变量$x$服从高斯分布，且由两部分组成：$\mathbf{x}=\left[\begin{array}{l}{a} \ {b}\end{array}\right]$，变量之间构成的协方差矩阵为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{K}=\left[\begin{array}{cc}{A} & {C^{\top}} \\ {C} & {D}\end{array}\right] %]]></script>
+
+<p>其中$A=\operatorname{cov}(a, a), D=\operatorname{cov}(b, b), C=\operatorname{cov}(a, b)$。由此变量$x$的概率分布为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+P(a, b)=P(a) P(b | a) \propto \exp \left(-\frac{1}{2}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]^{\top}\left[\begin{array}{cc}{A} & {C^{\top}} \\ {C} & {D}\end{array}\right]^{-1}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]\right) %]]></script>
+
+<p>利用上面介绍的舒尔补的性质，我们可以对高斯分布进行分解，得到如下：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{array}{l}{P(a, b)} \\ {\propto \exp \left(-\frac{1}{2}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]^{\top}\left[\begin{array}{cc}{A} & {C^{\top}} \\ {C} & {D}\end{array}\right]^{-1}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]\right)} \\ {\propto \exp \left(-\frac{1}{2}\left[\begin{array}{c}{a} \\ {b}\end{array}\right]^{\top}\left[\begin{array}{cc}{I} & {-A^{-1} C^{\top}} \\ {0} & {I}\end{array}\right]\left[\begin{array}{cc}{A^{-1}} & {0} \\ {0} & {\Delta_{\mathrm{A}}^{-1}}\end{array}\right]\left[\begin{array}{cc}{I} & {0} \\ {-C A^{-1}} & {I}\end{array}\right]\left[\begin{array}{c}{a} \\ {b}\end{array}\right]\right)} \\ {\propto \exp \left(-\frac{1}{2}\left[a^{\top} \quad\left(b-C A^{-1} a\right)^{\top}\right]\left[\begin{array}{cc}{A^{-1}} & {0} \\ {0} & {\Delta_{\mathrm{A}}^{-1}}\end{array}\right]\left[\begin{array}{c}{a} \\ {b-C A^{-1} a}\end{array}\right]\right)} \\ {\propto \exp \left(-\frac{1}{2}\left(a^{\top} A^{-1} a\right)+\left(b-C A^{-1} a\right)^{\top} \Delta_{\mathrm{A}}^{-1}\left(b-C A^{-1} a\right)\right)} \\ {\propto \underbrace{\exp \left(-\frac{1}{2} a^{\top} A^{-1} a\right)}_{p(a)} \underbrace{\exp \left(-\frac{1}{2}\left(b-C A^{-1} a\right)^{\top} \Delta_{\mathrm{A}}^{-1}\left(b-C A^{-1} a\right)\right)}_{p(b | a)}} \end{array} %]]></script>
+
+<table>
+  <tbody>
+    <tr>
+      <td>这意味着我们能从多元高斯分布$P(a,b)$中分解得到<strong>边界概率</strong>$p(a)$和<strong>条件概率</strong>p(b</td>
+      <td>a)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="原先分布的协方差矩阵与信息矩阵">原先分布的协方差矩阵与信息矩阵</h2>
+<p>我们已知的协方差矩阵的逆就是信息矩阵，它们是如下的关系：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{cc}{A} & {C^{\top}} \\ {C} & {D}\end{array}\right]^{-1}=\left[\begin{array}{cc}{A^{-1}+A^{-1} C^{\top} \Delta_{\mathrm{A}}^{-1} C A^{-1}} & {-A^{-1} C^{\top} \Delta_{\mathrm{A}}^{-1}} \\ {-\Delta_{\mathrm{A}}^{-1} C A^{-1}} & {\Delta_{\mathrm{A}}^{-1}}\end{array}\right] \triangleq\left[\begin{array}{cc}{\Lambda_{a a}} & {\Lambda_{a b}} \\ {\Lambda_{b a}} & {\Lambda_{b b}}\end{array}\right] %]]></script>
+
+<h2 id="分离出来的边界概率分布">分离出来的边界概率分布</h2>
+<p>分离出来的边界概率分布的协方差矩阵就是从联合分布K中取对应的矩阵块A就行了。</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{P(a)=\int_{b} P(a, b)} \\ {P(a) \propto \exp \left(-\frac{1}{2} a^{\top} A^{-1} a\right) \sim \mathcal{N}(0, A)}\end{array}</script>
+
+<p>分离出来的边界概率分布的信息矩阵是：</p>
+
+<script type="math/tex; mode=display">A^{-1}=\Lambda_{a a}-\Lambda_{a b} \Lambda_{b b}^{-1} \Lambda_{b a}</script>
+
+<h2 id="分离出来的条件概率分布">分离出来的条件概率分布</h2>
+<p>分离出来a后的条件概率分布的协方差矩阵变为a对应的舒尔补，均值也变了。</p>
+
+<script type="math/tex; mode=display">P(b | a) \propto \exp \left(-\frac{1}{2}\left(b-C A^{-1} a\right)^{\top} \Delta_{\mathrm{A}}^{-1}\left(b-C A^{-1} a\right)\right)</script>
+
+<p>分离出来的条件概率分布的信息矩阵是：</p>
+
+<script type="math/tex; mode=display">\Delta_{A}^{-1}=\Lambda_{b b}</script>
+
+<h2 id="总结">总结</h2>
+<blockquote>
+  <p>其实我们在marg掉变量的时候，如果是从原分布的<strong>前面</strong>的变量开始marg的，那剩下的就是条件概率分布；反之，如果是从原分布的<strong>后面</strong>的变量开始marg的，那剩下的就是边界概率分布。</p>
+</blockquote>
+
+<p>从上面的分析我们可以发现，<strong>边界概率对于协方差矩阵的操作是很容易的，但是不好操作信息矩阵。条件概率分布相反，对于信息矩阵容易操作，但是不好操作协方差矩阵。</strong></p>
+
+<p>对于原分布：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+P(\boldsymbol{a}, \boldsymbol{b})=\mathcal{N}\left(\left[\begin{array}{c}{\boldsymbol{\mu}_{a}} \\ {\boldsymbol{\mu}_{b}}\end{array}\right],\left[\begin{array}{cc}{\boldsymbol{\Sigma}_{a a}} & {\boldsymbol{\Sigma}_{a b}} \\ {\boldsymbol{\Sigma}_{b a}} & {\boldsymbol{\Sigma}_{b b}}\end{array}\right]\right)=\mathcal{N}^{-1}\left(\left[\begin{array}{c}{\boldsymbol{\eta}_{a}} \\ {\boldsymbol{\eta}_{b}}\end{array}\right],\left[\begin{array}{cc}{\boldsymbol{\Lambda}_{a a}} & {\mathbf{\Lambda}_{a a}} \\ {\boldsymbol{\Lambda}_{b a}} & {\boldsymbol{\Lambda}_{b b}}\end{array}\right]\right) %]]></script>
+
+<p>两种marg变量的方式后剩下的可以用表格总结如下：</p>
+<div style="text-align: center">
+<img src="/assets/img/math/marg.PNG" width="700" height="180" />
+</div>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 深蓝学院vio课程讲义</li>
+  <li>[2] <a href="https://gbhqed.wordpress.com/2010/02/21/conditional-and-marginal-distributions-of-a-multivariate-gaussian">Huang. Conditional and marginal distributions of a multivariate Gaussian</a>.</li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=舒尔补与marginalization&url=http://localhost:4000/schur-complement-marginalization/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/schur-complement-marginalization/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/schur-complement-marginalization/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/schur-complement-marginalization/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece10.jpg )"><span>舒尔补与marginalization</span></a>
+          
+        
+          
+            <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
+          
+        
+          
+            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
+          
+        
+          
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
+          
+        
+          
+            <a href="/rotation-3d/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece6.jpg )"><span>三维中间中旋转的表示方式--欧拉角、旋转矩阵、旋转向量、四元数</span></a>
+          
+        
+          
+            <a href="/auto-drive/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece5.jpg )"><span>自动驾驶系统描述</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

@@ -297,6 +297,14 @@
 <lastmod>2019-07-11T09:07:24+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/covariance-information-matrix/</loc>
+<lastmod>2019-07-25T09:07:24+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/schur-complement-marginalization/</loc>
+<lastmod>2019-07-27T09:07:24+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
