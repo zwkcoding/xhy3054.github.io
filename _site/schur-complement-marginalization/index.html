@@ -134,6 +134,11 @@ P(a, b)=P(a) P(b | a) \propto \exp \left(-\frac{1}{2}\left[\begin{array}{l}{a} \
 \left[\begin{array}{cc}{A} & {C^{\top}} \\ {C} & {D}\end{array}\right]^{-1}=\left[\begin{array}{cc}{A^{-1}+A^{-1} C^{\top} \Delta_{\mathrm{A}}^{-1} C A^{-1}} & {-A^{-1} C^{\top} \Delta_{\mathrm{A}}^{-1}} \\ {-\Delta_{\mathrm{A}}^{-1} C A^{-1}} & {\Delta_{\mathrm{A}}^{-1}}\end{array}\right] \triangleq\left[\begin{array}{cc}{\Lambda_{a a}} & {\Lambda_{a b}} \\ {\Lambda_{b a}} & {\Lambda_{b b}}\end{array}\right] %]]></script>
 
 <h2 id="分离出来的边界概率分布">分离出来的边界概率分布</h2>
+
+<blockquote>
+  <p>分离出来的边界概率分布就是$p(a)$，它<strong>是在滑动窗口法中使用的方法</strong>，它是marg掉b之后剩下的分布。</p>
+</blockquote>
+
 <p>分离出来的边界概率分布的协方差矩阵就是从联合分布K中取对应的矩阵块A就行了。</p>
 
 <script type="math/tex; mode=display">\begin{array}{l}{P(a)=\int_{b} P(a, b)} \\ {P(a) \propto \exp \left(-\frac{1}{2} a^{\top} A^{-1} a\right) \sim \mathcal{N}(0, A)}\end{array}</script>
@@ -142,7 +147,12 @@ P(a, b)=P(a) P(b | a) \propto \exp \left(-\frac{1}{2}\left[\begin{array}{l}{a} \
 
 <script type="math/tex; mode=display">A^{-1}=\Lambda_{a a}-\Lambda_{a b} \Lambda_{b b}^{-1} \Lambda_{b a}</script>
 
+<blockquote>
+  <p>此处我们会发现，分离出来的边界分布变量之间的协方差是不变的，但是信息矩阵改变了。这是因为信息矩阵中的相关计算是遵循链式法则，在分离出来的变量固定住以后，原本不想关的变量可以变成相关的。</p>
+</blockquote>
+
 <h2 id="分离出来的条件概率分布">分离出来的条件概率分布</h2>
+
 <p>分离出来a后的条件概率分布的协方差矩阵变为a对应的舒尔补，均值也变了。</p>
 
 <script type="math/tex; mode=display">P(b | a) \propto \exp \left(-\frac{1}{2}\left(b-C A^{-1} a\right)^{\top} \Delta_{\mathrm{A}}^{-1}\left(b-C A^{-1} a\right)\right)</script>
@@ -153,7 +163,7 @@ P(a, b)=P(a) P(b | a) \propto \exp \left(-\frac{1}{2}\left[\begin{array}{l}{a} \
 
 <h2 id="总结">总结</h2>
 <blockquote>
-  <p>其实我们在marg掉变量的时候，如果是从原分布的<strong>前面</strong>的变量开始marg的，那剩下的就是条件概率分布；反之，如果是从原分布的<strong>后面</strong>的变量开始marg的，那剩下的就是边界概率分布。</p>
+  <p>其实我们在marg掉变量的时候，我们需要搞清楚自己想要获得的是边界概率还是条件概率。在滑动窗口中是保留边界概率。</p>
 </blockquote>
 
 <p>从上面的分析我们可以发现，<strong>边界概率对于协方差矩阵的操作是很容易的，但是不好操作信息矩阵。条件概率分布相反，对于信息矩阵容易操作，但是不好操作协方差矩阵。</strong></p>

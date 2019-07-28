@@ -135,6 +135,34 @@
   <p>之所以要移除一个变量，然后再算它的信息矩阵，是因为在实际应用中经常会用到这样的操作，上面只讲了原理，下面会抽时间讲讲如何快速实现，会需要<strong>舒尔补(Schur’s complement)</strong>与<strong>边缘化(marginalization)</strong>。</p>
 </blockquote>
 
+<h2 id="补充">补充</h2>
+
+<blockquote>
+  <p>此处需要注意，协方差矩阵与信息矩阵都可以用来表示多元变量之间的相关性。但是，协方差矩阵是直接相关性，信息矩阵会有间接相关性。因此，在计算中我们会发现<strong>有些协方差矩阵中相关的两个量在信息矩阵中不相关，有些协方差矩阵中不相关的两个量在信息矩阵中相关</strong>。</p>
+</blockquote>
+
+<p>比如在下面这个例子中</p>
+
+<script type="math/tex; mode=display">x_{2}=w_{1} x_{1}+w_{3} x_{3}+v_{2}</script>
+
+<div style="text-align: center">
+<img src="/assets/img/math/sample2.PNG" />
+</div>
+
+<p>协方差矩阵为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\boldsymbol{\Sigma}=\left[\begin{array}{cccc}{\sigma_{1}^{2}} & {w_{1} \sigma_{1}^{2}} & {0} \\ {w_{1} \sigma_{1}^{2}} & {\sigma_{2}^{2}+w_{1}^{2} \sigma_{1}^{2}+w_{3}^{2} \sigma_{3}^{2}} & {w_{3} \sigma_{3}^{2}} \\ {0} & {w_{3} \sigma_{3}^{2}} & {\sigma_{3}^{2}}\end{array}\right] %]]></script>
+
+<p>信息矩阵为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{array}{ccc}{\frac{1}{\sigma_{1}^{2}}+\frac{w_{1}^{2}}{\sigma_{2}^{2}}} & {-\frac{w_{1}}{\sigma_{2}^{2}}} & {\frac{w_{1} w_{3}}{\sigma_{2}^{2}}} \\ {-\frac{w_{1}}{\sigma_{2}^{2}}} & {\frac{1}{\sigma_{2}^{2}}} & {-\frac{w_{3}}{\sigma_{2}^{2}}} \\ {\frac{w_{1} w_{3}}{\sigma_{2}^{2}}} & {-\frac{w_{3}}{\sigma_{2}^{2}}} & {\frac{1}{\sigma_{3}^{2}}+\frac{w_{3}^{2}}{\sigma_{2}^{2}}}\end{array}\right] %]]></script>
+
+<blockquote>
+  <p>$x_{1}$与$x_{3}$在协方差矩阵中不相关，在信息矩阵中相关。这是因为协方差矩阵中是直接相关性，信息矩阵可以使用链式法则推导，其中当$x_2$固定后，这两个变量就会变成相关的了。</p>
+</blockquote>
+
 <h1 id="参考文献">参考文献</h1>
 <ul>
   <li>[1] 深蓝学院vio课程讲义</li>
