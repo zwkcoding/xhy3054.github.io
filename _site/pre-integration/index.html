@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>IMU预积分 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece12.jpg alt="IMU预积分">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Jul 31</p>
+        <h1 class="post_title">IMU预积分</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>在vio中会经常看到预积分这个词，vins中有，okvis中也有，所以，这个东西到底有什么作用呢？</p>
+
+<h1 id="预积分的由来">预积分的由来</h1>
+<p>首先，一般imu的频率是比相机高的，所以在两个图像帧之间，会有很多imu采集的数据。如下图：</p>
+<div style="text-align: center">
+<img src="/assets/img/vio/pre-inte.PNG" />
+</div>
+
+<p>此处假设IMU的真实值是$\omega, \mathbf{a}$，测量值为$\tilde{\boldsymbol{\omega}}, \tilde{\mathbf{a}}$，则有：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \tilde{\omega}^{b} &=\omega^{b}+\mathbf{b}^{g}+\mathbf{n}^{g} \\ \tilde{\mathbf{a}}^{b} &=\mathbf{q}_{b w}\left(\mathbf{a}^{w}+\mathbf{g}^{w}\right)+\mathbf{b}^{a}+\mathbf{n}^{a} \end{aligned} %]]></script>
+
+<p>其中上标$g$表示gyro（陀螺仪坐标系），$a$表示acc（加速度计坐标系），$w$表示在世界坐标系world，$b$表示imu机体坐标系body。</p>
+
+<p>根据运动学方程，位置、速度、姿态（PVQ）的导数有如下：</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{\dot{\mathbf{p}}_{w b_{t}}=\mathbf{v}_{t}^{w}} \\ {\dot{\mathbf{v}}_{t}^{w}=\mathbf{a}_{t}^{w}} \\ {\dot{\mathbf{q}}_{w b_{t}}=\mathbf{q}_{w b_{t}} \otimes\left[\begin{array}{c}{0} \\ {\frac{1}{2} \boldsymbol{\omega}^{b_{t}}}\end{array}\right]}\end{array}</script>
+
+<p>从第i时刻的PVQ对IMU的测量值进行积分得到第j时刻的PVQ：</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{\mathbf{p}_{w b_{j}}=\mathbf{p}_{w b_{i}}+\mathbf{v}_{i}^{w} \Delta t+\iint_{t \in[i, j]}\left(\mathbf{q}_{w b_{t}} \mathbf{a}^{b_{t}}-\mathbf{g}^{w}\right) \delta t^{2}} \\ {\mathbf{v}_{j}^{w}=\mathbf{v}_{i}^{w}+\int_{t \in[i, j]}\left(\mathbf{q}_{w b_{t}} \mathbf{a}^{b_{t}}-\mathbf{g}^{w}\right) \delta t} \\ {\mathbf{q}_{w b_{j}}=\int_{t \in[i, j]} \mathbf{q}_{w b_{t}} \otimes\left[\begin{array}{c}{0} \\ {\frac{1}{2} \boldsymbol{\omega}^{b_{t}} ] \delta t}\end{array}\right.}\end{array}</script>
+
+<blockquote>
+  <p>此时我们发现，在积分项中存在$q_{wb_{t}}$，同时在$\mathbf{a}^{b_{t}}$等测量值中还会引入bias。这样每次在迭代优化过后，由于$q_{wb_{t}}$与bias都会更新，因此此时就需要重新进行积分操作。这个计算量是非常巨大的。</p>
+</blockquote>
+
+<h2 id="预积分消减计算量">预积分消减计算量</h2>
+<p>为了消减计算量，有人提出了通过如下的简单变换，<strong>将上述积分模型转换成预积分模型</strong>。这个变换是：</p>
+
+<script type="math/tex; mode=display">\mathbf{q}_{w b_{t}}=\mathbf{q}_{w b_{i}} \otimes \mathbf{q}_{b_{i} b_{t}}</script>
+
+<p>转换后，整个PVQ的积分形式变为：</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{\mathbf{p}_{w b_{j}}=\mathbf{p}_{w b_{i}}+\mathbf{v}_{i}^{w} \Delta t-\frac{1}{2} \mathbf{g}^{w} \Delta t^{2}+\mathbf{q}_{w b_{i}} \iint_{t \in[i, j]}\left(\mathbf{q}_{b_{i} b_{t}} \mathbf{a}^{b_{t}}\right) \delta t^{2}} \\ {\mathbf{v}_{j}^{w}=\mathbf{v}_{i}^{w}-\mathbf{g}^{w} \Delta t+\mathbf{q}_{w b_{i}} \int_{t \in[i, j]}\left(\mathbf{q}_{b_{i} b_{t}} \mathbf{a}^{b_{t}}\right) \delta t} \\ {\mathbf{q}_{w b_{j}}=\mathbf{q}_{w b_{i}} \int_{t \in[i, j]} \mathbf{q}_{b_{i} b_{t}} \otimes\left[\begin{array}{c}{0} \\ {\frac{1}{2} \boldsymbol{\omega}^{b_{t}}}\end{array}\right] \delta t}\end{array}</script>
+
+<p>上面公式中，我们可以将其中一部分提取出来，叫做<strong>预积分量</strong>：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \boldsymbol{\alpha}_{b_{i} b_{j}} &=\iint_{t \in[i, j]}\left(\mathbf{q}_{b_{i} b_{t}} \mathbf{a}^{b_{t}}\right) \delta t^{2} \\ \boldsymbol{\beta}_{b_{i} b_{j}} &=\int_{t \in[i, j]}\left(\mathbf{q}_{b_{i} b_{t}} \mathbf{a}^{b_{t}}\right) \delta t \\ \mathbf{q}_{b_{i} b_{j}} &=\int_{t \in[i, j]} \mathbf{q}_{b_{i} b_{t}} \otimes\left[\begin{array}{c}{0} \\ {\frac{1}{2} \boldsymbol{\omega}^{b_{t}}}\end{array}\right] \delta t \end{aligned} %]]></script>
+
+<blockquote>
+  <p>如上，我们发现，<strong>预积分量</strong>只与IMU的测量有关，如果不考虑更新IMU的bias，那么我们只需要进行一次预积分，以后就无需在重新计算了。</p>
+</blockquote>
+
+<h1 id="vins中预积分的使用">vins中预积分的使用</h1>
+<p>我们知道，在vins的非线性优化中不止进行了相机姿态还有路标的优化，也将imu的bias加入了优化的变量中。这样在一次优化更新后，其实bias是会发生改变的，这样预积分量也就需要更新，那么积分就还需要重新计算？</p>
+
+<p>其实在vins中为了解决这个问题，是这样做的(当更新前后bias变化比较小时)：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \boldsymbol{\alpha}_{b_{k+1}}^{b_{k}} & \approx \hat{\boldsymbol{\alpha}}_{b_{k+1}}^{b_{k}}+\mathbf{J}_{b_{a}}^{\alpha} \delta \mathbf{b}_{a_{k}}+\mathbf{J}_{b_{w}}^{\alpha} \delta \mathbf{b}_{w_{k}} \\ \boldsymbol{\beta}_{b_{k+1}}^{b_{k}} & \approx \hat{\boldsymbol{\beta}}_{b_{k+1}}^{b_{k}}+\mathbf{J}_{b_{a}}^{\beta} \delta \mathbf{b}_{a_{k}}+\mathbf{J}_{b_{w}}^{\beta} \delta \mathbf{b}_{w_{k}} \\ \boldsymbol{\gamma}_{b_{k+1}}^{b_{k}} & \approx \hat{\boldsymbol{\gamma}}_{b_{k+1}}^{b_{k}} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} \mathbf{J}_{b_{w}}^{\gamma} \delta \mathbf{b}_{w_{k}}}\end{array}\right] \end{aligned} %]]></script>
+
+<blockquote>
+  <p>当一次非线性优化后，<strong>如果bias的变化比较小</strong>，会使用一阶展开来近似更新<strong>从k帧到k+1帧</strong>的预积分量。<strong>当bias变化比较大时</strong>，近似效果会不好，此时需要重新进行积分。（此处假设使用欧拉积分）这样做可以很大的消减基于优化的方法的计算量。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 深蓝学院vio课程讲义</li>
+  <li>[2] Leutenegger S, Furgale P, Rabaud V, et al. Keyframe-based visual-inertial slam using nonlinear optimization[J]. Proceedings of Robotis Science and Systems (RSS) 2013, 2013.</li>
+  <li>[3] Qin T, Li P, Shen S. Vins-mono: A robust and versatile monocular visual-inertial state estimator[J]. IEEE Transactions on Robotics, 2018, 34(4): 1004-1020.</li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=IMU预积分&url=http://localhost:4000/pre-integration/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/pre-integration/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/pre-integration/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#多传感器融合" class="tag">多传感器融合</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/pre-integration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece12.jpg )"><span>IMU预积分</span></a>
+          
+        
+          
+            <a href="/sliding-window/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece11.jpg )"><span>slam中的滑动窗口法</span></a>
+          
+        
+          
+            <a href="/schur-complement-marginalization/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece10.jpg )"><span>舒尔补与marginalization</span></a>
+          
+        
+          
+            <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
+          
+        
+          
+            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
+          
+        
+          
+            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
