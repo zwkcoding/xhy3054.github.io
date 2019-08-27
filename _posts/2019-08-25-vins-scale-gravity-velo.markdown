@@ -62,9 +62,11 @@ $$
 ## vins中的代码实现
 在vins中，作者是通过每两帧构建上面的一个约束，然后组合起来构建整个sfm范围内的约束，进行LDLT求解即可得到$$\mathcal{X}_{I}$$
 
-> 代码实现在`vins_estimator/src/initial/initial_aligment.cpp`的`LinearAlignment`中。
+> 代码实现在`vins_estimator/src/initial/initial_aligment.cpp`的`LinearAlignment`函数中。
 
 ## 重力细化
+> 此处说是重力细化，其实是根据重力约束对整个初始化结果（包括尺度、速度等）进行细化。
+
 上述方法得到的g一般是存在误差的。因为在实际应用中，当地的重力向量的模一般是已知固定大小的（所以只有两个自由度未知），而我们在前面求解时并没有利用这个条件，因此最后计算出来的重力向量很难刚好满足这个条件。于是，在vins的初始化中，还会对得到的重力向量进行修正。
 
 首先，作者对重力向量进行参数化：
@@ -95,16 +97,19 @@ $$
 \left[\begin{array}{cccc}{-I \Delta t_{k}} & {0} & \frac{1}{2} R_{c_{0}}^{b_{k}} \Delta t_{k}^{2} \vec{b} & {R_{c_{0}}^{b_{k}}\left(p_{c_{k+1}}^{c_{0}}-p_{c_{k}}^{c_{0}}\right)} \\ {-I} & {R_{c_{0}}^{b_{k}} R_{b_{k+1}}^{c_{0}}} & {R_{c_{0}}^{b_{k}} \Delta t_{k} \vec{b}} & {0}\end{array}\right]\left[\begin{array}{c}{v_{b_{k}}^{b_{k}}} \\ {v_{b_{k+1}}^{b_{k+1}}} \\ w \\ {s}\end{array}\right] = \left[\begin{array}{c}{ \alpha_{b_{k+1}}^{b_{k}}+R_{c_{0}}^{b_{k}} R_{b_{k+1}}^{c_{0}} p_{c}^{b}-p_{c}^{b}} - \frac{1}{2} R_{c_{0}}^{b_{c}} \Delta t_{k}^{2}\|g\| \overline{\hat{g}} \\ {\beta_{b_{k+1}}^{b_{k}} -R_{c_{0}}^{b_{k}} \Delta t_{k}\|g\| \hat{g}}\end{array}\right]
 $$
 
-
-基于新得到的观测方程（可以使用LDLT分解求解），我们可以对重力向量进行修正，迭代对其进行求解（vins中迭代了4次），最后得到一个修正后的重力向量。
+> 基于新得到的观测方程（可以使用LDLT分解求解），我们可以通过重力约束不断地对初始化结果进行修正，迭代对其进行求解（vins中迭代了4次），最后得到一个修正后的初始化结果。
 
 ## vins中的代码实现
 由于这个修正是基于原本的初始的重力向量进行的修正，因此原本的重力向量越准确，得到的效果也就越好，因此可以多迭代修正几次（vins中4次）
 
-> 代码实现在`vins_estimator/src/initial/initial_aligment.cpp`的`RefineGravity`中。
+> 修正代码实现在`vins_estimator/src/initial/initial_aligment.cpp`的`RefineGravity`函数中。
 
 ## 与世界坐标系对齐
 这一步一般是最后一步，一般世界坐标系选择的是东北天坐标系。则这个对齐操作就是得到将重力向量旋转到Z轴上的旋转矩阵，这个旋转矩阵就是将原本坐标变换到世界坐标系（东北天坐标系）的变换矩阵。
 
 找到这个变换矩阵后，接下来就是使用这个变换矩阵将位姿，速度等状态信息都变换到世界坐标系下。
 
+
+# 参考资料
+- [1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono
+- [2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics

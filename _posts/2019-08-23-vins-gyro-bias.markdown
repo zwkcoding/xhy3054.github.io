@@ -123,3 +123,7 @@ void solveGyroscopeBias(map<double, ImageFrame> &all_image_frame, Vector3d* Bgs)
 
 ```
 ---
+
+# 参考资料
+- [1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono
+- [2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics
