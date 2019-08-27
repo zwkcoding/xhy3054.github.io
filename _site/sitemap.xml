@@ -313,6 +313,14 @@
 <lastmod>2019-07-31T09:07:24+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/vins-gyro-bias/</loc>
+<lastmod>2019-08-23T09:07:24+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/vins-scale-gravity-velo/</loc>
+<lastmod>2019-08-25T09:07:24+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>

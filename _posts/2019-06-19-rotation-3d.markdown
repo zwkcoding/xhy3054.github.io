@@ -123,7 +123,7 @@ $$
 \boldsymbol{q}=\left[\cos \frac{\theta}{2}, \boldsymbol{n} \sin \frac{\theta}{2}\right]
 $$
 
-那么旋转后的点$p^{prime}$可以表示为如下的乘积：
+那么旋转后的点$p^{\prime}$可以表示为如下的乘积：
 
 $$
 \boldsymbol{p}^{\prime}=\boldsymbol{q} \boldsymbol{p} \boldsymbol{q}^{-1}
@@ -131,22 +131,28 @@ $$
 
 > 最后的计算结果的实部一定为0，所以是纯虚四元数表示一个空间点位置。
 
-### 四元数的神奇2
+### 四元数的神奇2(乘法)
+首先四元数的复数形式是：
+
+$$
+\boldsymbol{q}=q_{0}+q_{1} i+q_{2} j+q_{3} k
+$$
+
 对于两个四元数
 
 $$\mathbf{q}_{1}=\left(\begin{array}{llll}{a_{1}} & {b_{1}} & {c_{1}} & {d_{1}}\end{array}\right)^{T} $$ 
 
 $$\mathbf{q}_{2}=\left(\begin{array}{llll}{a_{2}} & {b_{2}} & {c_{2}} & {d_{2}}\end{array}\right)^{T}$$
 
-他们的乘积为（不可交换）：
+他们的乘积为（不可交换）就是两个复数想成的结果：
 
 $$
 \mathbf{q}_{1} \mathbf{q}_{2}=\left(\begin{array}{c}{a_{1} a_{2}-b_{1} b_{2}-c_{1} c_{2}-d_{1} d_{2}} \\ {a_{1} b_{2}+b_{1} a_{2}+c_{1} d_{2}-d_{1} c_{2}} \\ {a_{1} c_{2}-b_{1} d_{2}+c_{1} a_{2}+d_{1} b_{2}} \\ {a_{1} d_{2}+b_{1} c_{2}-c_{1} b_{2}+d_{1} a_{2}}\end{array}\right)
 $$
 
-> 之所以介绍，四元数的乘法，是因为，对于两次旋转的叠加，是可以直接使用四元数的乘法实现的。
+> 之所以介绍，四元数的乘法，是因为，对于两次旋转的叠加，是可以直接使用四元数的乘法实现。
 
-并且，从上面的乘法，我们也可以看出，对于四元数来说，由于其单位向量的特性，四元数的逆其实就等于四元数的共轭（这样上面的结果就是（1,0,0,0）了）。
+并且，从上面的乘法，我们也可以看出，对于四元数来说，对应单位矩阵的四元数是（1,0,0,0），同时**四元数的逆其实就等于四元数的共轭**。
 
 ### 四元数相对时间的导数
 首先，先介绍一个四元数关于轴角的表示（上面也有讲过）：
@@ -155,7 +161,7 @@ $$
 \boldsymbol{q}=\left[\cos \frac{\theta}{2}, \boldsymbol{n} \sin \frac{\theta}{2}\right]
 $$
 
-所以这样，在角度接近0时，四元数近似为$[1,  \Delta \phi_{\mathcal{L}} ]$，其中第二项是一个旋转向量。
+所以这样，在角度接近0时（时间变化很小时近似角度为0），四元数近似为$[1,  \Delta \phi_{\mathcal{L}} ]$。
 
 $$
 \begin{aligned} \dot{\mathbf{q}} & \triangleq \lim _{\Delta t \rightarrow 0} \frac{\mathbf{q}(t+\Delta t)-\mathbf{q}(t)}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q} \otimes \Delta \mathbf{q}_{\mathcal{L}}-\mathbf{q}}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q} \otimes\left(\left[\begin{array}{c}{1} \\ {\Delta \boldsymbol{\phi}_{\mathcal{L}} / 2}\end{array}\right]-\left[\begin{array}{l}{1} \\ {\mathbf{0}}\end{array}\right]\right)}{\Delta t} \\ &=\lim _{\Delta t \rightarrow 0} \frac{\mathbf{q}(t+\Delta t)-\mathbf{q}(t)}{\Delta t} \\=& \frac{1}{2} \mathbf{q} \otimes\left[\begin{array}{c}{0} \\ {\boldsymbol{\omega}_{\mathcal{L}}}\end{array}\right] \end{aligned}

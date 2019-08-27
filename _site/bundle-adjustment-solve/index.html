@@ -204,7 +204,7 @@ J=[\begin{array}{cc} \boldsymbol{F} & \boldsymbol{E} \end{array}] %]]></script>
 
 <script type="math/tex; mode=display">\left[\boldsymbol{B}-\boldsymbol{E} \boldsymbol{C}^{-1} \boldsymbol{E}^{T}\right] \Delta \boldsymbol{x}_{c}=\boldsymbol{v}-\boldsymbol{E} \boldsymbol{C}^{-1} \boldsymbol{w}</script>
 
-<p>这个线性方程组的维度与$B$矩阵一致。求解这个方程的计算量就会远远小于求解原方程了。最后再将这个方程的解带入原方程就可以求解出$\Delta x_{p}$了。<strong>这就是边缘化求解的整个过程</strong>了。</p>
+<p>这个线性方程组的维度与$B$矩阵一致。求解这个方程的计算量就会远远小于求解原方程了。最后再将这个方程的解$\Delta x_{c}$带入原方程，就可以求解出$\Delta x_{p}$了。<strong>这就是边缘化求解的整个过程</strong>了。</p>
 
 <p>上述方程左边的系数我们记为$S$，它是有其物理意义的。$S$矩阵的非对角线上的非零矩阵块，表示了该处对应的两个相机位姿节点之间存在共同观测的地图点。如下</p>
 
@@ -333,6 +333,14 @@ H(e)=\left\{\begin{array}{ll}{\frac{1}{2} e^{2}} & {\text { if }|e| \leq \delta}
       <div class="recent_list">
         
           
+            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
+          
+        
+          
+            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
+          
+        
+          
             <a href="/pre-integration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece12.jpg )"><span>IMU预积分</span></a>
           
         
@@ -346,14 +354,6 @@ H(e)=\left\{\begin{array}{ll}{\frac{1}{2} e^{2}} & {\text { if }|e| \leq \delta}
         
           
             <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
-          
-        
-          
-            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
-          
-        
-          
-            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
           
         
       </div>

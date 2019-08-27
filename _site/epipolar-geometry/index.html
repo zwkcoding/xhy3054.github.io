@@ -159,6 +159,23 @@
 
 <script type="math/tex; mode=display">F = K_2^{-T} E K_1^{-1}</script>
 
+<h2 id="基础矩阵与本质矩阵的性质">基础矩阵与本质矩阵的性质</h2>
+<ol>
+  <li>
+    <p><strong>本质矩阵</strong>是两个矩阵的乘积，其中R的秩为3（满秩），$t^{\land}$的秩为2，因此E的<strong>秩为2</strong>。</p>
+  </li>
+  <li>
+    <p><strong>基础矩阵</strong>是四个矩阵的乘积，其中只有$t^{\land}$的秩为2，其他的三个都是满秩的（为3）,最终<strong>秩也为2</strong>。</p>
+  </li>
+  <li><strong>基础矩阵</strong>是四个矩阵的乘积，其中左右相机内参矩阵待定参数各4个，平移自由度是3，旋转自由度也是3，因此总共应该是14个待定参数。但是实际上F是一个$3 \times 3$的矩阵，总共9个参数，所以它最大自由度是9。又因为F满足以下两个约束，所以F的<strong>自由度其实是$9-2=7$</strong>。
+    <ul>
+      <li>尺度等价性</li>
+      <li>def(f)=0</li>
+    </ul>
+  </li>
+  <li><strong>本质矩阵</strong>的自由度由平移与旋转的各三个自由度组成，加上尺度等价性，因此本质矩阵<strong>自由度为5。</strong></li>
+</ol>
+
 <h2 id="对极约束条件的探讨">对极约束条件的探讨</h2>
 <ol>
   <li>
@@ -230,6 +247,14 @@
       <div class="recent_list">
         
           
+            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
+          
+        
+          
+            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
+          
+        
+          
             <a href="/pre-integration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece12.jpg )"><span>IMU预积分</span></a>
           
         
@@ -243,14 +268,6 @@
         
           
             <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
-          
-        
-          
-            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
-          
-        
-          
-            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
           
         
       </div>

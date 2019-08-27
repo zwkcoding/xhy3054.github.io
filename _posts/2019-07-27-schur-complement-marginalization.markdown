@@ -131,6 +131,8 @@ $$
 <img src="{{site.baseurl}}/assets/img/math/marg.PNG"  width="700" height="180"/>
 </div>
 
+> schur补的操作在slam中十分常见，其实在前面[BA的博客](https://xhy3054.github.io/bundle-adjustment-solve/)已经提到过一次了，这次系统的、概念性的介绍一下。它的主要作用是消元简化计算。在ba的介绍中中侧重加速解方程，此处介绍侧重加速求解边界概率。
+
 # 参考文献
 - [1] 深蓝学院vio课程讲义
 - [2] [Huang. Conditional and marginal distributions of a multivariate Gaussian](https://gbhqed.wordpress.com/2010/02/21/conditional-and-marginal-distributions-of-a-multivariate-gaussian).

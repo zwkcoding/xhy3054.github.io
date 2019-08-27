@@ -158,6 +158,8 @@
 
 <p>此时，我们会发现$\xi_{2}$自身的信息矩阵部分是由两部分组成的，此时如果这两部分的计算时使用的$\xi_{2}$（线性化点）的状态不一样，就可能会导致信息矩阵的零空间发生变化，引入错误信息。</p>
 
+<p>之所以线性化点会不一样，是因为在marg掉$\xi_{1}$时，新得到的蓝色的小一维雅克比矩阵是直接通过舒尔补计算得到的，所以此时当时计算这个雅克比的$\xi_{2}$点的状态是迭代更新前的，此时新加入的粉红部分的雅克比要想保持与其一致，其在对$\xi_{2}$进行偏导计算时，也需要使用迭代更新前的状态才行。</p>
+
 <blockquote>
   <p>此时FEJ的做法是：不同残差对同一个状态求雅克比时，线性化点必须一致。这样就能避免零空间退化而使得不客观变量变得可观。</p>
 </blockquote>
@@ -220,6 +222,14 @@
       <div class="recent_list">
         
           
+            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
+          
+        
+          
+            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
+          
+        
+          
             <a href="/pre-integration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece12.jpg )"><span>IMU预积分</span></a>
           
         
@@ -233,14 +243,6 @@
         
           
             <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
-          
-        
-          
-            <a href="/imu-calibration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece8.jpg )"><span>imu的数学模型与误差标定问题</span></a>
-          
-        
-          
-            <a href="/ratation-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece7.jpg )"><span>旋转矩阵是正交矩阵与伴随性质的证明</span></a>
           
         
       </div>

@@ -20,6 +20,7 @@ tag: [计算机视觉]
 
 > 注意，三角测量依据的是**同一个空间点**在不同时刻的投影到相机成像平面上的位置来确定这两个时刻时这个点的深度。
 
+## 第一种思路
 由[相机成像的几何描述](https://xhy3054.github.io/camerca-module/)我们可以理解如下的公式(世界坐标到像素坐标的转换)：
 
 $$ Z_1p_{uv1} = K_1P_w   $$
@@ -65,6 +66,7 @@ bool depthFromTriangulation(
 ```
 ---
 
+## 第二种思路
 然后此处使用的求解方法是$Cramer's$法则。这是另一种求解三角化的方式，推导如下：
 
 $$ Z_{2} x_{2} - Z_{1} Rx_{1} = t $$
@@ -179,6 +181,79 @@ Point2f pixel2cam ( const Point2d& p, const Mat& K )
 ```
 
 > [代码地址](https://github.com/xhy3054/myslam/tree/master/04-VO-feature/triangulation)
+
+## 第三种思路（最小二乘法求解深度）
+- 对于某个路标点y,在若干个关键帧$k(0,1,2,...)$中可以观测到
+
+- 首先，对于$\mathbf{y} \in \mathbb{R}^{4}$，是空间点在世界坐标系中的齐次坐标。每次观测为$x_{k} = \left[u_{k}, v_{k}, 1\right]^{T}$，这个是相机成像平面的归一化坐标
+
+- 我们假设投影矩阵为$P_{k}=\left[R_{k}, \mathbf{t}_{k}\right] \in \mathbb{R}^{3 \times 4}$，这个是从world系到camera系的投影
+
+- 所以，投影关系为：
+
+$$\forall k, \lambda_{k} \mathbf{x}_{k}=\mathbf{P}_{k} \mathbf{y}$$
+
+其中$\lambda_{k}$为观测点的深度值
+
+- 根据上面我们可以知道下式:
+
+$$\lambda_{k}=\mathbf{P}_{k, 3}^{\top} \mathbf{y}$$
+
+其中$P_{k, 3}^{\top}$是$P_{k}$的第三行（其中角标T仅仅代表是一个横向量）
+
+- 我们再将上式带入投影变换的前两行，就得到：
+
+$$
+\begin{aligned} u_{k} \mathbf{P}_{k, 3}^{\top} \mathbf{y} &=\mathbf{P}_{k, 1}^{\top} \mathbf{y} \\ v_{k} \mathbf{P}_{k, 3}^{\top} \mathbf{y} &=\mathbf{P}_{k, 2}^{\top} \mathbf{y} \end{aligned}
+$$
+
+- 每次观测都可以提供两个这样的方程，将y看做未知量，并将其移到等式一侧，可以得到下式：
+
+$$
+\left[\begin{array}{c}{u_{1} \mathbf{P}_{1,3}^{\top}-\mathbf{P}_{1,1}^{\top}} \\ {v_{1} \mathbf{P}_{1,3}^{\top}-\mathbf{P}_{1,2}^{\top}} \\ {\vdots} \\ {u_{n} \mathbf{P}_{n, 3}^{\top}-\mathbf{P}_{n, 1}^{\top}} \\ {v_{n} \mathbf{P}_{n, 3}^{\top}-\mathbf{P}_{n, 2}^{\top}}\end{array}\right] \mathbf{y}=\mathbf{0} \rightarrow \mathbf{D y}=\mathbf{0}
+$$
+
+- 于是，y为D零空间的一个非零元素。
+
+### 最小二乘求解
+对于上面问题，由于$\mathbf{D} \in \mathbb{R}^{2 n \times 4}$，在观测时往往是大于等于两次的，很有可能D满秩（4），也就是无零空间。
+
+- 此时我们会寻找上式的最小二乘解：
+
+$$
+\min _{\mathbf{y}}\|\mathbf{D} \mathbf{y}\|_{2}^{2}, \quad \text { s.t. }\|\mathbf{y}\|=1
+$$
+
+- 求解上述这个最小二乘问题$y^{T}D^{T}Dy$，我们可以通过对$D^{T}D$进行奇异值分解来求解。
+
+$$
+\mathbf{D}^{\top} \mathbf{D}=\sum_{i=1}^{4} \sigma_{i}^{2} \mathbf{u}_{i} \mathbf{u}_{j}^{\top}
+$$
+
+- 其中$\sigma_{i}$为奇异值，并且会由大到小排列（它们对应的特征向量是一组单位正交基），我们找到最小（后面）的那个奇异值，它对应的特征向量，将其转换为齐次坐标，前三维就是y坐标的解了。
+
+> 通常我们求出来会验证一下该解的有效性，判断条件是$\sigma_{4} \ll \sigma_{3}$。若该条件成立，则认为三角化有效。
+
+### 代码
+```cpp
+// vins中初始化sfm时根据一个三维点在两帧中的投影位置确定三维点位置
+void GlobalSFM::triangulatePoint(Eigen::Matrix<double, 3, 4> &Pose0, Eigen::Matrix<double, 3, 4> &Pose1,
+						Vector2d &point0, Vector2d &point1, Vector3d &point_3d)
+{
+	Matrix4d design_matrix = Matrix4d::Zero();
+	design_matrix.row(0) = point0[0] * Pose0.row(2) - Pose0.row(0);
+	design_matrix.row(1) = point0[1] * Pose0.row(2) - Pose0.row(1);
+	design_matrix.row(2) = point1[0] * Pose1.row(2) - Pose1.row(0);
+	design_matrix.row(3) = point1[1] * Pose1.row(2) - Pose1.row(1);
+	Vector4d triangulated_point;
+	triangulated_point =
+		      design_matrix.jacobiSvd(Eigen::ComputeFullV).matrixV().rightCols<1>();
+	point_3d(0) = triangulated_point(0) / triangulated_point(3);
+	point_3d(1) = triangulated_point(1) / triangulated_point(3);
+	point_3d(2) = triangulated_point(2) / triangulated_point(3);
+}
+```
+---
 
 ## 使用概率方法更新矫正深度值
 从上述讲述中，我们已经知道通过两帧图像的匹配点，可以得到一个等式，可以计算出这一点的深度值，所以，如果有n副图像进行匹配，那我们会得到n-1个等式。此时我们就可以计算出这一点的n-1个空间位置的测量值。
