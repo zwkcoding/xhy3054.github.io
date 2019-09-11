@@ -68,7 +68,7 @@
 
 <h1 id="陀螺仪偏置标定问题">陀螺仪偏置标定问题</h1>
 <blockquote>
-  <p>这个工作主要是在<code class="highlighter-rouge">vins/vins_estimator/src/initial/initial_aligment.cpp</code>文件中的<code class="highlighter-rouge">solveGyroscopeBias</code>函数中实现的。</p>
+  <p>这个工作主要是在<code class="highlighter-rouge">vins/vins_estimator/src/initial/initial_aligment.cpp</code>文件中的<code class="highlighter-rouge">solveGyroscopeBias</code>函数中实现的。此处之所以只对陀螺仪的bias进行标定，而不对加速度计的bias进行标定，原因是视觉sfm恢复出来的角度变换不受尺度影响，比较稳定准确。而sfm恢复出来的位移信息收到尺度影响，不似角度可以直接对齐。</p>
 </blockquote>
 
 <p>对于窗口中连续两帧图像$b_{k}$和$b_{k+1}$，之前已经通过视觉sfm得到了两帧相对于滑窗第一帧的旋转<script type="math/tex">\mathbf{q}_{c_{0} b_{k}}</script>和<script type="math/tex">\mathbf{q}_{c_{0} b_{k+1}}</script>，此时之前通过IMU预积分得到这两帧旋转的预积分<script type="math/tex">\hat{\gamma}_{b_k b_{k+1}}</script>（先前不带bias的预积分）。</p>
@@ -173,6 +173,11 @@
 </code></pre></div></div>
 <hr />
 
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono</li>
+  <li>[2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics</li>
+</ul>
 
     </div>
     
@@ -225,6 +230,10 @@
       <div class="recent_list">
         
           
+            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
+          
+        
+          
             <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
           
         
@@ -242,10 +251,6 @@
         
           
             <a href="/schur-complement-marginalization/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece10.jpg )"><span>舒尔补与marginalization</span></a>
-          
-        
-          
-            <a href="/covariance-information-matrix/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece9.jpg )"><span>多元高斯分布的协方差矩阵与信息矩阵</span></a>
           
         
       </div>

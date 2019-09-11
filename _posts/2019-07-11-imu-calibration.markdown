@@ -284,7 +284,7 @@ $$
 \begin{aligned} n_{d}[k] & \triangleq n\left(t_{0}+\Delta t\right) \simeq \frac{1}{\Delta t} \int_{t_{0}}^{t_{0}+\Delta t} n(\tau) d t \\ E\left(n_{d}[k]^{2}\right) &=E\left(\frac{1}{\Delta t^{2}} \int_{t_{0}}^{t_{0}+\Delta t} \int_{t_{0}}^{t_{0}+\Delta t} n(\tau) n(t) d \tau d t\right) \\ &=E\left(\frac{\sigma^{2}}{\Delta t^{2}} \int_{t_{0}}^{t_{0}+\Delta t} \int_{t_{0}}^{t_{0}+\Delta t} \delta(t-\tau) d \tau d t\right) \\ &=E\left(\frac{\sigma^{2}}{\Delta t}\right) \end{aligned}
 $$
 
-> 即连续的序列的方差比连续的方差大$\Delta t$倍（传感器的采样时间）。
+> 即离散的序列的方差比连续的方差大$\Delta t$倍（传感器的采样时间）。
 
 ### bias随机游走
 通常使用维纳过程来建模bias随时间连续变化的过程，离散时间下称之为随机游走。

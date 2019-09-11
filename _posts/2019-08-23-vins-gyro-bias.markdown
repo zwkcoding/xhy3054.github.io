@@ -11,7 +11,7 @@ vins是一个很好的开源工作，最近一直在熟悉它，其中大部分�
 > 注意：$$T_{WI}$$指的是从I系到W系的变换矩阵。
 
 # 陀螺仪偏置标定问题
-> 这个工作主要是在`vins/vins_estimator/src/initial/initial_aligment.cpp`文件中的`solveGyroscopeBias`函数中实现的。
+> 这个工作主要是在`vins/vins_estimator/src/initial/initial_aligment.cpp`文件中的`solveGyroscopeBias`函数中实现的。此处之所以只对陀螺仪的bias进行标定，而不对加速度计的bias进行标定，原因是视觉sfm恢复出来的角度变换不受尺度影响，比较稳定准确。而sfm恢复出来的位移信息收到尺度影响，不似角度可以直接对齐。
 
 对于窗口中连续两帧图像$b_{k}$和$b_{k+1}$，之前已经通过视觉sfm得到了两帧相对于滑窗第一帧的旋转$$\mathbf{q}_{c_{0} b_{k}}$$和$$\mathbf{q}_{c_{0} b_{k+1}}$$，此时之前通过IMU预积分得到这两帧旋转的预积分$$\hat{\gamma}_{b_k b_{k+1}}$$（先前不带bias的预积分）。
 
