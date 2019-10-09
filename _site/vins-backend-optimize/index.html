@@ -251,7 +251,7 @@
   <li><script type="math/tex">\mathbf{f}_{c_{j}}</script>对i时刻姿态求导；</li>
 </ul>
 
-<script type="math/tex; mode=display">\mathbf{f}_{c_{j}}=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{i}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right)</script>
+<script type="math/tex; mode=display">\mathbf{f}_{c_{j}}=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right)</script>
 
 <script type="math/tex; mode=display">% <![CDATA[
 \begin{aligned} \frac{\partial \mathbf{f}_{c_{j}}}{\partial \delta \boldsymbol{\theta}_{b_{i} b_{i}^{\prime}}} &=\frac{\partial \mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}}\left(\mathbf{I}+\left[\delta \boldsymbol{\theta}_{b_{i} b_{i}^{\prime}}\right]_{\mathbf{x}}\right) \mathbf{f}_{b_{i}}}{\partial \delta \boldsymbol{\theta}_{b_{i} b_{i}^{\prime}}} \\ &=-\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}}\left[\mathbf{f}_{b_{i}}\right]_{ \times} \end{aligned} %]]></script>
@@ -267,7 +267,7 @@
 </ul>
 
 <script type="math/tex; mode=display">% <![CDATA[
-\begin{aligned} \mathbf{f}_{c_{j}} &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{R}_{w b_{i}}\left(\mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{p}_{b c}\right)+\mathbf{p}_{w b_{i}}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{i}}^{\top}\left(\mathbf{f}_{w}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \end{aligned} %]]></script>
+\begin{aligned} \mathbf{f}_{c_{j}} &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{R}_{w b_{i}}\left(\mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{p}_{b c}\right)+\mathbf{p}_{w b_{i}}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{f}_{w}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \end{aligned} %]]></script>
 
 <script type="math/tex; mode=display">% <![CDATA[
 \begin{aligned} \frac{\partial \mathbf{f}_{c_{j}}}{\partial \delta \boldsymbol{\theta}_{b_{j} b_{j}^{\prime}}} &=\frac{\partial \mathbf{R}_{b c}^{\top}\left(\mathbf{I}-\left[\delta \boldsymbol{\theta}_{b_{j} b_{j}^{\prime}}\right] \times\right) \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{f}_{w}-\mathbf{p}_{w b_{j}}\right)}{\partial \delta \boldsymbol{\theta}_{b_{j} b_{j}^{\prime}}} \\ &=\frac{\partial \mathbf{R}_{b c}^{\top}\left(\mathbf{I}-\left[\delta \boldsymbol{\theta}_{b_{j} b_{j}^{\prime}}\right] \times\right) \mathbf{f}_{b_{j}}}{\partial \delta \boldsymbol{\theta}_{b_{j} b_{j}^{\prime}}} \\ &=\mathbf{R}_{b c}^{\top}\left[\mathbf{f}_{b_{j}}\right]_{ \times} \end{aligned} %]]></script>
@@ -360,6 +360,10 @@
       <div class="recent_list">
         
           
+            <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
+          
+        
+          
             <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
           
         
@@ -377,10 +381,6 @@
         
           
             <a href="/sliding-window/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece11.jpg )"><span>slam中的滑动窗口法</span></a>
-          
-        
-          
-            <a href="/schur-complement-marginalization/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece10.jpg )"><span>舒尔补与marginalization</span></a>
           
         
       </div>

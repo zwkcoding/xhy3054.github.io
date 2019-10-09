@@ -157,7 +157,7 @@ $$
 - $$\mathbf{f}_{c_{j}}$$对i时刻姿态求导；
 
 $$
-\mathbf{f}_{c_{j}}=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{i}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right)
+\mathbf{f}_{c_{j}}=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right)
 $$
 
 $$
@@ -173,7 +173,7 @@ $$
 - $$\mathbf{f}_{c_{j}}$$对j时刻姿态求导；
 
 $$
-\begin{aligned} \mathbf{f}_{c_{j}} &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{R}_{w b_{i}}\left(\mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{p}_{b c}\right)+\mathbf{p}_{w b_{i}}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{i}}^{\top}\left(\mathbf{f}_{w}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \end{aligned}
+\begin{aligned} \mathbf{f}_{c_{j}} &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top} \mathbf{R}_{w b_{i}} \mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{R}_{b c}^{\top}\left(\mathbf{R}_{w b_{j}}^{\top}\left(\left(\mathbf{R}_{w b_{i} \mathbf{p}_{b c}}+\mathbf{p}_{w b_{i}}\right)-\mathbf{p}_{w b_{j}}\right)-\mathbf{p}_{b c}\right) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{R}_{w b_{i}}\left(\mathbf{R}_{b c} \mathbf{f}_{c_{i}}+\mathbf{p}_{b c}\right)+\mathbf{p}_{w b_{i}}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \\ &=\mathbf{R}_{b c}^{\top} \mathbf{R}_{w b_{j}}^{\top}\left(\mathbf{f}_{w}-\mathbf{p}_{w b_{j}}\right)+(\ldots) \end{aligned}
 $$
 
 $$

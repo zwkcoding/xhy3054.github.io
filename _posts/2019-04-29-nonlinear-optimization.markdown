@@ -165,10 +165,6 @@ $$
 而$\rho$为（分母为更新前后目标函数的变化，分子为近似中应该变化的大小）：
 
 $$
-\left(\mathbf{J}^{\top} \mathbf{J}+\mu \mathbf{I}\right) \Delta \mathbf{x}_{\mathrm{lm}}=-\mathbf{J}^{\top} \mathbf{f} \quad \text { with } \quad \mu \geq 0
-$$
-
-$$
 \rho=\frac{F(\mathbf{x})-F\left(\mathbf{x}+\Delta \mathbf{x}_{\operatorname{lm}}\right)}{L(\mathbf{0})-L\left(\Delta \mathbf{x}_{\mathrm{lm}}\right)} = \frac{F(\mathbf{x})-F\left(\mathbf{x}+\Delta \mathbf{x}_{\operatorname{lm}}\right)}{\frac{1}{2} \Delta \mathbf{x}_{\operatorname{lm}}^{\top}\left(\mu \Delta \mathbf{x}_{1 \mathrm{m}}+\mathbf{b}\right)}
 $$
 
