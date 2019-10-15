@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>机器人学中的坐标变换问题探讨 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece18.jpg alt="机器人学中的坐标变换问题探讨">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2019, Oct 15</p>
+        <h1 class="post_title">机器人学中的坐标变换问题探讨</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>在机器人学中，<strong>坐标变换</strong>是一个及其复杂但重要的问题。为了更清楚的表达，我们在本文中做出如下约定。</p>
+
+<ol>
+  <li>
+    <p>坐标、姿态的表达使用下标来表明坐标系。比如物体在A坐标系下的位置坐标为<script type="math/tex">P_{A}</script></p>
+  </li>
+  <li>
+    <p>将坐标系B的坐标变换到A坐标系的坐标的变换矩阵，记为<script type="math/tex">T_{AB}</script></p>
+  </li>
+  <li>
+    <p>本文中使用的向量$(x,y,z)$是横向量，纵向量形式为$(x,y,z)^T$</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>一般我们在描述不同物体之间的位姿变换关系时，会引入坐标系之间的变换概念。即描述如何将以该物体位姿坐标原点的坐标系变换到令一个坐标系的变换。本文接下来的部分，我们会以<strong>两个物体A与B之间变换关系</strong>来展开讨论。</p>
+</blockquote>
+
+<h2 id="位置变换">位置变换</h2>
+<p>最简单的当然是<strong>只考虑位置变换</strong>的情况。</p>
+
+<p>假设以物体A的位置作为原点的A坐标系中，B的坐标为$(x,y,z)$。</p>
+
+<p>则我们知道两点：</p>
+<ol>
+  <li>
+    <p>A到B的平移向量为$t=(x,y,z)$</p>
+  </li>
+  <li>
+    <p>将B坐标系的坐标变换到A坐标系的坐标的变换向量也是$t_{AB} = (x,y,z)$。（因为B在B坐标系中坐标是$(0,0,0)$,B在A坐标系中坐标是$(x,y,z)$）</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>总结，<strong>只考虑位置变换，则物体B在A坐标系中的位置，就是坐标系B到A的变换向量。</strong></p>
+</blockquote>
+
+<h2 id="姿态变换">姿态变换</h2>
+<p>现在来考虑<strong>只有姿态变换</strong>的情况。</p>
+
+<ul>
+  <li>
+    <p>由于只有姿态变换，因此A与B的位置是重合的，只是姿态不同，也就是A坐标系与B坐标系的原点重合，但是坐标轴不重合。</p>
+  </li>
+  <li>
+    <p>假设物体A的坐标系的三个坐标轴在A坐标系下分别是<script type="math/tex">ax_{A}=(1,0,0)^T,ay_{A}(0,1,0)^T,az_{A}=(0,0,1)^T</script></p>
+  </li>
+  <li>
+    <p>经过旋转$R$后，变换成的B坐标系的坐标轴在A坐标系下的坐标为<script type="math/tex">bx_{A}, by_{A}, bz_{A}</script>(假设是列向量形式)。</p>
+  </li>
+  <li>
+    <p>因为我们知道(R乘以<script type="math/tex">(1,0,0)^T</script>得到的向量是R的第一列。。。)</p>
+
+    <script type="math/tex; mode=display">R * ax_{A} = bx_{A}</script>
+
+    <script type="math/tex; mode=display">R * ay_{A} = by_{A}</script>
+
+    <script type="math/tex; mode=display">R * az_{A} = bz_{A}</script>
+  </li>
+  <li>
+    <p>所以可以得到R，此处R也就是B在A坐标系中的姿态矩阵</p>
+
+    <script type="math/tex; mode=display">R = [bx_{A} , by_{A}, bz_{A}]</script>
+  </li>
+  <li>
+    <p>由于B在B坐标系中的三个坐标轴是<script type="math/tex">bx_{B}=(1,0,0)^T,by_{B}(0,1,0)^T,bz_{B}=(0,0,1)^T</script>，并且有</p>
+
+    <script type="math/tex; mode=display">R_{AB} * bx_{B} = bx_{A}</script>
+
+    <script type="math/tex; mode=display">R_{AB} * by_{B} = by_{A}</script>
+
+    <script type="math/tex; mode=display">R_{AB} * bz_{B} = bz_{A}</script>
+  </li>
+  <li>
+    <p>所以，B坐标系到A坐标系的变换矩阵<script type="math/tex">R_{AB}</script>为（矩阵S乘以<script type="math/tex">(1,0,0)^T</script>得到的向量是矩阵S的第一列…）</p>
+
+    <script type="math/tex; mode=display">R_{AB} = [bx_{A} , by_{A}, bz_{A}]</script>
+  </li>
+</ul>
+
+<blockquote>
+  <p>总结，<strong>物体B在坐标系A中的姿态矩阵，也就是从B坐标系到A坐标系的姿态变换矩阵</strong>。</p>
+</blockquote>
+
+<h3 id="拓展旋转矩阵是正交矩阵">拓展：旋转矩阵是正交矩阵</h3>
+
+<ul>
+  <li>
+    <p>由上面我们可以知道，假设旋转矩阵R可以用来将A坐标系的三个坐标轴旋转成B坐标系的三个坐标轴。即</p>
+
+    <script type="math/tex; mode=display">R * ax_{A} = bx_{A}</script>
+
+    <script type="math/tex; mode=display">R * ay_{A} = by_{A}</script>
+
+    <script type="math/tex; mode=display">R * az_{A} = bz_{A}</script>
+  </li>
+  <li>
+    <p>则此时我们可以得到R</p>
+
+    <script type="math/tex; mode=display">R = [bx_{A} , by_{A}, bz_{A}]</script>
+  </li>
+  <li>
+    <p>上面R矩阵的三个列向量是三个单位正交向量（因为是坐标轴）。由此，我们可以很轻松地得到</p>
+
+    <script type="math/tex; mode=display">R R^T = E</script>
+  </li>
+  <li>
+    <p>由上可证：旋转矩阵是正交矩阵。</p>
+  </li>
+</ul>
+
+<h2 id="位姿变换下的位置变换">位姿变换下的位置变换</h2>
+
+<ul>
+  <li>
+    <p>下面来综合考虑位姿变换的情况。</p>
+  </li>
+  <li>
+    <p>一般对于这种情况，假设在A坐标系中，B的姿态是R，位置是t；(变换过程可以分解成，首先从原点位移t，然后进行姿态变换成R)</p>
+  </li>
+  <li>
+    <p>对于B点，在A坐标系坐标是<script type="math/tex">bp_{A} = t</script>，在B坐标系坐标是<script type="math/tex">bp_{B} = (0,0,0)^T</script>，在A坐标系中B坐标系原点的姿态是<script type="math/tex">br_{A} = R</script>，则应该是</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">bp_{A} = R * bp_{B} + t = t</script>
+
+<ul>
+  <li>因此，对于一个物体c，假设其在A坐标系坐标是<script type="math/tex">c_{A}</script>，在B坐标系坐标是<script type="math/tex">c_{B}</script></li>
+</ul>
+
+<script type="math/tex; mode=display">c_{A} = R * c_{B} + t</script>
+
+<blockquote>
+  <p>总结，<strong>物体B在坐标系A中的姿态矩阵，也就是从B坐标系到A坐标系的姿态变换矩阵</strong><script type="math/tex">R_{AB}</script>，<strong>物体B在A坐标系中的位置，就是坐标系B到A的变换向量</strong>。并且在<strong>进行位置变换时，首先进行姿态变换，然后进行位置变换。</strong>(如果顺序反过来，上面的推导就不对了)</p>
+</blockquote>
+
+<h3 id="总结">总结</h3>
+
+<ul>
+  <li>
+    <p>从B坐标系到A坐标系的旋转矩阵<script type="math/tex">R_{AB}</script>，其实就是B坐标系原点在A坐标系中的姿态。</p>
+  </li>
+  <li>
+    <p>从B坐标系到A坐标系的平移<script type="math/tex">t_{AB}</script>，其实就是B坐标系原点在A坐标系中的位置坐标。</p>
+  </li>
+  <li>
+    <p>首先对于B坐标系中的姿态<script type="math/tex">r_{B}</script>，变换到A坐标系中，可以直接使用旋转矩阵<script type="math/tex">R_{AB}</script>进行变换；</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">r_{A} = R_{AB} * r_{B}</script>
+
+<ul>
+  <li>而对于一个位置p，从B坐标系变换到A坐标系，整体的变换执行过程如下：</li>
+</ul>
+
+<script type="math/tex; mode=display">p_{A} = R_{AB} * p_{B} + t_{AB}</script>
+
+<ul>
+  <li>因此，对于位置的齐次坐标表示形式，从B坐标系到A坐标系的齐次变换矩阵<script type="math/tex">T_{AB}</script>，可以写成</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+T_{AB} = \left[ \begin{array}{ccc} R_{AB} & t_{AB} \\ O_{1*3} & 1\end{array} \right] %]]></script>
+
+<blockquote>
+  <p>我们会发现，<strong>坐标系之间的姿态变换比较简单，直接做累乘操作就可以了。而对于坐标系之间的位置变换，会相对麻烦些，因为需要考虑两个坐标系之间姿态的差异。</strong></p>
+</blockquote>
+
+<ul>
+  <li>
+    <p>举一个例子：对于假设B坐标系原点在A坐标系中坐标是t，那A坐标系原点在B坐标系中的坐标是$-t$吗？</p>
+  </li>
+  <li>
+    <p>答案: 如下，只有在<script type="math/tex">R_{AB}=E</script>时，才会有<script type="math/tex">p_{B}=-t</script>。</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">(0,0,0)^T = R_{AB} * p_{B} + t</script>
+
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=机器人学中的坐标变换问题探讨&url=http://localhost:4000/robot-coordinate-transform/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/robot-coordinate-transform/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/robot-coordinate-transform/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#数学" class="tag">数学</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:2013211747@bupt.edu.cn">2013211747@bupt.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/robot-coordinate-transform/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece18.jpg )"><span>机器人学中的坐标变换问题探讨</span></a>
+          
+        
+          
+            <a href="/ros-package-node/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece17.jpg )"><span>ros中的包与节点与roslaunch的使用</span></a>
+          
+        
+          
+            <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
+          
+        
+          
+            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
+          
+        
+          
+            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
+          
+        
+          
+            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2019. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

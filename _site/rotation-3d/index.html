@@ -105,7 +105,7 @@ R_{x}(\gamma)=\left(\begin{array}{ccc}{1} & {0} & {0} \\ {0} & {\cos \gamma} & {
 <p>由上，我们可以看出，如果yaw、pitch和roll的顺序发生改变，矩阵相乘的顺序需要作出相应改变，所得的旋转矩阵的结果也会发生变化。</p>
 
 <blockquote>
-  <p>旋转矩阵虽然有9个元素，但是其实只有三个自由度，所以旋转矩阵一定要是正交矩阵（逆矩阵等于转置矩阵）</p>
+  <p>旋转矩阵虽然有9个元素，但是其实只有三个自由度，所以旋转矩阵各行各列之间一定是互相正交的，同时因为旋转矩阵的不包含尺度变换，因此旋转矩阵一定要是正交矩阵（逆矩阵等于转置矩阵）</p>
 </blockquote>
 
 <p>此外，其实旋转矩阵也叫作<strong>方向余弦矩阵（Direction Cosine Matrix）</strong>，简称DCM，这种表示叫法在陀螺力学领域较为常用。DCM的名字来历其实是用欧拉角之外的另一种用三个角度值表示三维旋转的方式。这种表示方法原理是：假设刚体在起始朝向时三个坐标轴的向量为$I,J,K$，而刚体在目标朝向时的三个坐标轴的向量为$i,j,k$，则该旋转可以通过三个坐标轴分别与原始坐标轴的夹角表示，如下图所示：</p>
@@ -123,7 +123,7 @@ R_{x}(\gamma)=\left(\begin{array}{ccc}{1} & {0} & {0} \\ {0} & {\cos \gamma} & {
 </blockquote>
 
 <h2 id="旋转向量">旋转向量</h2>
-<p>旋转向量是使用三维向量的形式来表示旋转。三维空间中的任意一个旋转，都是可以用绕三维空间中的某个轴旋转过某个角度来表示，这就是所谓的$Axis-Angle$表示方法。这种表示方法中，轴$Axis$可以使用一个三维单位向量$(x,y,z)$来表示，$Angle$可以使用一个角度值$\theta$来表示。所以，客观来说，<strong>一个四维向量$(\theta, x, y, z)$就可以表示出三维空间任意的旋转。</strong>但是其实可以使用更紧凑的表示方式–旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$来表示三维空间中的任意旋转。</p>
+<p>旋转向量是使用三维向量的形式来表示旋转。三维空间中的任意一个旋转，都是可以<strong>用绕三维空间中的某个轴旋转过某个角度（轴角表示）</strong>来表示，这就是所谓的$Axis-Angle$表示方法。这种表示方法中，轴$Axis$可以使用一个三维单位向量$(x,y,z)$来表示，$Angle$可以使用一个角度值$\theta$来表示。所以，客观来说，<strong>一个四维向量$(\theta, x, y, z)$就可以表示出三维空间任意的旋转。</strong>但是其实可以使用更紧凑的表示方式–旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$来表示三维空间中的任意旋转。</p>
 
 <blockquote>
   <p>旋转向量$(\theta \ast x, \theta \ast y, \theta \ast z)$的来源是轴角表示。它与旋转矩阵的转换可以通过指数映射与罗德里格斯公式完成。</p>
@@ -292,6 +292,10 @@ R_{x}(\gamma)=\left(\begin{array}{ccc}{1} & {0} & {0} \\ {0} & {\cos \gamma} & {
       <div class="recent_list">
         
           
+            <a href="/robot-coordinate-transform/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece18.jpg )"><span>机器人学中的坐标变换问题探讨</span></a>
+          
+        
+          
             <a href="/ros-package-node/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece17.jpg )"><span>ros中的包与节点与roslaunch的使用</span></a>
           
         
@@ -309,10 +313,6 @@ R_{x}(\gamma)=\left(\begin{array}{ccc}{1} & {0} & {0} \\ {0} & {\cos \gamma} & {
         
           
             <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
-          
-        
-          
-            <a href="/pre-integration/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece12.jpg )"><span>IMU预积分</span></a>
           
         
       </div>
