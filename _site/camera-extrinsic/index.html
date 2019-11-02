@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>带环链表问题 - line - 千里之行</title>
+	<title>vins中的外参标定 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,70 +51,86 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/sword/sword4.jpg alt="带环链表问题">
+        <img src=/assets/img/one-piece/one-piece19.jpg alt="vins中的外参标定">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Apr 02</p>
-        <h1 class="post_title">带环链表问题</h1>
+        <p class="post_meta">2019, Oct 30</p>
+        <h1 class="post_title">vins中的外参标定</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>昨天去面试，面试官问了我一道带环的链表问题。因为以前一个师姐问过我这个问题，我在网上看到过正确解法，因此很轻松的就写出了解法。但是当面试官让我将这个问题用公式推导出来时，，很尴尬，我忽然脑子僵了，多亏面试官提醒了一下，我才推导出来。</p>
+      <p>之前写过一篇博客介绍vins中进行初始化的操作，其实在这之前，vins会首先进行外参的标定。今天终于找到时间写一下。</p>
 
-<blockquote>
-  <p>事后回想，总结如下: <strong>任何问题不能只记住解法，而要真正将这个问题弄清楚。</strong></p>
-</blockquote>
+<h1 id="外参标定">外参标定</h1>
 
-<h1 id="链表结构描述">链表结构描述</h1>
-<p>其实就是一个6字型的链表问题，一般我们解这样的题，都是设置两个前进节点，一个叫fast，每次走两步，一个叫slow，每次走一步:</p>
+<h2 id="外参">外参</h2>
+<p>此处的外参指的是相机坐标系到imu坐标系（body）的变换矩阵。下文中会使用<script type="math/tex">T_{bc}</script>来表示。</p>
+
+<h2 id="vins中的设置">vins中的设置</h2>
+<p>在vins中可以通过在配置文件中设置<code class="highlighter-rouge">estimate_extrinsic</code>值来选择对外参进行如何处理</p>
+
 <ol>
   <li>
-    <p>假设链表入口到环的入口长度为l1;</p>
+    <p>将这个值设为0时代表提供的外参已经是准确的了，vins之后不会再对其进行优化；</p>
   </li>
   <li>
-    <p>假设环的入口到第一次相遇点处长度为l2;</p>
+    <p>将这个值设为1时代表提供的外参只是一个估计值，vins之后还会将其作为节点初始值放入非线性优化中进行优化；</p>
   </li>
   <li>
-    <p>假设环的长度为s;</p>
+    <p>将这个值设为2时代表并不提供外参，此时vins会在初始化前在线标定外参。</p>
   </li>
 </ol>
 
-<h2 id="问题一-判断链表有没有环">问题一: 判断链表有没有环</h2>
-<p>首先明确一点事实：<strong>只有有环，fast与slow总会相遇</strong>。</p>
-
-<ul>
-  <li>当相遇时，slow走了<code class="highlighter-rouge">l1+l2</code>，fast走了<code class="highlighter-rouge">2(l1+l2)</code>，并且fast比slow多走了n个环的长度；
-    <ul>
-      <li>即<code class="highlighter-rouge">l1+l2 = ns</code></li>
-    </ul>
-  </li>
-</ul>
-
 <blockquote>
-  <p>由上面推导可知，l2从0开始，每次加1，直到<code class="highlighter-rouge">l1+l2</code>是s的整数倍数时，slow与fast第一次相遇。</p>
+  <p>需要说明的是，在vins进行外参的在线标定时，只进行了外参旋转部分的估计，而平移部分是直接初始化为0了。这个是因为一般情况下我们使用的都是相机与imu集成起来的设备，两者之间的距离十分小（几厘米），所以在此处可以直接初始化为0，后续可以通过优化来矫正（或者直接忽略也不会有太大影响）。</p>
 </blockquote>
 
-<h2 id="问题二-判断链表有没有环如果有返回环的长度">问题二: 判断链表有没有环，如果有，返回环的长度</h2>
-<p>在问题一中已经将判断链表有没有环的问题搞清楚了，下面怎么得到环的长度呢？</p>
+<h2 id="标定原理">标定原理</h2>
+<p>首先，从第$k+1$帧相机坐标系到第$k$帧body坐标系的旋转变换<script type="math/tex">R_{b_k c_{k+1}}</script>可以使用两种如下方式求得</p>
 
-<ul>
-  <li>在fast与slow第一次相遇后，让二者继续前进，当再次相遇时，slow在这段间隔中走的步数就是环的长度。</li>
-</ul>
+<script type="math/tex; mode=display">R_{b_k c_{k+1}} = R_{b_k b_{k+1}} * R_{bc} = R_{bc} * R_{c_k c_{k+1}}</script>
 
-<h2 id="问题三-判断链表有没有环如果有返回环入口节点">问题三: 判断链表有没有环，如果有，返回环入口节点</h2>
-<p>在问题一中已经将判断链表有没有环的问题搞清楚了，下面怎么得到环的入口节点呢？</p>
+<p>上面等式用四元数重写为如下形式</p>
 
-<ul>
-  <li>在fast与slow第一次相遇时，从新定义一个前进节点slow2从头出发，slow从当前位置出发，则slow与slow2相遇的节点就是环的入口节点。
-    <ul>
-      <li><code class="highlighter-rouge">l1+l2+l1 = ns + l1</code></li>
-    </ul>
+<script type="math/tex; mode=display">q_{b_k b_{k+1}} * q_{bc} = q_{bc} * q_{c_k c_{k+1}}</script>
+
+<p>上面的第一个等式我们会发现<script type="math/tex">R_{bc}</script>在等式两边都出现了，只是一边是左乘了一个矩阵，一边是右乘了一个矩阵，我们可以将等式右边的右乘矩阵<script type="math/tex">R_{c_k c_{k+1}}</script>变换成左乘形式<script type="math/tex">R_{c_k c_{k+1}}^{right}</script>然后移动到右边，然后上式子就变成了</p>
+
+<script type="math/tex; mode=display">[ R_{b_k b_{k+1}} - R_{c_k c_{k+1}}^{right} ] * R_{bc} = 0</script>
+
+<p>将多帧之间的等式关系联立我们可以构建一个超定方程<script type="math/tex">Ax=0</script>。对$A$进行$svd$分解，其中最小奇异值对应的右奇异向量便是结果<script type="math/tex">R_{bc}</script>。</p>
+
+<h2 id="vins中的实现">vins中的实现</h2>
+<p>在vins的实现中流程如下：</p>
+
+<ol>
+  <li>
+    <p>取得连续两帧之间匹配到（跟踪到）的归一化特征点集合；</p>
   </li>
+  <li>
+    <p>根据帧间匹配集合由随意抽样一致方法通过对极几何约束得到前后两帧的相机坐标系的相对旋转变换<script type="math/tex">R_{c_k c_{k+1}}</script></p>
+  </li>
+  <li>
+    <p>根据imu预积分得到前后两帧BODY坐标系的相对旋转变换<script type="math/tex">R_{b_k b_{k+1}}</script></p>
+  </li>
+  <li>
+    <p>连续积累滑动窗口数个上面的方程，解方程得到。</p>
+  </li>
+</ol>
+
+<h3 id="实现细节">实现细节</h3>
+<p>在vins实现中，构建的左乘矩阵$L$是<script type="math/tex">R_{c_k c_{k+1}}</script>的左乘矩阵，构建的右乘矩阵$R$是<script type="math/tex">R_{b_k b_{k+1}}</script>，相当于其解方程的公式如下：</p>
+
+<script type="math/tex; mode=display">[ R_{c_k c_{k+1}} - R_{b_k b_{k+1}}^{right} ] * R_{cb} = 0</script>
+
+<p>所以解方程求得的是<script type="math/tex">R_{cb}</script>，因此代码的最后会对其进行求逆来获得<script type="math/tex">R_{bc}</script></p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] https://github.com/HKUST-Aerial-Robotics/VINS-Fusion</li>
 </ul>
 
-<h1 id="总结">总结</h1>
-<p>以上就是对有环链表的三个思考了，写下来希望自己忘记了可以随时翻看。</p>
 
     </div>
     
@@ -122,14 +138,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=带环链表问题&url=http://localhost:4000/linked-list-cycle/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/linked-list-cycle/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/linked-list-cycle/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=vins中的外参标定&url=http://localhost:4000/camera-extrinsic/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/camera-extrinsic/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/camera-extrinsic/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#算法与数据结构" class="tag">算法与数据结构</a>
+          <a href="/tags#多传感器融合" class="tag">多传感器融合</a>
           
         </div>
       </footer>

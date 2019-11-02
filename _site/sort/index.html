@@ -349,6 +349,25 @@
   <p>评价：堆排序是不稳定排序，堆执行一次调整需要<code class="highlighter-rouge">o(logn)</code>时间，在排序过程中需要遍历所有元素执行堆调整，所以最终时间复杂度是<code class="highlighter-rouge">o(nlogn)</code>。</p>
 </blockquote>
 
+<h1 id="稳定排序与不稳定排序">稳定排序与不稳定排序</h1>
+<p>相信大家都看到了，上面有一些排序是稳定排序，有一些是不稳定排序。那么它们有什么区别呢？</p>
+
+<ol>
+  <li>
+    <p>稳定排序与不稳定排序主要的区别在于对原序列中权值相等的元素的排序结果上。</p>
+  </li>
+  <li>
+    <p>对于权值相等的元素，稳定排序的结果依然会保证这些元素按照原序列中的排序不变。</p>
+  </li>
+  <li>
+    <p>对于权值相等的元素，在经过不稳定排序后，算法不保证这些元素仍按原序列中的顺序。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>所以稳定排序主要的好处是：对于多个关键字的排序，我们可以使用稳定排序在上一次排序的基础上排序，使得第二次排序结果中关键字权重相等的那些项按照第一个关键字进行排序。</p>
+</blockquote>
+
 <h1 id="参考文献">参考文献</h1>
 <ul>
   <li>[1] http://yansu.org/2015/09/07/sort-algorithms.html</li>
@@ -407,6 +426,14 @@
       <div class="recent_list">
         
           
+            <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
+          
+        
+          
+            <a href="/camera-extrinsic/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece19.jpg )"><span>vins中的外参标定</span></a>
+          
+        
+          
             <a href="/robot-coordinate-transform/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece18.jpg )"><span>机器人学中的坐标变换问题探讨</span></a>
           
         
@@ -420,14 +447,6 @@
         
           
             <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
-          
-        
-          
-            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
-          
-        
-          
-            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
           
         
       </div>

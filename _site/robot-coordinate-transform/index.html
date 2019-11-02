@@ -108,7 +108,7 @@
     <p>假设物体A的坐标系的三个坐标轴在A坐标系下分别是<script type="math/tex">ax_{A}=(1,0,0)^T,ay_{A}(0,1,0)^T,az_{A}=(0,0,1)^T</script></p>
   </li>
   <li>
-    <p>经过旋转$R$后，变换成的B坐标系的坐标轴在A坐标系下的坐标为<script type="math/tex">bx_{A}, by_{A}, bz_{A}</script>(假设是列向量形式)。</p>
+    <p><strong>经过旋转</strong>$R$后，变换成的B坐标系的坐标轴在A坐标系下的坐标为<script type="math/tex">bx_{A}, by_{A}, bz_{A}</script>(假设是列向量形式)。</p>
   </li>
   <li>
     <p>因为我们知道(R乘以<script type="math/tex">(1,0,0)^T</script>得到的向量是R的第一列。。。)</p>
@@ -241,6 +241,10 @@ T_{AB} = \left[ \begin{array}{ccc} R_{AB} & t_{AB} \\ O_{1*3} & 1\end{array} \ri
 
 <script type="math/tex; mode=display">(0,0,0)^T = R_{AB} * p_{B} + t</script>
 
+<blockquote>
+  <p>上面这个式子的含义是将A坐标系原点在B坐标系中的坐标<script type="math/tex">p_{B}</script>变换到A坐标系中是<script type="math/tex">(0,0,0)^T</script></p>
+</blockquote>
+
 
     </div>
     
@@ -293,6 +297,14 @@ T_{AB} = \left[ \begin{array}{ccc} R_{AB} & t_{AB} \\ O_{1*3} & 1\end{array} \ri
       <div class="recent_list">
         
           
+            <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
+          
+        
+          
+            <a href="/camera-extrinsic/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece19.jpg )"><span>vins中的外参标定</span></a>
+          
+        
+          
             <a href="/robot-coordinate-transform/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece18.jpg )"><span>机器人学中的坐标变换问题探讨</span></a>
           
         
@@ -306,14 +318,6 @@ T_{AB} = \left[ \begin{array}{ccc} R_{AB} & t_{AB} \\ O_{1*3} & 1\end{array} \ri
         
           
             <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
-          
-        
-          
-            <a href="/vins-scale-gravity-velo/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece14.jpg )"><span>vins初始化中的尺度、重力、速度的初始化</span></a>
-          
-        
-          
-            <a href="/vins-gyro-bias/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece13.jpg )"><span>vins初始化中的陀螺仪偏置标定</span></a>
           
         
       </div>

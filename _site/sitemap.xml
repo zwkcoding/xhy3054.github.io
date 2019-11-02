@@ -337,6 +337,14 @@
 <lastmod>2019-10-15T09:07:24+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/camera-extrinsic/</loc>
+<lastmod>2019-10-30T09:07:24+08:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/BA-jacobian/</loc>
+<lastmod>2019-11-01T09:07:24+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
