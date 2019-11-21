@@ -64,7 +64,7 @@
 
 <h1 id="初始化">初始化</h1>
 <blockquote>
-  <p>此处初始化的本质其实就是<strong>视觉sfm测量与imu预积分的松耦合对齐</strong>，也就是寻找最适合的待优化的变量使得sfm与imu预积分结果对的最齐。不过此处并没有考虑imu的加速度计的bias的影响，不知道为什么？感觉对于超定的测量，加上imu的bias似乎可以使得数学模型更加准确。</p>
+  <p>此处初始化的本质其实就是<strong>视觉sfm测量与imu预积分的松耦合对齐</strong>，也就是寻找最适合的待优化的变量使得sfm与imu预积分结果对的最齐。</p>
 </blockquote>
 
 <p>首先，我们需要确定待初始化的变量有：</p>
@@ -158,11 +158,46 @@
 
 <p>找到这个变换矩阵后，接下来就是使用这个变换矩阵将位姿，速度等状态信息都变换到世界坐标系下。</p>
 
+<h2 id="加速度计bias">加速度计bias</h2>
+<p>通过上面的阅读，我们会发现在vins的初始化中并没有对加速度计的bias进行估计，感觉对于超定的方程，多计算一个加速度计的bias好像也不是什么难事，，而且建模应该会更准确。在这个初始化工作的论文中其实有解释原因：</p>
+
+<ol>
+  <li>
+    <p>通过仿真实验证明，如果运动不剧烈，加速度计的bias很难被观测出来；</p>
+  </li>
+  <li>
+    <p>忽略加速计的bias对估计其他初始值的影响不大；</p>
+  </li>
+  <li>
+    <p>加速度计的bias是可以通过之后的VIO紧耦合优化，慢慢估计出来的；</p>
+  </li>
+  <li>
+    <p>在VI-orb中有对加速度计的bias进行估计，其收敛需要好几秒，并且没有一个好的判定条件来判断加速度计bias的估计是否正确。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>其实此处介绍的初始化方法并不是第一版vins中的方法，现在的初始化方法是参考VI-orb中的初始化方式改进而来的。下面的三篇论文是它们在相互借鉴的基础上产生的</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p>第一版vins的初始化论文：Monocular Visual-Inertial State Estimation with Online Initialization and Camera-IMU Extrinsic Calibration (2017, HKUST)</p>
+  </li>
+  <li>
+    <p>VI-orb的初始化论文：Visual-Inertial Monocular SLAM With Map Reuse (2017 VI-ORB)</p>
+  </li>
+  <li>
+    <p>当前vins初始化工作的论文：Robust Initialization of Monocular Visual-Inertial Estimation on Aerial Robots (2017, HKUST)</p>
+  </li>
+</ol>
+
 <h1 id="参考资料">参考资料</h1>
 <ul>
   <li>[1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono</li>
   <li>[2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics</li>
 </ul>
+
 
     </div>
     
@@ -215,6 +250,10 @@
       <div class="recent_list">
         
           
+            <a href="/spatial-coordinate-system/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece21.jpg )"><span>空间坐标系系统介绍</span></a>
+          
+        
+          
             <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
           
         
@@ -232,10 +271,6 @@
         
           
             <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
-          
-        
-          
-            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
           
         
       </div>

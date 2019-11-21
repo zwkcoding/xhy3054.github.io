@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>特征点法slam中位姿估计方法总结 - line - 千里之行</title>
+	<title>空间坐标系系统介绍 - line - 千里之行</title>
 	<meta name="description" content="">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,97 +51,95 @@
   <article class="post">
     <header>
       <div class="post_image">
-        <img src=/assets/img/sword/sword9.jpg alt="特征点法slam中位姿估计方法总结">
+        <img src=/assets/img/one-piece/one-piece21.jpg alt="空间坐标系系统介绍">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Apr 21</p>
-        <h1 class="post_title">特征点法slam中位姿估计方法总结</h1>
+        <p class="post_meta">2019, Nov 10</p>
+        <h1 class="post_title">空间坐标系系统介绍</h1>
       </div>
     </header> <!-- End Header -->
 
     <div class="entry_content">
-      <p>这篇博客主要是对基于特征点匹配的slam中的位姿估计方法进行总结。</p>
+      <p>最近好忙，只能想起来就写一点，把空间坐标系总结一下。</p>
 
-<h2 id="2d-2d的位姿估计">2d-2d的位姿估计</h2>
-<p>一般用在单目slam的初始阶段，系统还没有地图，此时只有输入的2d的图片序列。一般会使用如下方法进行位姿估计。而RGBD与双目系统中，无需进行初始化。</p>
+<h1 id="空间坐标系">空间坐标系</h1>
+<blockquote>
+  <p>我们生活在宇宙中，我们生活在地球上。地球相对于宇宙肯定不是固定不动的，我们知道地球绕太阳公转，同时本身也有自转（具体地球的运动，请见附录）。</p>
+</blockquote>
+
+<p>我们知道，定义坐标系都是有一个参照物的，因此，根据参照物的属性，我们首先可以将空间坐标系划分为两种：<strong>惯性坐标系</strong>与<strong>地球坐标系</strong>。</p>
 
 <ol>
-  <li>首先通过对极约束求解出本质矩阵(比较经典的有八点法)，然后对本质矩阵进行奇异值分解(SVD)，求解出R与t;
+  <li>惯性坐标系</li>
+  <li>地球坐标系
     <ul>
-      <li>原理公式$ E = t^{\land}R $(<a href="https://xhy3054.github.io/epipolar-geometry/">对极约束</a>)</li>
+      <li>地心地固坐标系
+        <ul>
+          <li>地心地固直角坐标系</li>
+          <li>大地坐标系</li>
+        </ul>
+      </li>
+      <li>站心坐标系
+        <ul>
+          <li>ENU（东北天）坐标系</li>
+        </ul>
+      </li>
     </ul>
   </li>
-  <li>通过单应约束求解出单应矩阵，然后通过对单应矩阵进行分解求解出R与t;
+</ol>
+
+<h2 id="1-惯性坐标系">1 惯性坐标系</h2>
+<blockquote>
+  <p>在空间中静止或者做匀速直线运动的坐标系称为<strong>惯性坐标系</strong>，也叫做<strong>空固坐标系。</strong></p>
+</blockquote>
+
+<p>由上面定义可知，要建立一个严格意义上的惯性坐标系，相当困难。毕竟，我们生活在地球上，而地球运动复杂。</p>
+
+<h2 id="2-地球坐标系">2 地球坐标系</h2>
+<blockquote>
+  <p><strong>地球坐标系</strong>固定在地球上随着地球一起在空间里做公转与自传运动，因此也称为<strong>地固坐标系。</strong></p>
+</blockquote>
+
+<p>地固坐标系根据<strong>坐标系原点的不同</strong>，又可以分为<strong>地心地固坐标系</strong>与<strong>站心坐标系</strong></p>
+
+<h3 id="21-地心地固坐标系">2.1 地心地固坐标系</h3>
+
+<h4 id="211-地心地固直角坐标系">2.1.1 地心地固直角坐标系</h4>
+<p>地心地固直角坐标系以地心<script type="math/tex">O</script>为坐标原点，Z轴与地球自传轴重合并指向北极（协议北极），X轴指向参考子午面（通常是英国伦敦处的格林尼治子午面）与地球赤道的一个交点，而X,Y,Z三轴一起构成右手直角坐标系。</p>
+
+<h4 id="212大地坐标系">2.1.2大地坐标系</h4>
+<p>大地坐标系也叫经纬高坐标系。三个坐标分别表示经度、纬度、高度信息。</p>
+
+<p>为了给出高度值，大地坐标系首先会定义一个与地球几何最吻合的椭球体来代替表面凹凸不平的地球，这个椭球体成为基准椭球体。此时大地高度h是从P点到基准椭球面的法线距离，基准椭球面以外为正，以内为负。</p>
+
+<blockquote>
+  <p>由于地球会有极移现象，因此为了产生固定的地心地固坐标系，一般会定义协议地级，据此制定协议地球坐标系。最常使用的是WGS-84坐标系。</p>
+</blockquote>
+
+<h3 id="22-站心坐标系">2.2 站心坐标系</h3>
+<p>站心坐标系通常以用户所在的位置P为坐标原点，东向为x轴正方向，北向为y轴正方向，天向为z轴正方向。因此，站心坐标系也叫作东北天（ENU）坐标系。</p>
+
+<h1 id="附录">附录</h1>
+<h2 id="地球的运动">地球的运动</h2>
+<p>地球的运动比较复杂，不过可以大体说一下</p>
+<ol>
+  <li>绕太阳公转：地球及其质心围绕太阳做非匀速直线运动</li>
+  <li>地球自传：但地球自传轴的方向不是固定不变的，地球自转轴的方向在空间的运动大致可以描述成下面两种运动的叠加
     <ul>
-      <li>原理公式$ H = K(R + t \cdot -\frac{n^{T}}{d}) K^{-1} $ (<a href="https://xhy3054.github.io/Homography-matrix/">单应约束</a>)</li>
+      <li>从上万年尺度长期来看，地球自转轴绕北黄极做缓慢的旋转（北极绕北黄极顺时针大圆周运动，半径等于黄赤交角乘以地球半径，周期大约25800年）</li>
+      <li>从几年尺度短期来看，地球自转轴还存在一种称为<strong>章动</strong>的局部小幅度旋转（北极做顺时针小椭圆运动，周期18.6年）</li>
     </ul>
   </li>
 </ol>
 
 <blockquote>
-  <p>这两种方法有一个共同的缺点，那就是尺度不确定性。所以，在单目slam中，尺度是不确定的，通常，我们会对初始化时的平移向量t进行归一化，此后，建立的地图与整个之后的位姿都是以初始化时的位移作为单位进行的。<strong>这个特性导致特征点法的单目vo是尺度不确定的</strong>。在初始化之后，单目相机就会使用下面的3d-2d方法进行位姿估计</p>
-</blockquote>
-
-<blockquote>
-  <p>此处再讨论一下为什么对极约束没有单应约束强，还有必须有位移等缺点，还是首先使用对极约束进行初始化。这时因为单应约束有平面场景要求，使得初始化时必须有平面场景。</p>
-</blockquote>
-
-<h2 id="3d-2d的位姿估计pnp问题">3d-2d的位姿估计（PnP问题）</h2>
-<p>在slam正常运行起来之后，会同时建立起基于离散点的地图。在这个时候，当新读入一张图片时，我们可以直接将地图点与新图中的特征点进行匹配。此时通过3d-2d的位姿估计会比2d-2d的方法稳定，方便很多。通常我们将3d-2d的位姿估计问题叫做<strong>PnP问题</strong>。PnP问题有很多求解方法，比如</p>
-
-<ol>
-  <li>
-    <p>直接线性变换(DLT, Direct Linear Transformation): 最少需要6对匹配点</p>
-  </li>
-  <li>
-    <p>P3P(perspective three point): 最少需要3对点即可</p>
-  </li>
-  <li>
-    <p>EPnP(Efficient PnP: an accurate o(n) solution to the pnp problem)</p>
-  </li>
-  <li>
-    <p>UPnP等线性方法</p>
-  </li>
-  <li>
-    <p>Bundle Adjustment(最小化重投影误差)等非线性优化方法</p>
-  </li>
-</ol>
-
-<blockquote>
-  <p>这些方法在opencv中基本都有函数接口提供</p>
-</blockquote>
-
-<h2 id="3d-3d的位姿估计">3d-3d的位姿估计</h2>
-<p>3d-3d的位姿估计指的是我们拥有一组配对好的3d点，然后根据其恢复出位姿，这个问题一般不会很强调是视觉的slam了，因为一组配对好的3d点与相机模型基本没有太大的关系了,在激光slam中也有可能会碰到ICP，不过由于激光数据特征不够丰富，因此我们很难知道两个点集之间的匹配关系。</p>
-
-<p>一般这种问题会使用迭代最近点(Iterative Closest Point, ICP)思想，求解方法主要分为两种方式:</p>
-<ol>
-  <li>基于线性代数的求解
-    <ul>
-      <li>SVD</li>
-    </ul>
-  </li>
-  <li>基于非线性优化方式的求解
-    <ul>
-      <li>确定目标函数，并进行非线性优化</li>
-    </ul>
-  </li>
-</ol>
-
-<blockquote>
-  <p>这种位姿估计的场景其实在视觉slam中一般用来估计与校正回环的累积误差，计算能使回环对齐的相似变换。不过在RGBD与双目相机系统中，也可以使用这种方法来计算位姿。</p>
-</blockquote>
-
-<h2 id="代码">代码</h2>
-<blockquote>
-  <p><a href="https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_2d2d">2d-2d</a>代码、<a href="https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_3d2d">3d-2d</a>代码、<a href="https://github.com/xhy3054/myslam/tree/master/04-VO-feature/pose_estimation_3d3d">3d-3d</a>代码</p>
+  <p>地球自转轴的运动主要是由于：1.其自身密度不均匀；2.赤道隆起的地球受到日月引力共同作用；</p>
 </blockquote>
 
 <h1 id="参考文献">参考文献</h1>
 <ul>
-  <li>[1] 视觉SLAM十四讲， 高翔，张涛等著</li>
+  <li>[1] GPS原理与接收机设计 谢刚著</li>
 </ul>
-
 
     </div>
     
@@ -149,14 +147,14 @@
       <footer class="post_footer cf">
         <div class="post_share">
           <span>Share:</span>
-          <a href="https://twitter.com/intent/tweet?text=特征点法slam中位姿估计方法总结&url=http://localhost:4000/pose-estimation/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/pose-estimation/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a href="https://plus.google.com/share?url=http://localhost:4000/pose-estimation/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          <a href="https://twitter.com/intent/tweet?text=空间坐标系系统介绍&url=http://localhost:4000/spatial-coordinate-system/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/spatial-coordinate-system/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/spatial-coordinate-system/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
         </div>
         <div class="post_tag">
           <span>Tags:</span>
           
-          <a href="/tags#计算机视觉" class="tag">计算机视觉</a>
+          <a href="/tags#多传感器融合" class="tag">多传感器融合</a>
           
         </div>
       </footer>

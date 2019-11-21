@@ -42,7 +42,7 @@ $$ [ I(x,y) + u I_{x} + vI_{y} - I(x,y)]^{2} $$
 
 $$E(u,v) \approx \sum _{x,y} w(x,y)(u^{2}I_{x}^{2} + 2uvI_{x}I_{y} + v^{2}I_{y}^{2})$$
 
-写成矩阵形式是：
+写成矩阵形式是（可以这样写是因为$(u,v)$仅仅代表一个移动方向，与窗口的大小、系数都不相关）：
 
 $$ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} \left ( \displaystyle \sum_{x,y} w(x,y) \begin{bmatrix} I_x^{2} & I_{x}I_{y} \\ I_xI_{y} & I_{y}^{2} \end{bmatrix} \right ) \begin{bmatrix} u \\ v \end{bmatrix} $$
 
@@ -54,7 +54,9 @@ $$ M = \displaystyle \sum_{x,y} w(x,y) \begin{bmatrix} I_x^{2} & I_{x}I_{y} \\ I
 
 $$ E(u,v) \approx \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} $$
 
-如果左值固定，这个式子本质上是一个椭圆，椭圆的扁率与尺寸是由M的特征值$ \lambda_1、\lambda_2 $决定的，椭圆的方向是由M的特征矢量决定的，假设椭圆方程如下
+> 我们知道，如果是角点的话，无论$(u,v)$往哪个方向，$E(u,v)$的值都会变化很大，而这个性质是由二维矩阵$M$决定的。或者说，这个性质是由矩阵M的特征值与特征向量决定的。在特征值大的特征向量方向，$E(u,v)$的值变化较快，在特征值较小的特征向量方向，$E(u,v)$的值变化较慢
+
+上式如果左值固定，这个式子本质上是一个椭圆，椭圆的扁率与尺寸是由M的特征值$ \lambda_1、\lambda_2 $决定的，椭圆的方向是由M的特征矢量决定的。假设椭圆方程如下
 
 $$ \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 1  $$
 
@@ -62,7 +64,7 @@ $$ \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 
 <img src="{{site.baseurl}}/assets/img/harris/eclipse.png"  width="400" height="200"/>
 </div>
 
-之前是u,v确定，如今是E(u,v)固定求对应的(u,v)，由于系数之前已经推导确定，所以如上椭圆是固定的。这种情况下，由椭圆的特征值$ \lambda_1、\lambda_2 $的情况，可以将图像上的一个点分为三种情况：
+因此由矩阵M的特征值$ \lambda_1、\lambda_2 $的情况，可以将图像上的一个点分为三种情况：
 1. 图像中**边缘上的点**。一个特征值大，另一个特征值小，即$ \lambda_1\gg \lambda_2 $或$ \lambda_2\gg \lambda_1 $，在窗口朝某一方向滑动时，E的值变化明显，其他方向上不明显。
 2. 图像中**平面上的点**。两个特征值都小，且近似相等。窗口朝各个方向上滑动，E的值变化都不明显。
 3. 图像中**角点**。两个特征值都大，且近似相等。窗口朝每个方向滑动，E的值都会有很明显的变化。
@@ -70,7 +72,7 @@ $$ \begin{bmatrix} u & v \end{bmatrix} M \begin{bmatrix} u \\ v \end{bmatrix} = 
 <img src="{{site.baseurl}}/assets/img/harris/analyse.png"/>
 </div>
 
-上述分析过后，我们知道如何使用M矩阵的特征值来判断一个点是边缘点、平面点还是角点。不过harris是进行角点检测的方法，它提出我们可以计算一个harris**角点响应值R**来判断一个点是否是角点，而无需计算具体的矩阵特征值。R的计算公式如下：
+上述分析过后，我们知道如何使用M矩阵的特征值来判断一个点是边缘点、平面点还是角点。Harris提出可以计算一个harris**角点响应值R**来判断一个点是否是角点，而无需计算具体的矩阵特征值。R的计算公式如下：
 
 $$ R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2 $$
 
@@ -78,6 +80,11 @@ $$ R=det \boldsymbol{M} - \alpha(trace\boldsymbol{M})^2 $$
 - $det\boldsymbol{M}$是矩阵M的行列式，并且$det\boldsymbol{M} = \lambda_1\lambda_2 = AC-B^2$，A,B,C,D是M矩阵的四个元素
 - $trace\boldsymbol{M}$是矩阵M的直迹，并且$trace\boldsymbol{M}=\lambda_2+\lambda_2 = A+C$
 - $\alpha$是一个经验系数，通常取值范围在0.04~0.06。下文还会对这个系数进行探讨。
+
+至于为什么Harris响应值R如此定义，可以由下图知道原因。
+<div style="text-align: center">
+<img src="{{site.baseurl}}/assets/img/harris/harris.png"/>
+</div>
 
 ## 2.2 实际代码实现步骤
 在上述原理讲解完毕后，代码实现主要可以分为五步：

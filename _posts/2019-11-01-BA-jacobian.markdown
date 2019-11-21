@@ -78,7 +78,7 @@ $$
 \frac{\partial e}{\partial \delta \xi}=\frac{\partial e}{\partial P^{\prime}} \frac{\partial P^{\prime}}{\partial \delta \xi}
 $$
 
-其中第一部分$$\frac{\partial e}{\partial P^{\prime}}$$在前面已经求解出来了，第二部分可以通过使用扰动模型左乘扰动量来求得（具体步骤见附录）
+其中第一部分$$\frac{\partial e}{\partial P^{\prime}}$$在前面已经求解出来了，第二部分可以通过使用扰动模型左乘扰动量来求得（具体步骤见附录1）
 
 $$
 \frac{\partial(\boldsymbol{T} \boldsymbol{P})}{\partial \delta \boldsymbol{\xi}}=(\boldsymbol{T} \boldsymbol{P})^{\odot}=\left[\begin{array}{cc}{\boldsymbol{I}} & {-\boldsymbol{P}^{\prime \wedge}} \\ {\boldsymbol{0}^{\mathrm{T}}} & {\boldsymbol{0}^{\mathrm{T}}}\end{array}\right]
@@ -96,14 +96,21 @@ $$
 \frac{\partial e}{\partial \delta \xi}=-\left[\begin{array}{lllll}{\frac{f_{x}}{Z^{\prime}}} & {0} & {-\frac{f_{x} X^{\prime}}{Z^{\prime 2}}} & {-\frac{f_{x} X^{\prime} Y^{\prime}}{Z^{\prime 2}}} & {f_{x}+\frac{f_{x} X^{2}}{Z^{\prime 2}}} & {-\frac{f_{x} Y^{\prime}}{Z^{\prime}}} \\ {0} & {\frac{f_{y}}{Z^{\prime}}} & {-\frac{f_{y Y^{\prime}}}{Z^{\prime 2}}} & {-f_{y}-\frac{f_{y} Y^{\prime 2}}{Z^{\prime 2}}} & {\frac{f_{y} X^{\prime Y^{\prime}}}{Z^{\prime 2}}} & {\frac{f_{y} X^{\prime}}{Z^{\prime}}}\end{array}\right]
 $$
 
-### 附录
-假设如下求导中的扰动项的李代数为$$\delta \boldsymbol{\xi}=[\delta \boldsymbol{\rho}, \delta \phi]^{\mathrm{T}}$$，那么：
+### 附录1
+假设如下求导中的左乘的扰动项的李代数为$$\delta \boldsymbol{\xi}=[\delta \boldsymbol{\rho}, \delta \phi]^{\mathrm{T}}$$，那么：
 
 <div style="text-align: center">
 <img src="{{site.baseurl}}/assets/img/math/raodong.PNG"/>
 </div>
 
-> 上面最后一行矩阵除法，与矩阵乘法规则类似，计算步骤相同，得到的矩阵维数也相同，只是乘号变成了除号。
+> 上面最后一行矩阵除法，与矩阵乘法规则类似，只是乘号变成了除号。其使用一个$4×1$矩阵除以一个$1×6$矩阵得到一个$4×6$矩阵
+
+### 附录2
+**雅克比矩阵即是偏导数矩阵**，由于一般待求导的目标函数的因变量是列向量，自变量也是列向量，在求雅克比矩阵时遵循如下规则：
+
+$$
+\frac{\mathrm{d}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]}{\mathrm{d}\left[\begin{array}{l}{x} \\ {y}\end{array}\right]}=\left(\frac{\mathrm{d}[\boldsymbol{a}, \boldsymbol{b}]^{\mathrm{T}}}{\mathrm{d}[\boldsymbol{x}]}\right)^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} \boldsymbol{b}}{\mathrm{d} x}} \\ {\frac{\mathrm{d} a}{\mathrm{d} y}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} a}{\mathrm{d} y}} \\ {\frac{\mathrm{d} b}{\mathrm{d} x}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]
+$$
 
 # 参考文献
 - [1] 视觉slam十四讲 从理论到实践 高翔等著；

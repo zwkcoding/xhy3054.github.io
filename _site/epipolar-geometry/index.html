@@ -189,6 +189,40 @@
   </li>
 </ol>
 
+<h2 id="基础矩阵与本质矩阵的求解">基础矩阵与本质矩阵的求解</h2>
+<p>由上面我们知道基础矩阵自由度为7，所以最少我们可以使用7对点来求解基础矩阵。同样，本质矩阵自由度是5，我们最小可以使用5对点进行求解。但是因为它们的内在性质中很多都是非线性的性质，因此使用最少的点数求解会比较麻烦，所以一般情况下，只考虑尺度等价性，然后使用8对点进行求解。这也叫作<strong>八点法</strong>。</p>
+
+<p>考虑一对匹配点，它们的像素坐标（如果是求解本质矩阵，那就是归一化坐标）为<script type="math/tex">x_1 = [u_1, v_1, 1]^T, x_2 = [u_2, v_2, 1]^T</script>。根据对极约束，有：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left(u_{2}, v_{2}, 1\right)\left(\begin{array}{lll}{e_{1}} & {e_{2}} & {e_{3}} \\ {e_{4}} & {e_{5}} & {e_{6}} \\ {e_{7}} & {e_{8}} & {e_{9}}\end{array}\right)\left(\begin{array}{l}{u_{1}} \\ {v_{1}} \\ {1}\end{array}\right)=0 %]]></script>
+
+<p>将上面矩阵展开，写成向量的形式（为了后续好解）：</p>
+
+<script type="math/tex; mode=display">e=\left[e_{1}, e_{2}, e_{3}, e_{4}, e_{5}, e_{6}, e_{7}, e_{8}, e_{9}\right]^{\mathrm{T}}</script>
+
+<p>此时上面对极约束的等式可以写成如下的形式</p>
+
+<script type="math/tex; mode=display">\left[u_{2} u_{1}, u_{2} v_{1}, u_{2}, v_{2} u_{1}, v_{2} v_{1}, v_{2}, u_{1}, v_{1}, 1\right] \cdot e=0</script>
+
+<p>将八个点的对极约束放在一起便可以得到一个方程组：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left(\begin{array}{cccccccc}{u_{2}^{1} u_{1}^{1}} & {u_{2}^{1} v_{1}^{1}} & {u_{2}^{1}} & {v_{2}^{1} u_{1}^{1}} & {v_{2}^{1} v_{1}^{1}} & {v_{2}^{1}} & {u_{1}^{1}} & {v_{1}^{1}} & {1} \\ {u_{2}^{2} u_{1}^{2}} & {u_{2}^{2} v_{1}^{2}} & {u_{2}^{2}} & {v_{2}^{2} u_{1}^{2}} & {v_{2}^{2} v_{1}^{2}} & {v_{2}^{2}} & {u_{1}^{2}} & {v_{1}^{2}} & {1} \\ {\vdots} & {\vdots} & {\vdots} & {\vdots} & {\vdots} & {\vdots} & {\vdots} & {\vdots} \\ {u_{2}^{8} u_{1}^{8}} & {u_{2}^{8} v_{1}^{8}} & {u_{2}^{8}} & {v_{2}^{8} u_{1}^{8}} & {v_{2}^{8} v_{1}^{8}} & {v_{2}^{8}} & {u_{1}^{8}} & {v_{1}^{8}} & {1}\end{array}\right)\left(\begin{array}{c}{e_{1}} \\ {e_{2}} \\ {e_{3}} \\ {e_{4}} \\ {e_{5}} \\ {e_{6}} \\ {e_{7}} \\ {e_{8}} \\ {e_{9}}\end{array}\right) = 0 %]]></script>
+
+<p>解方程组便可以求解出本质矩阵或基础矩阵。</p>
+
+<h2 id="通过本质矩阵恢复处r与t">通过本质矩阵恢复处R与T</h2>
+<p>在上述工作完成求解出本质矩阵E之后，可以通过SVD分解得到如下等式</p>
+
+<script type="math/tex; mode=display">\boldsymbol{E}=\boldsymbol{U} \boldsymbol{\Sigma} \boldsymbol{V}^{\mathrm{T}}</script>
+
+<p>其中U和V是正交阵，中间$\boldsymbol{\Sigma}$是奇异值矩阵。根据E的内在性质，我们知道<script type="math/tex">\boldsymbol{\Sigma} = diag(\mu, \mu, 0)</script>。通过SVD分解，任意一个E，存在两个可能的R和t与其对应。</p>
+
+<script type="math/tex; mode=display">\begin{array}{l}{t_{1}^{\wedge}=U R_{Z}\left(\frac{\pi}{2}\right) \Sigma U^{\mathrm{T}}, \quad R_{1}=U R_{Z}^{\mathrm{T}}\left(\frac{\pi}{2}\right) V^{\mathrm{T}}} \\ {t_{2}^{\wedge}=U R_{Z}\left(-\frac{\pi}{2}\right) \Sigma U^{\mathrm{T}}, \quad R_{2}=U R_{Z}^{\mathrm{T}}\left(-\frac{\pi}{2}\right) V^{\mathrm{T}}}\end{array}</script>
+
+<p>其中<script type="math/tex">R_{Z}\left(\frac{\pi}{2}\right)</script>表示沿Z轴旋转90°得到的旋转矩阵。同时由于E无论是否取符号都是等价的，因此对上面得到的t取负号也会得到相同的结果。因此每个E通过分解一共有四种可能的解。</p>
+
 <h1 id="参考资料">参考资料</h1>
 <ul>
   <li>[1] 《Multiple View Geometry in Computer Vision (Second Edition)》</li>
@@ -247,6 +281,10 @@
       <div class="recent_list">
         
           
+            <a href="/spatial-coordinate-system/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece21.jpg )"><span>空间坐标系系统介绍</span></a>
+          
+        
+          
             <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
           
         
@@ -264,10 +302,6 @@
         
           
             <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
-          
-        
-          
-            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
           
         
       </div>

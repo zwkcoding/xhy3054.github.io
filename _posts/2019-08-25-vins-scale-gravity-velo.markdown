@@ -9,7 +9,7 @@ tag: [多传感器融合]
 最近这几天在看vins的源码，刚好前天写了初始化中如何确定陀螺仪的偏置，今天顺手将初始化中尺度、速度、重力向量的初始化也总结一下。
 
 # 初始化
-> 此处初始化的本质其实就是**视觉sfm测量与imu预积分的松耦合对齐**，也就是寻找最适合的待优化的变量使得sfm与imu预积分结果对的最齐。不过此处并没有考虑imu的加速度计的bias的影响，不知道为什么？感觉对于超定的测量，加上imu的bias似乎可以使得数学模型更加准确。
+> 此处初始化的本质其实就是**视觉sfm测量与imu预积分的松耦合对齐**，也就是寻找最适合的待优化的变量使得sfm与imu预积分结果对的最齐。
 
 首先，我们需要确定待初始化的变量有：
 
@@ -109,7 +109,26 @@ $$
 
 找到这个变换矩阵后，接下来就是使用这个变换矩阵将位姿，速度等状态信息都变换到世界坐标系下。
 
+## 加速度计bias
+通过上面的阅读，我们会发现在vins的初始化中并没有对加速度计的bias进行估计，感觉对于超定的方程，多计算一个加速度计的bias好像也不是什么难事，，而且建模应该会更准确。在这个初始化工作的论文中其实有解释原因：
+
+1. 通过仿真实验证明，如果运动不剧烈，加速度计的bias很难被观测出来；
+
+2. 忽略加速计的bias对估计其他初始值的影响不大；
+
+3. 加速度计的bias是可以通过之后的VIO紧耦合优化，慢慢估计出来的；
+
+4. 在VI-orb中有对加速度计的bias进行估计，其收敛需要好几秒，并且没有一个好的判定条件来判断加速度计bias的估计是否正确。
+
+> 其实此处介绍的初始化方法并不是第一版vins中的方法，现在的初始化方法是参考VI-orb中的初始化方式改进而来的。下面的三篇论文是它们在相互借鉴的基础上产生的
+
+1. 第一版vins的初始化论文：Monocular Visual-Inertial State Estimation with Online Initialization and Camera-IMU Extrinsic Calibration (2017, HKUST)
+
+2. VI-orb的初始化论文：Visual-Inertial Monocular SLAM With Map Reuse (2017 VI-ORB)
+
+3. 当前vins初始化工作的论文：Robust Initialization of Monocular Visual-Inertial Estimation on Aerial Robots (2017, HKUST)
 
 # 参考资料
 - [1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono
 - [2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics
+

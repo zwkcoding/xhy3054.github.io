@@ -46,21 +46,22 @@ $$
 \hat{\gamma}_{b_k b_{k+1}} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} J_{b_{g}}^{\gamma} \delta b_{g}}\end{array}\right] = \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}} \otimes \left[\begin{array}{l}{1} \\ {0}\end{array}\right]
 $$
 
-只考虑上式虚部，我们可以得到
+只考虑上式虚部，我们可以得到(其中$vec$代表取虚部)
 
 $$
-J_{b_{g}}^{\gamma} \delta b_{g}=2\left(\hat{\gamma}_{b_k b_{k+1}} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}
+J_{b_{g}}^{\gamma} \delta b_{g}=2\left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}
 $$
 
 对于上式，我们想要做的是求解出$$\delta b_{g}$$的大小，此时我们可以使用如下办法：
 
-- 等式两侧同时乘以$$J_{b_{g}}^{\gamma T}$$，即得到
+- 等式两侧同时乘以$$J_{b_{g}}^{\gamma T}$$（在使用cholesky分解求解矩阵，获取使目标函数达到最小的解时，需要将系数矩阵变为正定。），即得到
 
 $$
-J_{b_{g}}^{\gamma T} J_{b_{g}}^{\gamma} \delta b_{g}=2 J_{b_{g}}^{\gamma T} \left(\hat{\gamma}_{b_k b_{k+1}} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}
+J_{b_{g}}^{\gamma T} J_{b_{g}}^{\gamma} \delta b_{g}=2 J_{b_{g}}^{\gamma T} \left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}
 $$
 
 - 使用LDLT分解即可求得 $$\delta b_{g}$$
+
 
 ## vins中代码实现
 ```cpp

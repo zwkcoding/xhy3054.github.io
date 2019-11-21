@@ -96,17 +96,17 @@
 
 <script type="math/tex; mode=display">\hat{\gamma}_{b_k b_{k+1}} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} J_{b_{g}}^{\gamma} \delta b_{g}}\end{array}\right] = \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}} \otimes \left[\begin{array}{l}{1} \\ {0}\end{array}\right]</script>
 
-<p>只考虑上式虚部，我们可以得到</p>
+<p>只考虑上式虚部，我们可以得到(其中$vec$代表取虚部)</p>
 
-<script type="math/tex; mode=display">J_{b_{g}}^{\gamma} \delta b_{g}=2\left(\hat{\gamma}_{b_k b_{k+1}} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
+<script type="math/tex; mode=display">J_{b_{g}}^{\gamma} \delta b_{g}=2\left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
 
 <p>对于上式，我们想要做的是求解出<script type="math/tex">\delta b_{g}</script>的大小，此时我们可以使用如下办法：</p>
 
 <ul>
-  <li>等式两侧同时乘以<script type="math/tex">J_{b_{g}}^{\gamma T}</script>，即得到</li>
+  <li>等式两侧同时乘以<script type="math/tex">J_{b_{g}}^{\gamma T}</script>（在使用cholesky分解求解矩阵，获取使目标函数达到最小的解时，需要将系数矩阵变为正定。），即得到</li>
 </ul>
 
-<script type="math/tex; mode=display">J_{b_{g}}^{\gamma T} J_{b_{g}}^{\gamma} \delta b_{g}=2 J_{b_{g}}^{\gamma T} \left(\hat{\gamma}_{b_k b_{k+1}} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
+<script type="math/tex; mode=display">J_{b_{g}}^{\gamma T} J_{b_{g}}^{\gamma} \delta b_{g}=2 J_{b_{g}}^{\gamma T} \left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
 
 <ul>
   <li>使用LDLT分解即可求得 <script type="math/tex">\delta b_{g}</script></li>
@@ -230,6 +230,10 @@
       <div class="recent_list">
         
           
+            <a href="/spatial-coordinate-system/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece21.jpg )"><span>空间坐标系系统介绍</span></a>
+          
+        
+          
             <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
           
         
@@ -247,10 +251,6 @@
         
           
             <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
-          
-        
-          
-            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
           
         
       </div>

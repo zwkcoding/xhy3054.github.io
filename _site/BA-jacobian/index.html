@@ -136,7 +136,7 @@
 
 <script type="math/tex; mode=display">\frac{\partial e}{\partial \delta \xi}=\frac{\partial e}{\partial P^{\prime}} \frac{\partial P^{\prime}}{\partial \delta \xi}</script>
 
-<p>其中第一部分<script type="math/tex">\frac{\partial e}{\partial P^{\prime}}</script>在前面已经求解出来了，第二部分可以通过使用扰动模型左乘扰动量来求得（具体步骤见附录）</p>
+<p>其中第一部分<script type="math/tex">\frac{\partial e}{\partial P^{\prime}}</script>在前面已经求解出来了，第二部分可以通过使用扰动模型左乘扰动量来求得（具体步骤见附录1）</p>
 
 <script type="math/tex; mode=display">% <![CDATA[
 \frac{\partial(\boldsymbol{T} \boldsymbol{P})}{\partial \delta \boldsymbol{\xi}}=(\boldsymbol{T} \boldsymbol{P})^{\odot}=\left[\begin{array}{cc}{\boldsymbol{I}} & {-\boldsymbol{P}^{\prime \wedge}} \\ {\boldsymbol{0}^{\mathrm{T}}} & {\boldsymbol{0}^{\mathrm{T}}}\end{array}\right] %]]></script>
@@ -150,16 +150,22 @@
 <script type="math/tex; mode=display">% <![CDATA[
 \frac{\partial e}{\partial \delta \xi}=-\left[\begin{array}{lllll}{\frac{f_{x}}{Z^{\prime}}} & {0} & {-\frac{f_{x} X^{\prime}}{Z^{\prime 2}}} & {-\frac{f_{x} X^{\prime} Y^{\prime}}{Z^{\prime 2}}} & {f_{x}+\frac{f_{x} X^{2}}{Z^{\prime 2}}} & {-\frac{f_{x} Y^{\prime}}{Z^{\prime}}} \\ {0} & {\frac{f_{y}}{Z^{\prime}}} & {-\frac{f_{y Y^{\prime}}}{Z^{\prime 2}}} & {-f_{y}-\frac{f_{y} Y^{\prime 2}}{Z^{\prime 2}}} & {\frac{f_{y} X^{\prime Y^{\prime}}}{Z^{\prime 2}}} & {\frac{f_{y} X^{\prime}}{Z^{\prime}}}\end{array}\right] %]]></script>
 
-<h3 id="附录">附录</h3>
-<p>假设如下求导中的扰动项的李代数为<script type="math/tex">\delta \boldsymbol{\xi}=[\delta \boldsymbol{\rho}, \delta \phi]^{\mathrm{T}}</script>，那么：</p>
+<h3 id="附录1">附录1</h3>
+<p>假设如下求导中的左乘的扰动项的李代数为<script type="math/tex">\delta \boldsymbol{\xi}=[\delta \boldsymbol{\rho}, \delta \phi]^{\mathrm{T}}</script>，那么：</p>
 
 <div style="text-align: center">
 <img src="/assets/img/math/raodong.PNG" />
 </div>
 
 <blockquote>
-  <p>上面最后一行矩阵除法，与矩阵乘法规则类似，计算步骤相同，得到的矩阵维数也相同，只是乘号变成了除号。</p>
+  <p>上面最后一行矩阵除法，与矩阵乘法规则类似，只是乘号变成了除号。其使用一个$4×1$矩阵除以一个$1×6$矩阵得到一个$4×6$矩阵</p>
 </blockquote>
+
+<h3 id="附录2">附录2</h3>
+<p><strong>雅克比矩阵即是偏导数矩阵</strong>，由于一般待求导的目标函数的因变量是列向量，自变量也是列向量，在求雅克比矩阵时遵循如下规则：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\frac{\mathrm{d}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]}{\mathrm{d}\left[\begin{array}{l}{x} \\ {y}\end{array}\right]}=\left(\frac{\mathrm{d}[\boldsymbol{a}, \boldsymbol{b}]^{\mathrm{T}}}{\mathrm{d}[\boldsymbol{x}]}\right)^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} \boldsymbol{b}}{\mathrm{d} x}} \\ {\frac{\mathrm{d} a}{\mathrm{d} y}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} a}{\mathrm{d} y}} \\ {\frac{\mathrm{d} b}{\mathrm{d} x}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right] %]]></script>
 
 <h1 id="参考文献">参考文献</h1>
 <ul>
@@ -218,6 +224,10 @@
       <div class="recent_list">
         
           
+            <a href="/spatial-coordinate-system/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece21.jpg )"><span>空间坐标系系统介绍</span></a>
+          
+        
+          
             <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
           
         
@@ -235,10 +245,6 @@
         
           
             <a href="/dogleg/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece16.jpg )"><span>dogleg算法解析</span></a>
-          
-        
-          
-            <a href="/vins-backend-optimize/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece15.jpg )"><span>vins中基于滑窗的后端优化</span></a>
           
         
       </div>
