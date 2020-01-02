@@ -109,8 +109,10 @@ $$
 **雅克比矩阵即是偏导数矩阵**，由于一般待求导的目标函数的因变量是列向量，自变量也是列向量，在求雅克比矩阵时遵循如下规则：
 
 $$
-\frac{\mathrm{d}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]}{\mathrm{d}\left[\begin{array}{l}{x} \\ {y}\end{array}\right]}=\left(\frac{\mathrm{d}[\boldsymbol{a}, \boldsymbol{b}]^{\mathrm{T}}}{\mathrm{d}[\boldsymbol{x}]}\right)^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} \boldsymbol{b}}{\mathrm{d} x}} \\ {\frac{\mathrm{d} a}{\mathrm{d} y}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]^{\mathrm{T}}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} a}{\mathrm{d} y}} \\ {\frac{\mathrm{d} b}{\mathrm{d} x}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]
+\frac{\mathrm{d}\left[\begin{array}{l}{a} \\ {b}\end{array}\right]}{\mathrm{d}\left[\begin{array}{l}{x} \\ {y}\end{array}\right]}=\left[\begin{array}{cc}{\frac{\mathrm{d} a}{\mathrm{d} x}} & {\frac{\mathrm{d} a}{\mathrm{d} y}} \\ {\frac{\mathrm{d} b}{\mathrm{d} x}} & {\frac{\mathrm{d} b}{\mathrm{d} y}}\end{array}\right]
 $$
+
+> 其实只需要明确一点，上述公式便很容易记起来了。对于输入为n维向量，输出为m维向量的变换（即从$R^n$到$R^m$的变换），它的雅克比矩阵为$m*n$维。即行数由输出向量的维度决定，列数由输入向量的维度决定
 
 # 参考文献
 - [1] 视觉slam十四讲 从理论到实践 高翔等著；
