@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>SSE/AVX加速时的内存对齐问题 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece22.jpg alt="SSE/AVX加速时的内存对齐问题">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2020, Jan 07</p>
+        <h1 class="post_title">SSE/AVX加速时的内存对齐问题</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>上个月比较忙，一篇博客都没写，这是2020第一篇～</p>
+
+<blockquote>
+  <p>这篇博客的内容主要参考了官网与<a href="https://zhuanlan.zhihu.com/p/93824687">一篇知乎上的文章</a></p>
+</blockquote>
+
+<h1 id="内存对齐问题">内存对齐问题</h1>
+
+<p>这个是在学习Eigen的过程中顺便学习的。Eigen中有较多的矩阵与向量运算，因此可以使用SSE、AVX等指令集进行加速，当编译时打开<code class="highlighter-rouge">-march=native</code>这个选项时，会尝试对Eigen中的运算进行加速。而加速时内存对齐，因此如果不满足就会报错。</p>
+
+<h2 id="向量化运算">向量化运算</h2>
+<p>向量化运算就是用SSE、AVX等SIMD（Single Instruction Multiple Data）指令集，实现一条指令对多个操作数的运算，从而提高代码的吞吐量，实现加速效果。SSE是一个系列，包括从最初的SSE到最新的SSE4.2，支持同时操作16 bytes的数据，即4个float或者2个double。AVX也是一个系列，它是SSE的升级版，支持同时操作32 bytes的数据，即8个float或者4个double。</p>
+
+<p>但向量化运算是有前提的，那就是内存对齐。SSE的操作数，必须16 bytes对齐，而AVX的操作数，必须32 bytes对齐。也就是说，如果我们有4个float数，必须把它们放在连续的且首地址为16的倍数的内存空间中，才能调用SSE的指令进行运算。</p>
+
+<h3 id="简单的avx加速示例">简单的AVX加速示例</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;immintrin.h&gt;
+#include &lt;iostream&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="kt">double</span> <span class="n">input1</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+  <span class="kt">double</span> <span class="n">input2</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+  <span class="kt">double</span> <span class="n">result</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"address of input1: "</span> <span class="o">&lt;&lt;</span> <span class="n">input1</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"address of input2: "</span> <span class="o">&lt;&lt;</span> <span class="n">input2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="n">__m256d</span> <span class="n">a</span> <span class="o">=</span> <span class="n">_mm256_load_pd</span><span class="p">(</span><span class="n">input1</span><span class="p">);</span>
+  <span class="n">__m256d</span> <span class="n">b</span> <span class="o">=</span> <span class="n">_mm256_load_pd</span><span class="p">(</span><span class="n">input2</span><span class="p">);</span>
+  <span class="n">__m256d</span> <span class="n">c</span> <span class="o">=</span> <span class="n">_mm256_add_pd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+
+  <span class="n">_mm256_store_pd</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这段代码使用AVX中的向量化加法指令，同时计算4对double的和。这4对数保存在input1和input2中。 <code class="highlighter-rouge">_mm256_load_pd</code>指令用来加载操作数，<code class="highlighter-rouge">_mm256_add_pd</code>指令进行向量化运算，最后， <code class="highlighter-rouge">_mm256_store_pd</code>指令读取运算结果到<code class="highlighter-rouge">result</code>中。可惜的是，程序运行到第一个<code class="highlighter-rouge">_mm256_load_pd</code>处就崩溃了。崩溃的原因正是因为输入变量没有内存对齐。我特意打印出了两个输入变量的地址，结果如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>address of input1: 0x7ffeef431ef0
+address of input2: 0x7ffeef431f10 
+</code></pre></div></div>
+
+<p>上一节提到了AVX要求32字节对齐，我们可以把这两个输入变量的地址除以32，看是否能够整除。结果发现<code class="highlighter-rouge">0x7ffeef431ef0</code>和<code class="highlighter-rouge">0x7ffeef431f10</code>都不能整除。当然，其实直接看倒数第二位是否是偶数即可，是偶数就可以被32整除，是奇数则不能被32整除。</p>
+
+<p>如何让输入变量内存对齐呢？我们知道，对于局部变量来说，它们的内存地址是在编译期确定的，也就是由编译器决定。所以我们只需要告诉编译器，给<code class="highlighter-rouge">input1</code>和<code class="highlighter-rouge">input2</code>申请空间时请让首地址32字节对齐，这需要通过预编译指令来实现。不同编译器的预编译指令是不一样的，比如gcc的语法为<code class="highlighter-rouge">__attribute__((aligned(32)))</code>，MSVC的语法为 <code class="highlighter-rouge">__declspec(align(32))</code> 。以gcc语法为例，做少量修改，就可以得到正确的代码</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;immintrin.h&gt;
+#include &lt;iostream&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="n">__attribute__</span> <span class="p">((</span><span class="n">aligned</span> <span class="p">(</span><span class="mi">32</span><span class="p">)))</span> <span class="kt">double</span> <span class="n">input1</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+  <span class="n">__attribute__</span> <span class="p">((</span><span class="n">aligned</span> <span class="p">(</span><span class="mi">32</span><span class="p">)))</span> <span class="kt">double</span> <span class="n">input2</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+  <span class="n">__attribute__</span> <span class="p">((</span><span class="n">aligned</span> <span class="p">(</span><span class="mi">32</span><span class="p">)))</span> <span class="kt">double</span> <span class="n">result</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"address of input1: "</span> <span class="o">&lt;&lt;</span> <span class="n">input1</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"address of input2: "</span> <span class="o">&lt;&lt;</span> <span class="n">input2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="n">__m256d</span> <span class="n">a</span> <span class="o">=</span> <span class="n">_mm256_load_pd</span><span class="p">(</span><span class="n">input1</span><span class="p">);</span>
+  <span class="n">__m256d</span> <span class="n">b</span> <span class="o">=</span> <span class="n">_mm256_load_pd</span><span class="p">(</span><span class="n">input2</span><span class="p">);</span>
+  <span class="n">__m256d</span> <span class="n">c</span> <span class="o">=</span> <span class="n">_mm256_add_pd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+
+  <span class="n">_mm256_store_pd</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>输出结果为</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>address of input1: 0x7ffc5ca2e640
+address of input2: 0x7ffc5ca2e660
+2 3 4 5
+</code></pre></div></div>
+
+<p>可以看到，这次的两个地址都是32的倍数，而且最终的运算结果也完全正确。</p>
+
+<h3 id="动态内存申请时的对齐问题">动态内存申请时的对齐问题</h3>
+
+<blockquote>
+  <p>上面的操作是在栈上进行地址对齐的内存申请，此时内存地址是编译器在编译时确定的，因此预编译指令可以生效。但是我们在真正的编程时，经常会使用到动态内存申请，动态创建的对象存储在堆上，其地址是运行时确定的。</p>
+</blockquote>
+
+<p>其实要想实现动态申请内存的32位地址对齐，方法有很多</p>
+<ol>
+  <li>
+    <p>为该类重写<code class="highlighter-rouge">new</code>函数，每次分配内存时多申请32个字节，然后寻找这段内存中第一个32倍数的地址返回。</p>
+  </li>
+  <li>
+    <p>c++从C++11开始新增了函数<code class="highlighter-rouge">void *aligned_alloc( size_t alignment, size_t size );</code>可以动态申请到alignment字节对齐的内存;</p>
+  </li>
+  <li>
+    <p>从C++17开始新增了函数<code class="highlighter-rouge">void* operator new ( std::size_t count, std::align_val_t al);</code>函数可以动态申请对齐的内存;</p>
+  </li>
+</ol>
+
+<h2 id="eigen中的内存对齐方式">Eigen中的内存对齐方式</h2>
+
+<p>在Eigen官方文档中说，如果你想要创建一个类，然后这个类中包含Eigen类型，那么需要考虑内存对齐的问题。比如如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+  <span class="p">...</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">Vector2d</span> <span class="n">v</span><span class="p">;</span>
+  <span class="p">...</span>
+<span class="p">};</span>
+<span class="p">...</span>
+<span class="n">Foo</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="p">;</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>上面这个类中含有一个<a href="http://eigen.tuxfamily.org/dox/group__TopicFixedSizeVectorizable.html">固定尺寸的Eigen对象</a>，所以需要考虑内存对齐。解决方法如下：</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+  <span class="p">...</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">Vector2d</span> <span class="n">v</span><span class="p">;</span>
+  <span class="p">...</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">EIGEN_MAKE_ALIGNED_OPERATOR_NEW</span>
+<span class="p">};</span>
+<span class="p">...</span>
+<span class="n">Foo</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="p">;</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>只需要在你的<code class="highlighter-rouge">class</code>的public部分添加一个声明<code class="highlighter-rouge">EIGEN_MAKE_ALIGNED_OPERATOR_NEW</code>即可。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] Eigen官网</li>
+  <li>[2] https://zhuanlan.zhihu.com/p/93824687</li>
+</ul>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=SSE/AVX加速时的内存对齐问题&url=http://localhost:4000/memory-alignment/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/memory-alignment/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/memory-alignment/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#c与c++，tools" class="tag">c与c++，tools</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:xianghengyong17@mails.ucas.edu.cn">xianghengyong17@mails.ucas.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/memory-alignment/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece22.jpg )"><span>SSE/AVX加速时的内存对齐问题</span></a>
+          
+        
+          
+            <a href="/spatial-coordinate-system/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece21.jpg )"><span>空间坐标系系统介绍</span></a>
+          
+        
+          
+            <a href="/BA-jacobian/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece20.jpg )"><span>BA优化中Jacobian矩阵的计算</span></a>
+          
+        
+          
+            <a href="/camera-extrinsic/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece19.jpg )"><span>vins中的外参标定</span></a>
+          
+        
+          
+            <a href="/robot-coordinate-transform/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece18.jpg )"><span>机器人学中的坐标变换问题探讨</span></a>
+          
+        
+          
+            <a href="/ros-package-node/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece17.jpg )"><span>ros中的包与节点与roslaunch的使用</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+    <div class="copyright">
+      <p>&copy; 2020. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>
