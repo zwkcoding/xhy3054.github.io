@@ -3,7 +3,7 @@ layout: post
 title: SSE/AVX加速时的内存对齐问题
 date: 2020-01-07 10:07:24.000000000 +09:00
 img:  one-piece/one-piece22.jpg # Add image post (optional)
-tag: [c与c++，tools]
+tag: [tools]
 ---
 上个月比较忙，一篇博客都没写，这是2020第一篇～
 
