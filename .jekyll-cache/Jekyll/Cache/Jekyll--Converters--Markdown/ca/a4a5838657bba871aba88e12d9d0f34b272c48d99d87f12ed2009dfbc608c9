@@ -1,0 +1,128 @@
+I"7<p>关于类型转换的问题，本来我并没有如何在意。因为一直都是写的ｃ的代码比较多一点嘛，而ｃ这方面的内容并不多，形式也很简单。所以一直以来都会有一点错觉，觉得这方面自己应该了解的差不多，够用了。偶尔写代码有些关于这部分的内容老是出错，我也都是尽量“绕”过去，没想过深究原因。这段时间的基础学习，真的是学到了很多，也让我意识到自己很多错误的观点。其中关于类型转换，我以前的理解确实是很肤浅的，直到现在我可能了解的也不是那么的到位，所以今天打算写一个这方面的博客，一是总结归纳，免得自己这几天刚刚有的一些了解又丢了；二是加深理解，写的时候也许会有一些收获；三是开启一个这方面的文章，以后如果我有了更深的理解，会在这篇文章里进行更正，希望使得此树之根须越扎越深。</p>
+
+<p>类型转换主要可以笼统的分为两大类：<strong>隐式类型转换</strong>与<strong>显式类型转换</strong>。</p>
+
+<blockquote>
+  <p>注意：不论是隐式类型转换还是显式类型转换，在进行算术类型转换时，高精度转为低精度都会有精度损失，低精度转为高精度是没有。比如在<strong>有符号的char类型</strong>在与<strong>int类型</strong>进行转换时。将有符号char类型转换成int类型时，值是无损失的（不会发生变化的）。而int类型赋值给有符号char类型时其实进行的是截断式赋值。
+例子：</p>
+  <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">signed</span> <span class="kt">char</span> <span class="n">sc1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+<span class="c1">//结果i1值为-128，将10000000自动扩展为111...10000000</span>
+<span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">sc1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1073741823</span><span class="p">;</span>
+<span class="c1">//结果sc2值为１，发生了截断式赋值，将11000...00000001截断为00000001</span>
+<span class="kt">signed</span> <span class="kt">char</span> <span class="n">sc2</span> <span class="o">=</span> <span class="n">i2</span><span class="p">;</span>
+</code></pre></div>  </div>
+</blockquote>
+
+<h1 id="隐式类型转换">隐式类型转换</h1>
+<p>隐式类型转换不需要程序员介入，是自动进行的。通常我们注意的比较多的换转换通常是算数类型的隐式类型转。</p>
+<h2 id="算数类型的隐式类型转换">算数类型的隐式类型转换</h2>
+<p><strong>在表达式求值时</strong>，算数转换的规则定义了一套类型转换的层次，其中的大方向是将运算对象转换成最宽的类型。具体规则如下：</p>
+
+<ol>
+  <li>
+    <p>首先会进行整形提升，如果运算对象双方是<code class="highlighter-rouge">bool、char、signed char、unsigned char、short、与unsigned short</code>等可以不损失精度的放入int类型中，它们就会提升为int类型。如果它们中有不能用int类型无损存储的，比如<code class="highlighter-rouge">unsigned int、long</code>等类型，则会将较小的一方提升为精度较高一方的类型。</p>
+  </li>
+  <li>
+    <p>如果运算对象双方一个为无符号类型，一个为有符号类型，并且无符号类型不小于有符号类型，则将带符号的运算对象转换成无符号的。</p>
+  </li>
+  <li>
+    <p>如果带符号类型大于无符号类型，则结果需要依赖机器。如果此带符号类型可以无损存储此无符号类型，则将无符号类型转换成带符号类型。否则，结果反之。比如两个运算对象分别是<code class="highlighter-rouge">long</code>与<code class="highlighter-rouge">unsigned int</code>类型，则怎么转换就需要依赖机器中<code class="highlighter-rouge">long</code>类型占用空间是否比<code class="highlighter-rouge">int</code>多。</p>
+  </li>
+</ol>
+
+<p>总结：表达式求值在根据<code class="highlighter-rouge">double&gt;float&gt;int</code>之类的隐式类型转换后求出来的值在<strong>赋值时</strong>还会再进行一次隐式类型转换。例如：<code class="highlighter-rouge">int c=5; char d='0'; char a = c + d;</code></p>
+
+<h2 id="其他隐式类型转换">其他隐式类型转换</h2>
+<ol>
+  <li>
+    <p>数组名转成指针：例如<code class="highlighter-rouge">int a[10]; int *p=a;</code>中将数组名转成指针，但是当数组被用作<code class="highlighter-rouge">decltype</code>关键字的参数或者作为取地址符（&amp;）、<code class="highlighter-rouge">sizeof</code>以及<code class="highlighter-rouge">typeid</code>等运算符的运算对象时，上述转换不会发生；</p>
+  </li>
+  <li>
+    <p>指针的转换：比如，第一、常量正数值０或者字面值常量nullptr能转换成任意指针类型；第二、指向任意非常量的指针能转换成<code class="highlighter-rouge">void *</code>；第三、指向任意对象的指针能转换成<code class="highlighter-rouge">const void*</code>;</p>
+  </li>
+  <li>
+    <p>转成<code class="highlighter-rouge">bool</code>类型（通常在判断表达式中）；</p>
+  </li>
+  <li>
+    <p>转换成常量：允许将非常量类型赋值给常量；</p>
+  </li>
+</ol>
+
+<h1 id="显式类型转换">显式类型转换</h1>
+<p>显式类型转换也叫作强制类型转换，除非必须，否则不建议使用。并且在这方面，ｃ语言提供的强制类型转换是及其不完善的，c++对与强制类型转换比之要完善很多，不过依然不建议使用。</p>
+
+<h1 id="整数类型转换机器码操作">整数类型转换机器码操作</h1>
+<ol>
+  <li><strong>同位宽的无符号与有符号</strong>的整数类型进行转换时，内存中<strong>机器码形式不变</strong>，变得是<strong>机器码的解读方式</strong>，以补码形式进行解读还是无符号数形式进行解读。</li>
+  <li>在进行<strong>扩展位宽</strong>的整数类型转换时，无符号数进行<strong>零扩展</strong>，有符号数进行<strong>符号扩展</strong>。（这两种方式都能保证扩展后原值不变，原理可参考补码原理）</li>
+  <li>在进行<strong>截断位宽</strong>的整数类型转换时，采用<strong>截断式转换</strong>。</li>
+  <li>同时进行<strong>无符号与有符号和不同位宽</strong>类型转换时，<strong>首先进行位宽变换</strong>。</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span><span class="c1">//#include &lt;stdlib.h&gt;</span>
+
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">byte_pointer</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">show_bytes</span><span class="p">(</span><span class="n">byte_pointer</span> <span class="n">start</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">" %.2x"</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">test</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cm">/* $begin extend */</span>
+    <span class="kt">short</span> <span class="n">sx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">12345</span><span class="p">;</span>       <span class="cm">/* -12345 */</span>
+    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">usx</span> <span class="o">=</span> <span class="n">sx</span><span class="p">;</span> <span class="cm">/*  53191 */</span>
+    <span class="kt">int</span>   <span class="n">x</span> <span class="o">=</span> <span class="n">sx</span><span class="p">;</span>            <span class="cm">/* -12345 */</span>
+    <span class="kt">unsigned</span>  <span class="n">ux</span> <span class="o">=</span> <span class="n">usx</span><span class="p">;</span>      <span class="cm">/*  53191 */</span>
+    <span class="kt">unsigned</span>  <span class="n">uy</span> <span class="o">=</span> <span class="n">sx</span><span class="p">;</span>       <span class="cm">/* Mystery! */</span>
+
+    <span class="c1">// 16位有符号数-12345与其机器码</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"16位有符号数-12345与其机器码: %d:</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span> <span class="n">sx</span><span class="p">);</span>
+    <span class="n">show_bytes</span><span class="p">((</span><span class="n">byte_pointer</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">sx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">short</span><span class="p">));</span>
+    
+    <span class="c1">// 将16位有符号数-12345转换成16位无符号数后其值与机器码</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"将16位有符号数-12345转换成16位无符号数后其值与机器码: %u:</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span> <span class="n">usx</span><span class="p">);</span>
+    <span class="n">show_bytes</span><span class="p">((</span><span class="n">byte_pointer</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">usx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">short</span><span class="p">));</span>
+    
+    <span class="c1">// 将16位有符号数-12345扩展成32位有符号数后其值与机器码</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"将16位有符号数-12345扩展成32位有符号数后其值与机器码: %d:</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="n">show_bytes</span><span class="p">((</span><span class="n">byte_pointer</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+    
+    <span class="c1">// 将16位无符号数53191扩展成32位无符号数后其值与机器码</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"将16位无符号数53191扩展成32位无符号数后其值与机器码: %u:</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span> <span class="n">ux</span><span class="p">);</span>
+    <span class="n">show_bytes</span><span class="p">((</span><span class="n">byte_pointer</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ux</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">));</span>
+
+    <span class="c1">// 将16位有符号数-12345转成32位无符号数后其值与机器码</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"将16位有符号数-12345转成32位无符号数后其值与机器码: %u:</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span> <span class="n">uy</span><span class="p">);</span>
+    <span class="n">show_bytes</span><span class="p">((</span><span class="n">byte_pointer</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">uy</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">));</span>
+    <span class="cm">/* $end extend */</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">test</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<hr />
+
+<p>运行结果如下：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/c_learn/datatype_int_convert<span class="nv">$ </span>./test 
+16位有符号数-12345与其机器码: <span class="nt">-12345</span>:	 c7 cf
+将16位有符号数-12345转换成16位无符号数后其值与机器码: 53191:	 c7 cf
+将16位有符号数-12345扩展成32位有符号数后其值与机器码: <span class="nt">-12345</span>:	 c7 cf ff ff
+将16位无符号数53191扩展成32位无符号数后其值与机器码: 53191:	 c7 cf 00 00
+将16位有符号数-12345转成32位无符号数后其值与机器码: 4294954951:	 c7 cf ff ff
+</code></pre></div></div>
+<hr />
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+  <li>[2] 深入理解计算机系统（第三版）</li>
+</ul>
+:ET

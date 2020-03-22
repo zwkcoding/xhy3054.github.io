@@ -1,0 +1,123 @@
+I"�1<p>在c++中，为了改变c语言中指针使用的种种麻烦与困难，定义了一种新的复合类型－－－引用，引用也分为很多种，比如左值引用、右值引用、常量引用等等。</p>
+
+<h1 id="左值引用">左值引用</h1>
+<p>一般情况下，大家见的最多的就是左值引用。右值引用通常与移动操作结合起来的比较多。其中左值引用使用<code class="highlighter-rouge">&amp;</code>符号，右值引用使用<code class="highlighter-rouge">&amp;&amp;</code>。</p>
+
+<p>下面是左值引用的两个大类。</p>
+<h2 id="普通引用">普通引用</h2>
+<p>引用为对象起了另外一个名字，引用类型引用（refers to）另外一种类型。通过将声明符写成<code class="highlighter-rouge">&amp;d</code>的形式来定义引用类型，其中d是声明的变量名。如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">i1</span><span class="p">;</span>	<span class="c1">//r1是i1的引用（也就是i1的别名）</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r2</span><span class="p">;</span>	<span class="c1">//错误！引用必须初始化，引用是无法复制的，因为对引用赋值其实是对引用绑定的变量赋值。</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r3</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>	<span class="c1">//错误！普通引用不能绑定常量</span>
+</code></pre></div></div>
+
+<p>如下是几个注意问题：</p>
+<ol>
+  <li>
+    <p>引用<strong>必须初始化</strong>！因为引用是无法赋值的，对引用赋值其实是对引用绑定的变量赋值。</p>
+  </li>
+  <li>
+    <p>普通引用（非常量引用）是<strong>不能绑定常量</strong>的！因为可以使用引用对绑定的变量进行赋值，所以如果引用绑定了常量，就会有改变常量的操作发生的可能。</p>
+  </li>
+  <li>
+    <p><strong>没有引用的引用，但是可以通过引用绑定到一个对象</strong>（如<code class="highlighter-rouge">int i=1; int &amp;a=i; int &amp;b=a;</code>这样是可以的，但是b绑定的是i）。因为引用本身只是一个别名，不是一个对象，所以不能定义引用的引用。</p>
+  </li>
+  <li>
+    <p>引用的<strong>类型必须与绑定的对象严格匹配</strong>。</p>
+  </li>
+  <li>
+    <p>引用只能绑定在对象上，<strong>不能与字面值或者某个表达式的计算结果绑定</strong>。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>拓展：定义内置数组的引用。</p>
+</blockquote>
+
+<p>因为内置数组不可拷贝，所以内置数组的引用就会十分有用，并且高效。使用方法如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">arr</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">};</span>	<span class="c1">//第一个元素为１，其他元素默认初始化为０</span>
+<span class="kt">int</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">arrRef</span><span class="p">)[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">;</span>	<span class="c1">//其实就是多取了一个名</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">arrRef</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>	<span class="c1">//输出１</span>
+</code></pre></div></div>
+
+<h2 id="常量引用">常量引用</h2>
+<blockquote>
+  <p>科普一下，const可以分为顶层const与底层const两种。一般对象只会有顶层const，表示对象本身是常量不能修改；而对于指针与引用变量除了顶层const外（表示自身是常量，一般只对指针而言，引用一般只关心底层const），还有底层const，表示自身指向或者引用的对象是常量。</p>
+</blockquote>
+
+<p>此处常量引用指的是底层const，即不能通过此引用改变绑定的对象。常量引用有几个特殊的地方：</p>
+
+<ol>
+  <li>
+    <p>常量引用可以<strong>绑定常量，也可以绑定非常量</strong>（但是不能通过此引用改变这个非常量的值）；</p>
+  </li>
+  <li>
+    <p>常量引用的<strong>类型不必与绑定的对象严格一致</strong>，只要可以转换成常量引用的类型即可；</p>
+  </li>
+  <li>
+    <p>常量引用<strong>可与字面值或者某个表达式的计　算结果绑定</strong>；</p>
+  </li>
+</ol>
+
+<p>其中第一条很容易理解，第二条、第三条的原因可由下面例子知道原因：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">double</span> <span class="n">d1</span> <span class="o">=</span> <span class="mf">3.14</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//正确！</span>
+<span class="c1">//上式等价于如下：</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//先生成一个临时变量（与常量引用类型一致）</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>	<span class="c1">//让r1绑定这个临时量</span>
+</code></pre></div></div>
+<p>当所要绑定的对象与常量引用类型不一样时，编译器便会创建一个临时变量，并将原变量转换类型赋值给这个临时变量，常量引用最终绑定的是这个临时变量。当绑定对象是某个表达式时执行操作一样。注意！这种操作只在必要时发生，如果绑定的是一个类型相符的变量，则直接进行绑定操作，不会有什么临时变量。(因此这个引用其实与原变量不再相关，即使原变量值被修改了，这个引用指向的值不变，其实常量引用就相当于一个字面值常量)</p>
+
+<h1 id="右值引用">右值引用</h1>
+<p>新标准中为了支持移动操作，有了<strong>右值引用</strong>的概念。顾名思义，右值引用就是绑定到右值的引用。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>	
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>				<span class="c1">//正确：r是变量i的引用</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>			<span class="c1">//错误：不能将一个右值引用绑定到一个左值上</span>
+<span class="kt">int</span> <span class="o">&amp;</span><span class="n">r2</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>			<span class="c1">//错误：不能将一个普通引用绑定到一个右值上</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r3</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>	<span class="c1">//正确：可以讲一个常量引用绑定到一个临时变量上</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr2</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">42</span><span class="p">;</span>		<span class="c1">//正确：将右值引用绑定到一个右值上</span>
+</code></pre></div></div>
+<hr />
+<p>由上我们可以看出，左值一般有持久的状态，是一个稳定的对象；而右值要么是字面值常量，要么是表达式求值过程中创建的临时变量。</p>
+
+<p>此处需要说明的一点是变量表达式都是左值，我们<strong>不能将一个右值引用绑定到一个右值引用上，因为右值引用本身是左值，是可以通过右值引用改变它指向对象的值的</strong>。如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r1</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>	<span class="c1">//正确：42是一个右值</span>
+<span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">r2</span><span class="o">=</span><span class="n">r1</span><span class="p">;</span>	<span class="c1">//错误：右值引用类型的变量表达式r1是一个左值</span>
+<span class="c1">//注意：这样的操作在左值引用就是可以成立的。</span>
+</code></pre></div></div>
+
+<h2 id="stdmove">std::move()</h2>
+<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>将参数包装成一个右值</strong>。</p>
+
+<p>因为<strong>右值引用为左值</strong>，所以我们可以通过右值引用改变源对象的值：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//int &amp;&amp;rr1 = i;    错误，不能绑定左值</span>
+    <span class="kt">int</span> <span class="o">&amp;&amp;</span><span class="n">rr2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>	<span class="c1">//此处move返回一个右值类型的值被绑定到右值引用类型变量rr2</span>
+    <span class="n">rr2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>	<span class="c1">//正确；通过右值引用改变变量i的值</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>	<span class="c1">//输出２</span>
+    <span class="c1">//int &amp;&amp;rr3 = rr2;  错误，rr2是左值</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>通常肯定不会这样使用move，通常我们将move函数来辅助完成<a href="https://xhy3054.github.io/cpp-copy-move/">一个对象的移动操作</a>，因此，往往调用<code class="highlighter-rouge">move</code>意味着就承诺：除了对源对象重新赋值或者销毁它外，我们将不再使用它。在对一个源对象做了move操作后，我们只能保证移后源对象结构依旧完好，可以正常销毁，但是它的值我们不能做任何假设。</p>
+</blockquote>
+
+<h1 id="万能引用">万能引用</h1>
+<p>其实还有一种引用，那就是万能引用，万能引用形式和右值引用一样。万能引用只出现在型別推导的场景下，万能引用可以根据不同的语境选择是成为左值或者右值引用。</p>
+
+<h2 id="stdforward">std::forward()</h2>
+<p>万能引用总是会搭配<code class="highlighter-rouge">std::forward()</code>使用，这个函数会根据语境选择是否<strong>将参数包装成一个右值</strong>。仅在实参原本是右值时才会。因此这中操作也叫做<strong>完美转发</strong>。</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">forward</code>和<code class="highlighter-rouge">move</code>其实就是强制类型转换，只不过前者是有条件的转换，后者无条件转换。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+
+:ET

@@ -1,0 +1,58 @@
+I"m<p>想必很多人对c语言的static都不是很熟悉，我有段时间就是，经常看到一些代码中这个关键词出现的频率很高，但是并不是很懂，大概的了解过几次，还是半知半解。最近在对c语言和c++进行基础重翻，终于是弄懂了这部分。</p>
+
+<h2 id="链接属性">链接属性</h2>
+<p>我们知道一个程序中的多个源文件是分别被编译，最后通过链接器将多个目标文件还有库文件链接起来才形成一个单一完整的可执行文件的。那么如果相同的标识符出现在几个不同的源文件中，它们是代表同一个实体，还是不同的实体呢？</p>
+
+<p>其实，这个问题的答案是由标识符的链接属性决定的。链接属性一共有三种，分别是external（外部）、internal（内部）和none（无）。</p>
+
+<ol>
+  <li>none代表没有链接属性，这种标识符有多少个声明就有多少个独立不同的实体；</li>
+  <li>internal代表内部链接，这种标识符在同一个文件内的所有声明都指向同一实体，但是位于不同源文件的多个声明代表不同实体。</li>
+  <li>external代表外部链接，这种标识符无论声明多少次，都表示同一个实体。</li>
+</ol>
+
+<p>一般缺省情况下，代码块之外（文件作用域）定义的变量都是external属性。代码块作用域声明的变量都是none属性。同时用extern与static可以修改变量的链接属性，static只在变量缺省为external的时候可以将链接属性修改为internal。</p>
+
+<h2 id="存储类型">存储类型</h2>
+<p>变量的存储类型是指存储变量值的内存类型。变量的内存类型决定了变量何时创建、何时销毁、以及它的值将保持多久。</p>
+
+<p>一般有三个地方可以存储变量：静态普通内存、运行时堆栈、硬件寄存器。</p>
+
+<ol>
+  <li>其中静态变量存储在静态普通内存，这种变量在程序运行之前创建，在程序的整个执行期间始终存在。它始终保持原先的值，除非赋给它一个不同的值或者程序结束。在代码块之外（文件作用域）的变量，缺省情况下便是静态的。</li>
+  <li>自动变量存储在堆栈中，代码块中的变量在缺省情况下就是自动变量。在程序执行到声明自动变量的代码块时，自动变量才创建，当程序执行离开该代码块时，这些自动变量便会自行销毁。</li>
+  <li>寄存器变量存储在硬件寄存器中，需要用关键字register来声明。这种变量访问效率更高，一般用于对效率要求高的地方，同时由于寄存器有限，编译器只会理睬有限少数几个register声明，甚至不理睬（有的编译器）。寄存器变量的创建与销毁和自动变量相同，但它需要一些额外操作，在一个使用寄存器变量的函数返回之前，这些寄存器先前存储的值需要恢复，确保调用者的寄存器变量未被破坏。</li>
+</ol>
+
+<h2 id="static关键字">static关键字</h2>
+<p>由于不同的上下文环境，static会有不同的含义。</p>
+
+<blockquote>
+  <p>当它用于<strong>函数定义，或者代码块之外（文件作用域）的变量声明</strong>时，static关键字用于修改标识符的链接属性，从external到internal，但是标识符的存储类型与作用域都不会改变。用这种方式声明的函数与变量将只能在声明他们的源文件中访问，对其它源文件隐藏。</p>
+</blockquote>
+
+<p>如下为源文件<code class="highlighter-rouge">a.c</code>：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">msg</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+<p>如下为<code class="highlighter-rouge">main.c</code>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>      
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">msg</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>将这两个源文件联合编译，会发现报错找不到msg()函数。</p>
+
+<blockquote>
+  <p>当它用于<strong>代码块内部的变量声明</strong>时，static关键字用于修改变量的存储类型，从自动变量修改为静态变量，但变量的链接属性（还是none）与作用域（还是代码块作用域）不会受到影响。用这种方式声明的变量在程序执行之前创建，并在程序的整个执行期间一直存在。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+  <li>[2] c和指针</li>
+</ul>
+:ET

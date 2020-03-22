@@ -1,0 +1,74 @@
+I")<h1 id="mat类">Mat类</h1>
+
+<p>很久以前（大概两千年左右），opencv还只是提供ｃ接口的一个库。那时它使用一种ｃ语言的结构体叫做<code class="highlighter-rouge">IplImage</code>来存储图像。后来实在是受不了了，因为使用ｃ语言接口的用户需要自己来管理内存，实在特别麻烦并且容易出错。opencv维护者们就使用c++又翻新了一遍opencv库。新版本中（2.0往后）支持使用Mat来存储图像。</p>
+
+<h2 id="mat的组成">Mat的组成</h2>
+<p>Mat主要由两部分组成：</p>
+<ol>
+  <li>
+    <p>矩阵头信息：主要是矩阵大小、矩阵存储方法、矩阵地址等，矩阵头大小是固定的；</p>
+  </li>
+  <li>
+    <p>图像像素矩阵的指针对象，使用类似智能指针<code class="highlighter-rouge">shared_ptr</code>的方法来管理内存；</p>
+  </li>
+</ol>
+
+<h2 id="mat对象的拷贝问题">Mat对象的拷贝问题</h2>
+<p>Mat对象的拷贝构造函数、拷贝赋值运算符（重载的<code class="highlighter-rouge">=</code>）都是使用的浅拷贝，即只拷贝了指针的值，但是它们指向共同的一片区域。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mat</span> <span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">;</span>                          <span class="c1">// creates just the header parts</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">IMREAD_COLOR</span><span class="p">);</span> <span class="c1">// here we'll know the method used (allocate matrix)</span>
+<span class="n">Mat</span> <span class="nf">B</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>                                 <span class="c1">// Use the copy constructor</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">A</span><span class="p">;</span>                                    <span class="c1">// Assignment operator</span>
+<span class="n">Mat</span> <span class="nf">D</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Rect</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="p">);</span> <span class="c1">// using a rectangle　Ｄ中的指针指向Ａ指针指向矩阵的一片长方形区域</span>
+<span class="n">Mat</span> <span class="n">E</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="n">Range</span><span class="o">::</span><span class="n">all</span><span class="p">(),</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">));</span> <span class="c1">// using row and column boundaries　也是指向一部分区域，第一个参数代表行（全部行），第二个参数代表列（１～３列）</span>
+</code></pre></div></div>
+
+<p>如上，A、B、C三个对象最终指向的都是同一片内存区域。即对它们三个任何一个的图像进行修改，另外两个也修改了。如果想要进行深拷贝，可以使用Mat类自带的两个函数：<code class="highlighter-rouge">cv::Mat::clone()</code>与<code class="highlighter-rouge">cv::Mat::copyTo()</code>，使用方法如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mat</span> <span class="n">F</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+<span class="n">Mat</span> <span class="n">G</span><span class="p">;</span>
+<span class="n">A</span><span class="p">.</span><span class="n">copyTo</span><span class="p">(</span><span class="n">G</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>现在，Ａ、Ｆ、Ｇ三个Mat对象分别管理属于自己的图像矩阵内存，不会互相干扰。</p>
+
+<h2 id="mat对象的存储方法">Mat对象的存储方法</h2>
+<blockquote>
+  <p>使用<code class="highlighter-rouge">imread("1.png")</code>，默认参数是<code class="highlighter-rouge">IMREAD_COLOR </code>,即总是将硬盘中的图片转换为8位的3通道BGR彩色图然后读入内存，并返回一个3通道BGR的mat类型</p>
+</blockquote>
+
+<p>存储方法主要受两个参数影响：</p>
+<ol>
+  <li>
+    <p>颜色空间：决定了使用何种方法编码一个像素的颜色，比如灰度空间单通道描述、RGB三通道红绿蓝描述、RGBD四通道红绿蓝透明度四通道描述等等；</p>
+  </li>
+  <li>
+    <p>数据类型：使用何种数据类型来描述一个通道，如unsigned char(8位0~255)、signed char(8位-128~127)、float(32位)、double(64位)等，越大则图像占用内存越大，可描述的色彩越细微；</p>
+  </li>
+</ol>
+
+<p>颜色空间主要有RGB、HSV、HLS、YCrCb等，想了解自己再查书吧。值得一提的是<strong>opencv标准显式中使用的RGB其实是BGR</strong>，即翻转了一下顺序。同时，RGB转灰度空间使用了如下公式：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Gray = R*0.299 + G*0.587 + B*0.114
+</code></pre></div></div>
+
+<blockquote>
+  <p>关于颜色空间更多的知识可以查看<a href="https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/">这篇博文</a>，在opencv中提供了将不同颜色空间的Mat进行转换的函数<code class="highlighter-rouge">cv2.cvtColor</code></p>
+</blockquote>
+
+<h3 id="mat中指针指向的矩阵中像素的组织形式灰度空间与bgr空间">Mat中指针指向的矩阵中像素的组织形式（灰度空间与BGR空间）</h3>
+<p>像素的组织形式主要依赖于颜色空间类型的选择，下图是<strong>灰度空间</strong>下像素的组织形式：
+<img src="/assets/img/opencv-mat/tutorial_how_matrix_stored_1.png" alt="tutorial_how_matrix_stored_1" /></p>
+
+<p>下面这张图是<strong>BGR颜色空间</strong>的组织形式，每个大列下会有三个小列依次代表着三种颜色通道（分别是B、G、R），其实就是每个像素由三个<code class="highlighter-rouge">uchar</code>组成（假设<code class="highlighter-rouge">data_type</code>是<code class="highlighter-rouge">uchar</code>）：
+<img src="/assets/img/opencv-mat/tutorial_how_matrix_stored_2.png" alt="tutorial_how_matrix_stored_2" /></p>
+
+<blockquote>
+  <p>无论Mat是几通道的颜色空间，其矩阵都是两维的。只是两维矩阵的每一个元素的大小是<code class="highlighter-rouge">通道数*数据类型的大小</code>，即在一个元素中，各通道依次存储。同时有一点需要说明，如果内存足够大，在载入图像时，便会将下一行紧随着上一行存储，所以最后有可能<strong>整幅图像存成了一行</strong>。这种情况是可以帮我们提升扫描速度的（按照一维方式扫描只需要获得一次行首指针），我们可以使用opencv提供的<code class="highlighter-rouge">cv::Mat::isContinuous()</code>函数来确定是否是连续存储的。</p>
+</blockquote>
+
+<h2 id="mat对象的创建与显示">Mat对象的创建与显示</h2>
+<p>Mat的创建有好多方式，同时它重载了<code class="highlighter-rouge">&lt;&lt;</code>，使得可以直接用<code class="highlighter-rouge">cout</code>进行输出显示，<a href="https://github.com/xhy3054/myopencv/blob/master/004_Mat/mat_creat_print.cpp">mat_creat_print.cpp</a>中实现了各种创建与显示的方法，可以查看代码或者直接运行查看结果。</p>
+
+:ET

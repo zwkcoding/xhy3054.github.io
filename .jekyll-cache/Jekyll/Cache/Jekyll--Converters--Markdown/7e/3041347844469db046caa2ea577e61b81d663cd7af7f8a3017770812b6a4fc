@@ -1,0 +1,104 @@
+I"�"<h2 id="写作缘由">写作缘由</h2>
+
+<p>昨天室友忽然问起老师布置的作业里有关补码的问题，我竟然忘了，张口结舌说了半天不知所云。事后想到这是最基础的内容了，不由老脸一红。赌气般的把这个问题又梳理了一遍。想来想去觉得还是写出来吧，加深记忆，随时翻阅，省的再给忘了。</p>
+
+<h2 id="有符号数与无符号数">有符号数与无符号数</h2>
+
+<p>首先，无符号数是最简单的，例如一个八位的无符号数取值范围为<code class="highlighter-rouge">0～255</code>。</p>
+
+<p>而有符号数最高位为符号位，下文中讲的<strong>原码、反码、补码</strong>都是指<strong>有符号数</strong>的编码方式。以八位有符号数为例进行讲解。</p>
+
+<h3 id="原码">原码</h3>
+<blockquote>
+  <p>m位二进制<strong>原码的定义</strong>与其他编码形式稍有不同，它最高位并没有权值，而是一个系数，所以在由原码求十进制整数式，是最高位的确定的系数乘以低m-1位累加各位值与权值的积的和。</p>
+</blockquote>
+
+<p>原码：符号位 + 绝对值</p>
+
+<p>所以八位机器数的原码范围为<code class="highlighter-rouge">11111111 ～ 01111111</code>，也就是<code class="highlighter-rouge">-127～127</code>（0有两种表示）。</p>
+
+<p>这种形式（原码）极其符合人们脑海中对于有符号数的第一印象，看到这里都会觉得理所当然，确实，这是人脑最容易理解与计算的形式。但，对电脑不是。</p>
+
+<h3 id="反码">反码</h3>
+<blockquote>
+  <p>首先提一下，m位<strong>反码的定义</strong>，即最高位的权值为<code class="highlighter-rouge">-2^(m-1)-1</code>，其他第n位权值为<code class="highlighter-rouge">2^(n-1)</code>，在由反码求十进制整数时，直接累加各位值与权值的积即可。</p>
+</blockquote>
+
+<p>反码：</p>
+<ul>
+  <li>正数的反码与原码相同</li>
+  <li>负数的反码是其绝对值的原码按位取反</li>
+</ul>
+
+<p>比如-1的反码<code class="highlighter-rouge">11111110</code>是其绝对值1的原码<code class="highlighter-rouge">00000001</code>按位取反的结果。反码有什么用呢？</p>
+
+<p>计算机只会做加法，不会做减法，反码可以用来实现机器减法，没错，而且这个减法是完备的，在负数域，可用的，只是有一个小小的缺点而已，如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1 - 1 = 1 + （-1） = 反[00000001] + 反[11111110] = 反[11111111] = 原[10000000] = -0
+</code></pre></div></div>
+
+<p>其他的数大家也可以试试，在结果是负数或0时都成立的，但是在结果是正数时，我们会发现结果刚好小1。例如</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3 - 1 = 3 + （-1）=反[00000011] + 反[11111110] = 反[00000001] = 原[00000001] = 1
+</code></pre></div></div>
+
+<p>这个原因我们仔细考虑一下会发现，在采用反码的减法中，负数通过加正数得0时得到的是<code class="highlighter-rouge">-0</code>，而且刚好<code class="highlighter-rouge">-0 +1 = +0（本来应该是1的）</code>。如何解决这个问题呢？我们来看补码。</p>
+
+<h3 id="补码">补码</h3>
+<blockquote>
+  <p>首先提一下，m位<strong>补码的定义</strong>，即最高位的权值为<code class="highlighter-rouge">-2^(m-1)</code>，其他第n位权值为<code class="highlighter-rouge">2^(n-1)</code>，在由补码求十进制整数时，直接累加各位值与权值的积即可。</p>
+</blockquote>
+
+<p>补码：</p>
+<ul>
+  <li>补码表示范围<code class="highlighter-rouge">-128~127</code></li>
+  <li>正数的补码为与原码相同</li>
+  <li>负数的补码是其正数绝对值补码（也就是原码）按位取反再加1（也就是反码的基础上加1）</li>
+</ul>
+
+<p>比如-1的补码<code class="highlighter-rouge">11111111</code>是其绝对值1的原码<code class="highlighter-rouge">00000001</code>按位取反再加1的结果。</p>
+
+<p>下面来讨论上面的问题，用补码来实现机器减法：如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1 - 1 = 1 + （-1） = 补[00000001] + 补[11111111] = 补[00000000] = 原[00000000] = 0
+</code></pre></div></div>
+
+<p>由于补码实现的减法得到的结果不是-0而是0了，反码的那个问题便解决了。只是需要说明的是原来的<code class="highlighter-rouge">-0</code>即<code class="highlighter-rouge">10000000</code>现在干嘛去了呢？对，它现在是<code class="highlighter-rouge">-128</code>，而这个数（-128）只存在补码表示，不存在原码和反码表示。编程里常用的32位有符号int取值范围是<code class="highlighter-rouge">[-2^31 ～ 2^31 -1]</code>，没错，都是补码存储的。</p>
+
+<p><code class="highlighter-rouge">10000000</code>看作原码是-0;求反码是<code class="highlighter-rouge">11111111</code>，再求补码是<code class="highlighter-rouge">10000000</code>（求补码时加一是不进最高位的，但是补码还有反码减法时最高位符号位是会进位的），不过此时代表-128。</p>
+
+<blockquote>
+  <p>此处说明一下，由于补码的定义，使得对于一个补码表示的有符号数x来说，<strong>按位取反再加１</strong>是一种用来求<code class="highlighter-rouge">-x</code>补码的手段。这个手段一直有效，无论x是正数还是负数还是0。(最小的那个负数的<code class="highlighter-rouge">-x</code>是本身)</p>
+</blockquote>
+
+<h3 id="神奇补码背后思考">神奇补码背后思考</h3>
+
+<blockquote>
+  <p>由补码的定义可知，一个m位有符号数（假设值为x，x为一个负值）的补码如果表示的是一个无符号数，则这个无符号数的值为<code class="highlighter-rouge">x+2^m</code>，这个结果可以由上面补码的定义推断出，因为补码的最高位权值是<code class="highlighter-rouge">-2^(m-1)</code>。同理，一个m位无符号数（假设值为x，x&gt;=2^(m-1)）的二进制编码如果用来表示的是一个有符号数的补码，则这个有符号数值为<code class="highlighter-rouge">x-2^m</code>。</p>
+</blockquote>
+
+<p>我们都知道加法减法是满足结合率的，所以要想知道做减法需要用到的负数机器码应该如何定义可以这样想：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>原数 + a - a = 原数
++a + （-a) = 0
+</code></pre></div></div>
+
+<ul>
+  <li>所以会有<code class="highlighter-rouge">1 + （-1）= 0</code>，我们知道1为<code class="highlighter-rouge">00000001</code>，所以-1应该为<code class="highlighter-rouge">11111111</code></li>
+  <li>同理，2为<code class="highlighter-rouge">00000010</code>，-2应该为<code class="highlighter-rouge">11111110</code></li>
+  <li>。。。依次类推，补码也诞生了，这种实现减法的思想依靠的是有限位数进位导致的循环来实现的。在8位二进制数中，减1也就等于加255，刚好是求补的感觉，所以这种编码方式叫做补码（我猜的，但是其实一种运算在一个集合上形成的这种奇妙现象有一个数学名字－－<strong>阿贝尔群</strong>）。</li>
+</ul>
+
+<blockquote>
+  <p>亮点：计算机中数都是补码存储的，计算机的加法计算也没有什么弯弯绕绕，就是很耿直的进位加法，补码这种形式刚好可以使得加法计算的结果正确无误，无非就是靠进位导致的循环来实现罢了。很多人只是不熟悉而已，熟悉了在分析此类问题时会自动先将数据切换成补码形式，任何问题都会一目了然。</p>
+</blockquote>
+
+<p><strong>现在我们可以想一下并发现，如果8位计算溢出了，大于127比如结果为<code class="highlighter-rouge">127+n</code>（n&gt;0且n&lt;=256），8位存储的数会变成<code class="highlighter-rouge">-129+n</code>（从-128到127）;小于-128比如结果为<code class="highlighter-rouge">-128-n</code>（n&gt;0且n&lt;=256）,8位存储的数会变成<code class="highlighter-rouge">128-n</code>（从127到-128）。这就是一个完美循环。</strong></p>
+
+<p>其实这没有什么不好理解的，你只需要想清楚，在计算机中，数据都是补码形式存储的。计算机做加法操作其实就是不断进位喽。如果你还是觉得不太直观，写个c语言程序验证一下，我的<code class="highlighter-rouge">c_learn</code>文件夹下<code class="highlighter-rouge">ch3</code>目录就写了一个很简短的验证。</p>
+
+<h2 id="总结">总结</h2>
+<p>一般情况下，以上这些已经足够了，为了不会闹笑话，我们来检验一下：</p>
+
+<p>-8的补码是多少？</p>
+:ET

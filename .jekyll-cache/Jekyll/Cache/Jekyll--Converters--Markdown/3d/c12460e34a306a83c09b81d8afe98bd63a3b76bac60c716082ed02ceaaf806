@@ -1,0 +1,120 @@
+I"i<p>由于本人对于git的理解尚且粗浅，本文主要简单的介绍使用<code class="highlighter-rouge">git</code>的必要功能的详细步骤。比如说自己开发一个git仓库，并托管在github上可能需要用到的操作。附带了实例命令演示。但是，本教程仅仅限于个人简单的git的使用，如果想要使用git与人协同工作，或者git管理一个大型的开源项目，这个教程是远远不够的。以后在我对于git有了更加深刻的理解后，也许会再写一些系统的git笔记。但是如果你忘记了git的一些简单命令，可以来这里温习一遍。</p>
+
+<h1 id="whats-git-and-whats-github">what’s Git and what’s Github</h1>
+<p>Git是一种分布式版本控制系统，具体学习可以参考<a href="https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000">廖雪峰的git教程</a>,讲解清晰易懂，本文主要介绍如何运用git与github进行基本上手操作。</p>
+
+<p>GitHub是通过Git进行版本控制的软件源代码托管服务。</p>
+
+<h1 id="安装git">安装git</h1>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>git
+</code></pre></div></div>
+
+<h1 id="git与github基本使用">git与github基本使用</h1>
+
+<h2 id="git与github远程库交互">git与github远程库交互</h2>
+<h3 id="创建版本库">创建版本库</h3>
+<p>本地创建版本库<strong>learngit</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">mkdir </span>learngit
+<span class="nv">$ </span><span class="nb">cd </span>learngit
+<span class="nv">$ </span>git init
+</code></pre></div></div>
+
+<h3 id="将修改结果添加到仓库并提交">将修改结果添加到仓库并提交</h3>
+<p>编辑完文件<strong>readme</strong>添加到仓库并提交</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git add readme        <span class="c"># git add --all 提交所有改动</span>
+<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s1">'first commit'</span>
+</code></pre></div></div>
+
+<h3 id="配置个人信息">配置个人信息</h3>
+<p>如果是第一次使用git，那么<code class="highlighter-rouge">git commit</code>可能报错，所以需要你配置一些个人信息</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git config <span class="nt">--global</span> user.email <span class="s2">"you@example.com"</span>
+<span class="nv">$ </span>git config <span class="nt">--global</span> user.name <span class="s2">"Your Name"</span>
+</code></pre></div></div>
+
+<h3 id="上传到github">上传到github</h3>
+<p>上传到github,首先登陆自己的github帐号，然后新建一个<strong>repository</strong>并取名为<strong>learngit</strong>,然后执行下面命令</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git remote add origin https://github.com/xhy3054/learngit.git  <span class="c">#与远程库建立链接,只有第一次上传需要执行</span>
+<span class="nv">$ </span>git push <span class="nt">-u</span> origin master
+</code></pre></div></div>
+
+<h3 id="克隆远程库到本地">克隆远程库到本地</h3>
+<p>将一个github上的版本库克隆到本地</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/xhy3054/learngit.git  <span class="c">#也可以指定本地目录名 git clone &lt;版本库的网址&gt; &lt;本地目录名&gt;</span>
+</code></pre></div></div>
+
+<h3 id="远程库修改过更新本地库将远程库拉下来与本地库合并">远程库修改过，更新本地库（将远程库拉下来与本地库合并）</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git pull #此命令用时需保证本地库没有修改未提交，
+</code></pre></div></div>
+
+<h3 id="查看本地分支列表">查看本地分支列表</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch
+</code></pre></div></div>
+
+<h3 id="查看本地仓库工作状态">查看本地仓库工作状态</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git status
+</code></pre></div></div>
+
+<h3 id="查看本地库关联的远程库即push与pull推送与拉取的那个远程库">查看本地库关联的远程库（即push与pull推送与拉取的那个远程库）</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git remote -v
+</code></pre></div></div>
+
+<h3 id="修改本地库关联的远程库">修改本地库关联的远程库</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git remote -v set-url origin https://github.com/xhy3054/ssdcaffe.git
+</code></pre></div></div>
+
+<h2 id="git版本管理">git版本管理</h2>
+
+<h3 id="查看历史版本git-log">查看历史版本<code class="highlighter-rouge">git log</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$git log
+commit 85c18305998dc282973a21513aa1893567a52e33
+Author: xhy3054 &lt;1076170656@qq.com&gt;
+Date:   Mon May 7 14:31:42 2018 +0800
+
+    buma
+
+commit fd2bc5b0c3d2bbb06a51ec757c34f27a20ca1e8f
+Author: xhy3054 &lt;1076170656@qq.com&gt;
+Date:   Sat May 5 20:51:53 2018 +0800
+
+    add a image
+</code></pre></div></div>
+
+<h3 id="回退到版本add-a-image">回退到版本<code class="highlighter-rouge">add a image</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git reset --hard fd2bc5
+</code></pre></div></div>
+
+<h3 id="查看当前分支">查看当前分支</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch
+</code></pre></div></div>
+
+<h3 id="新建分支dev">新建分支<code class="highlighter-rouge">dev</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch dev
+</code></pre></div></div>
+
+<h3 id="切换到分支dev">切换到分支<code class="highlighter-rouge">dev</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout dev
+</code></pre></div></div>
+
+<h3 id="如果dev上的工作想合并到master">如果<code class="highlighter-rouge">dev</code>上的工作想合并到<code class="highlighter-rouge">master</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout master
+git merge dev
+</code></pre></div></div>
+
+<h3 id="删除分支dev">删除分支<code class="highlighter-rouge">dev</code></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch -d dev
+</code></pre></div></div>
+
+<p>其他git命令请<a href="http://www.ruanyifeng.com/blog/2015/12/git-cheat-sheet.html">查询</a>.</p>
+:ET

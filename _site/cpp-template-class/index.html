@@ -54,7 +54,7 @@
         <img src=/assets/img/cute6.jpg alt="c++中的模板实例化问题">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Nov 03</p>
+        <p class="post_meta">2018, Nov 02</p>
         <h1 class="post_title">c++中的模板实例化问题</h1>
       </div>
     </header> <!-- End Header -->
@@ -84,7 +84,7 @@ template decaration;	//实例化定义
 在第一个文件中，</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//templatebuild.cpp</span>
 <span class="c1">//实例化文件必须为每个在其他文件中声明为extern的类型和函数提供一个（非extern）的定义</span>
-<span class="k">template</span> <span class="kt">int</span> <span class="n">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
 <span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
 </code></pre></div></div>
 <hr />
@@ -94,7 +94,7 @@ template decaration;	//实例化定义
 <span class="c1">//这些模板类型必须在其他位置已经进行实例化</span>
 <span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>	<span class="c1">//声明，接下来就可以使用类Blob&lt;string&gt;了</span>
 <span class="n">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">b1</span><span class="p">;</span>	<span class="c1">//像一个普通的类一样使用</span>
-<span class="k">extern</span> <span class="k">template</span> <span class="kt">int</span> <span class="n">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
 <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
 <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">compare</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">);</span>
 </code></pre></div></div>
@@ -205,11 +205,11 @@ template decaration;	//实例化定义
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

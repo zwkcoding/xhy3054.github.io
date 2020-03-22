@@ -54,7 +54,7 @@
         <img src=/assets/img/cute8.jpg alt="c++中关于命名空间中成员的使用">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Nov 07</p>
+        <p class="post_meta">2018, Nov 06</p>
         <h1 class="post_title">c++中关于命名空间中成员的使用</h1>
       </div>
     </header> <!-- End Header -->
@@ -88,7 +88,7 @@
     <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="n">f</span><span class="p">()</span> 
+<span class="kt">void</span> <span class="nf">f</span><span class="p">()</span> 
 <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">A</span><span class="p">;</span> <span class="c1">// 把A中的名字注入到全局作用域</span>
 
@@ -101,7 +101,7 @@
 <p>并且using指示后在同一作用域出现相同名字的时候，并<strong>不会马上报错</strong>，而是直到使用时出现二义性的代码时才会报错。</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">blip</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
-	<span class="kt">void</span> <span class="nf">f</span><span class="p">()</span> 
+	<span class="kt">void</span> <span class="n">f</span><span class="p">()</span> 
 		<span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"i: "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">" j: "</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="s">" k: "</span> <span class="o">&lt;&lt;</span> <span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">}</span>
 
@@ -145,16 +145,16 @@
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">NS</span> <span class="p">{</span>
     <span class="k">class</span> <span class="nc">Quote</span> <span class="p">{</span> 
-	<span class="k">public</span><span class="o">:</span>
+	<span class="nl">public:</span>
 		<span class="n">Quote</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Quote::Quote"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span> 
 	<span class="p">};</span>
-    <span class="kt">void</span> <span class="nf">display</span><span class="p">(</span><span class="k">const</span> <span class="n">Quote</span><span class="o">&amp;</span><span class="p">)</span> 
+    <span class="kt">void</span> <span class="n">display</span><span class="p">(</span><span class="k">const</span> <span class="n">Quote</span><span class="o">&amp;</span><span class="p">)</span> 
 		<span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"display(const Quote&amp;)"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// Bulk_item's base class is declared in namespace NS</span>
 <span class="k">class</span> <span class="nc">Bulk_item</span> <span class="o">:</span> <span class="k">public</span> <span class="n">NS</span><span class="o">::</span><span class="n">Quote</span> <span class="p">{</span> 
-<span class="k">public</span><span class="o">:</span>
+<span class="nl">public:</span>
 	<span class="n">Bulk_item</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Bulk_item::Bulk_item"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">};</span>
 
@@ -266,11 +266,11 @@
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

@@ -1,0 +1,56 @@
+I"�<p>首先，我们需要知道计算机是如何上网的。</p>
+
+<p>计算机之间的通信是建立在五层架构上的，一台计算机要想实现与互联网中另外一台台计算机之间的通信，计算机至少需要知道下面四个参数：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*本机的IP地址
+*子网掩码
+*网关的IP地址
+*DNS服务器的IP地址
+</code></pre></div></div>
+
+<p><strong>其中本机的 IP 地址和子网掩码</strong>的作用与来历已经在<a href="https://xhy3054.github.io/computer-network-overview/">互联网分层结构实现</a>博客中说明了。</p>
+
+<p><strong>网关的 IP 地址</strong>也是必须知道的，这个是因为一般情况下我们访问的主机都和我们不在一个子网中。所以需要把数据包先发给本机所处子网的网关，再由网关转发给目标主机（一般情况一次通信会转发很多次，直到抵达目标主机）。大致如下图示：
+<img src="/assets/img/dhcp/gateway.jpg" alt="gateway" /></p>
+
+<p><strong>DNS 服务器的 IP 地址</strong>也是必须知道的，因为我们一般直接获得的都是域名，比如（www.google.com）。DNS （域名系统）协议的作用是将域名转换成 IP 地址，我们向 DNS 服务器发送 DNS 数据包， DNS 服务器会做出响应告知我们该域名对应的 IP 地址是多少。</p>
+
+<p>知道了上述四个参数，一台计算机就可以上网了。</p>
+
+<h2 id="静态-ip-上网">静态 IP 上网</h2>
+<p>大家都用过 Windows 系统，想必对于这个界面应该不会陌生</p>
+
+<p><img src="/assets/img/dhcp/static.png" alt="static" /></p>
+
+<p>这是windows系统的一个设置窗口，可以指定上网必需的四个参数。指定以后，每次开机都会固定同样的 IP 地址，因此这种上网方式被称为<strong>静态 IP 上网</strong>。</p>
+
+<p>但是，我们可以发现这种设置是具备一定专业性的。连上网线，我们还需要知道所处子网的网关 IP、子网掩码、固定可用不会被占用的本机 IP、还有可访问的 DNS 服务器 IP。可以说相当专业了。而且这样做了以后，此台电脑的 IP 地址会保持不变，其他电脑就不能使用了，会使得资源利用不够灵活。所以现在基本上大家都是采用动态 IP 上网。</p>
+
+<h2 id="动态-ip-上网">动态 IP 上网</h2>
+<p>所谓的动态 IP 上网，就是开机连上网线后，会自动分配到一个可用的 IP 地址，不需要再认为设定，这样就方便了好多。它使用了 DHCP 协议。</p>
+
+<h3 id="dhcp-协议dynamic-host-configuration-protocol">DHCP 协议（Dynamic Host Configuration Protocol）</h3>
+<p>这是一种应用层协议，建立在 UDP 协议之上，整个数据包如下：
+<img src="/assets/img/dhcp/dhcp.png" alt="dhcp" /></p>
+
+<p>其中协议规定：</p>
+<ol>
+  <li>最前面的以太网标头，设置发出方（本机）的 MAC 地址和接收方（DHCP服务器）的 MAC 地址。前者是本地网卡的 MAC 地址，后者此时尚不知，就填入一个广播地址：<code class="highlighter-rouge">FF-FF-FF-FF-FF-FF</code>。</li>
+  <li>接下来的 IP 标头，设置发出方的 IP 地址与接收方的 IP 地址。这是，这些都还不知道，于是发出方的 IP 地址设置为<code class="highlighter-rouge">0.0.0.0</code>，接收方的 IP 地址设置为<code class="highlighter-rouge">255.255.255.255</code>。</li>
+  <li>最后的 UDP 标头，设置发出方的端口和接收方的端口。这一部分 DHCP 协议规定好的是，发出方是68端口，接收方是67端口。</li>
+</ol>
+
+<p>数据包构造完成后便可以发出了。这是是以太网广播发送，同一个子网络的每台计算机都会收到这个包。因为接收方地址为<code class="highlighter-rouge">FF-FF-FF-FF-FF-FF</code>，看不出是发给谁的，于是每台收到此包的计算机还必须再分析这个包的 IP 地址。当看到发出方为<code class="highlighter-rouge">0.0.0.0</code>，接收方为<code class="highlighter-rouge">255.255.255.255</code>时， DHCP 服务器便知道是发给自己的包，而其他计算机会丢弃这个包。</p>
+
+<p>然后，DHCP 服务器读出这个包，履行自己的职能，分配好一个 IP 地址，并发送一个 DHCP 响应包。这个响应包的相关设置类似，以太网标头为双方 MAC 地址， IP 标头 发送方为 DHCP 服务器 IP 地址，接收方为<code class="highlighter-rouge">255.255.255.255</code>。 UDP 端口为 67 （发出方）和 68 （接收方），<strong>分配给请求项的 IP 地址和本网路的具体参数</strong>包含在数据部分。</p>
+
+<h3 id="动态上网全流程总结">动态上网全流程总结</h3>
+<ol>
+  <li>电脑开机，接上网线，连入网络;</li>
+  <li>利用 DHCP 协议动态获取本机 IP 与本网络参数（子网掩码、网关IP、DNS的IP等）;</li>
+  <li>打开浏览器，输入<code class="highlighter-rouge">www.google.com</code>并回车;</li>
+  <li>利用 DNS 协议获得<code class="highlighter-rouge">www.google.com</code>的 IP ;</li>
+  <li>将数据包依次通过互联网的五层架构发送出去，并接收返回数据屏幕显示，完成一次网络通信。
+<img src="/assets/img/dhcp/surf.jpg" alt="surf" /></li>
+</ol>
+:ET

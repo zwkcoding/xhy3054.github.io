@@ -1,0 +1,56 @@
+I"�<p>最近一直在读c++方面的书籍，虽然每天看的页数不多，但是收获很多，我时间不是很充裕，只能挑拣着一点我觉得我已经掌握的还可以了，有一定把握写好的记录下来。之前写了两篇博客都是讲解c++与C中的一些关键字的差别，这一篇也是，讲的是关键字auto在c与c++中的差异。</p>
+
+<h1 id="c语言中的auto">c语言中的auto</h1>
+<p>大家都学过ｃ语言，但是可能很多人都不知道ｃ语言中还有个关键字叫做auto。其实很正常，这个关键字在ｃ语言中确实没什么存在感。在讲解之前，我们先来了解一下ｃ语言中变量的存储类型。</p>
+
+<h3 id="存储类型">存储类型</h3>
+<p>变量的存储类型是指存储变量值的内存类型。变量的内存类型决定了变量何时创建、何时销毁、以及它的值将保持多久。</p>
+
+<p>一般有三个地方可以存储变量：静态普通内存、运行时堆栈、硬件寄存器。</p>
+
+<ol>
+  <li>其中静态变量存储在静态普通内存，这种变量在程序运行之前创建，在程序的整个执行期间始终存在。它始终保持原先的值，除非赋给它一个不同的值或者程序结束。</li>
+  <li>自动变量存储在堆栈中，代码块中的变量在缺省情况下就是自动变量。在程序执行到声明自动变量的代码块时，自动变量才创建，当程序执行离开该代码块时，这些自动变量便会自行销毁。</li>
+  <li>寄存器变量存储在硬件寄存器中，需要用关键字register来声明。这种变量访问效率更高，一般用于对效率要求高的地方，同时由于寄存器有限，编译器只会理睬有限少数几个register声明，甚至不理睬（有的编译器）。寄存器变量的创建与销毁和自动变量相同，但它需要一些额外操作，在一个使用寄存器变量的函数返回之前，这些寄存器先前存储的值需要恢复，确保调用者的寄存器变量未被破坏。</li>
+</ol>
+
+<h3 id="auto的作用">auto的作用</h3>
+<p>上面讲解了ｃ语言中变量的存储类型，这关auto什么事情呢？细心地人可能会发现，三种存储类型的变量中有一种叫做自动变量，auto刚好有自动的意思。这不是巧合，ｃ语言中auto关键字就是用来修饰这种类型的。</p>
+
+<p>但是在ｃ语言中auto极少使用，因为代码块中的变量在缺省情况下就是自动变量。实在是找不到用它的场合。</p>
+
+<h1 id="c中的auto">c++中的auto</h1>
+<p>相比较于ｃ语言中auto关键字打酱油一般的角色，在c++中，auto关键字的地位简直是天差地别，当然，关键字的含义也是天差地别。</p>
+
+<p>在c++中，auto是一种类型说明符，用它就会使编译器替我们分析表达式所属于的类型。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+</code></pre></div></div>
+<p>在上述代码中，编译器会根据初始值分析并未变量j选择int类型作为初始化类型。也因为这个特性，auto定义的变量<strong>必须有初始值（不然编译器不好分析啊）</strong>。阅读相关代码时，大家可以简单的把auto替换成合适的类型说明符（比int,float等）。</p>
+
+<p>在c++中，经常会将auto用于基于范围的for语句，用于遍历string对象或者vector的每个元素。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">string</span> <span class="nf">str</span><span class="p">(</span><span class="s">"some string"</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="n">c</span> <span class="o">:</span> <span class="n">str</span><span class="p">)</span>
+	<span class="n">c</span> <span class="o">=</span> <span class="n">toupper</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">str</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>还有一种场合，在你不知道或者不确定一个元素的类型时，比如使用迭代器时，迭代器的类型很难记，又长，可以直接用auto代替。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">b</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">//代表ｖ的第一个元素</span>
+</code></pre></div></div>
+<p>其中auto就相当于<code class="highlighter-rouge">vector&lt;int&gt;::iterator</code>，明显省事了很多，而且迭代器的类型实在难记。类似的还有string和vector的size_type成员到底是什么类型一样等。</p>
+
+<h3 id="题外话-decltype">题外话 decltype</h3>
+<p>在c++还有一个与auto功能类似的符号，就是decltype。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">ci</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">decltype</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></div></div>
+<p>上述代码中<code class="highlighter-rouge">decltype(ci)</code>返回变量ci的类型，并将ｘ声明为这种类型。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+  <li>[2] c和指针</li>
+</ul>
+:ET

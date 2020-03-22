@@ -1,0 +1,93 @@
+I"r<h2 id="什么是shell">什么是shell</h2>
+
+<blockquote>
+  <p>在计算机科学中，<strong>壳层</strong>（英语：shell）指“为用户提供用户界面”的软件，通常指的是命令行界面的解析器。一般来说，这个词是指操作系统中，提供访问内核所提供之服务的程序。——维基百科</p>
+</blockquote>
+
+<p>shell是一种应用程序，它提供了用户交互界面，并且在这个交互界面上人们可以访问内核服务。shell大致分为两类，命令行界面的shell(<strong>CLI-Shell</strong>)和图形界面的shell(<strong>GUI-Shell</strong>)。<strong>CLI-Shell</strong>最典型的就是linux的bash与windows的cmd，<strong>GUI-Shell</strong>包括我们常用的windows与linux的图形用户界面软件。</p>
+
+<p>我会写出来的肯定是<strong>CLI-Shell</strong>,以我的这个Ubuntu为例，可以通过<code class="highlighter-rouge">cat /etc/shells</code>查看现有的shell种类：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># /etc/shells: valid login shells
+/bin/sh
+/bin/dash
+/bin/bash
+/bin/rbash
+</code></pre></div></div>
+
+<p>在各个Linux的发行版中，默认的都是bash，所以以下讲解都是基于<strong>bash</strong>（一种CLI-Shell）。</p>
+
+<h2 id="shell的运行模式">shell的运行模式</h2>
+<h3 id="交互式shell与非交互式shell">交互式shell与非交互式shell</h3>
+
+<p>这个很简单，直接按照字面理解便可以想清楚。交互式shell就是terminal。非交互式shell就是<code class="highlighter-rouge">shell script</code>。</p>
+
+<p>检验：</p>
+
+<ol>
+  <li>命令行输入<code class="highlighter-rouge">echo $-</code>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ echo $-
+ himBH #代表是交互式shell
+</code></pre></div>    </div>
+    <hr />
+  </li>
+  <li>在一个shell脚本中写入<code class="highlighter-rouge">echo $-</code>,然后运行这个脚本
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> xhy@ubuntu:~$ ./test.sh
+ hB #代表是非交互式shell
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="登录shell与非登录shell">登录shell与非登录shell</h3>
+<p>其实我们平时用到的都是非登录shell，比如在Linux桌面里<code class="highlighter-rouge">Ctrl+Alt+T</code>打开的bash终端，就是非登录的shell，包括你在这个终端里进行用户切换，比如说切换到root账户，其实还是非登录shell。那什么时候才是登录shell呢？</p>
+
+<p>很简单，判断是登录shell，还是非登录shell是通过启动bash时的命令选项决定的。<code class="highlighter-rouge">Ctrl+Alt+T</code>其实就是执行了一个<code class="highlighter-rouge">bash</code>命令，没有参数，默认是非登录shell。而登录shell在启动时执行的是<code class="highlighter-rouge">bash -login</code>。</p>
+
+<p>怎么判断是登录shell还是非登录shell呢？首先<code class="highlighter-rouge">Ctrl+Alt+T</code>打开bash终端，通过下面两个办法检验非登录shell的结果；再在bash终端里输入<code class="highlighter-rouge">bash -login</code>进入登录shell，再试一次。查看区别。</p>
+
+<ol>
+  <li>
+    <p>可以通过<code class="highlighter-rouge">echo $0</code>命令查看</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">logout</code>命令可以退出登录shell，不能退出登录shell，<code class="highlighter-rouge">exit</code>命令都可以退出</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>此处之所以介绍这些，是因为系统在启动登录与非登录shell时读取的配置文件数据是不一样的。</p>
+</blockquote>
+
+<h2 id="shell启动时的脚本读取情况">shell启动时的脚本读取情况</h2>
+<p>其实在Linux系统启动时（开机）以图形模式登录时是以<code class="highlighter-rouge">bash -login</code>模式的。随后我们打开终端的都是<code class="highlighter-rouge">bash</code>模式。</p>
+
+<p><strong>登录shell</strong>在启动时会进行如下初始化读取操作：</p>
+
+<blockquote>
+  <ol>
+    <li>首先执行 /etc/profile</li>
+    <li>然后<strong>依次</strong>查找 ~/.bash_profile, ~/.bash_login, ~/.profile 三个文件，找到第一个存在且可读的文件来执行。</li>
+    <li>如果存在 ~/.bash_logout，退出时会执行这个脚本。</li>
+  </ol>
+</blockquote>
+<div style="text-align: center">
+<img src="/assets/img/shell_init/loginshell.png" />
+</div>
+
+<blockquote>
+  <p>我们知道，~/目录下的是用户配置文件（每个用户不一定相同），是可以覆盖 /etc/profile 中的全局设置的。这几个配置文件如果修改了，只有重启才会在接下来所有新开的bash终端中生效，source只会在当前终端中生效。</p>
+</blockquote>
+
+<p><strong>非登录shell</strong>在启动时进行如下初始化操作</p>
+
+<blockquote>
+  <ol>
+    <li>先执行 /etc/bash.bashrc</li>
+    <li>后执行 ~/.bashrc</li>
+  </ol>
+</blockquote>
+
+<blockquote>
+  <p>这个配置文件如果修改了，对接下来新开的终端都会有效果，source一下对当前终端也生效。</p>
+</blockquote>
+:ET

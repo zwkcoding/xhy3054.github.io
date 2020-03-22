@@ -1,0 +1,99 @@
+I"}<h2 id="前言">前言</h2>
+
+<p>很早之前就接触过makefile的语法，但是没有深入的学习下去。本来以为自己了解这方面的知识了，谁知道最近做项目时，<strong>cmake</strong>、<strong>make install</strong>、<strong>make distribute</strong>…各种形式接连丢过来，我竟是懵了。这才发现自己其实根本没有形成系统的理解，稍微变形就使得我不知所云。想来想去还是写一篇博客吧，把自己的理解梳理一遍，以后如果有更深入、更清晰的理解，我会对这篇博客进行补充，尽量使得自己的知识见解有条理，系统化。</p>
+
+<h2 id="编译过程">编译过程</h2>
+
+<p>首先，拿c语言为例，我们先写出了代码。通过编译器可以利用这些c代码（源文件）生成可执行文件。整个的编译流程可以分成四步：</p>
+
+<ol>
+  <li>预处理阶段：进行预处理器处理（用实际值替代#define、读入#include指令包含的头文件等）；</li>
+  <li>编译阶段：将<code class="highlighter-rouge">.c</code>文件转换成<code class="highlighter-rouge">.s</code>文件，即将ｃ语言代码转换成汇编语言代码；</li>
+  <li>汇编阶段：将<code class="highlighter-rouge">.s</code>文件转换成<code class="highlighter-rouge">.o</code>文件，即将汇编语言代码转换成机器语言指令；</li>
+  <li>链接阶段：最后将各个目标文件由链接器捆绑起来形成单一完整的可执行文件，链接器同时也会引入标准c函数库中任何被该程序用到的函数。</li>
+</ol>
+
+<p>我在网上看到一张图，对于整个编译流程归纳的特别详细：
+<img src="/assets/img/make/make.png" alt="make" /></p>
+
+<p>假设生成可执行文件<code class="highlighter-rouge">excute</code>在当前目录下，我们可以通过如下shell命令将<code class="highlighter-rouge">excute</code>载入内存执行。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./excute
+</code></pre></div></div>
+
+<p>一般情况下，当输入一条命令，shell会检测第一个单词是不是一个内置的shell命令，如果不是就会把它当成一个可执行文件的名字，并加载运行这个可执行文件。</p>
+
+<h3 id="gcc编译方式bash">gcc编译方式（bash）</h3>
+<p>编译<code class="highlighter-rouge">main.c</code>、<code class="highlighter-rouge">1.c</code>、<code class="highlighter-rouge">1.h</code>，生成可执行文件<code class="highlighter-rouge">excute</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcc -o excute main.c 1.c 1.h 
+</code></pre></div></div>
+
+<p>注1：如果不<code class="highlighter-rouge">-o</code>指定生成<code class="highlighter-rouge">excute</code>，将默认生成<code class="highlighter-rouge">a.out</code>。</p>
+
+<p>注2：如果源文件不止一个，第二步产生的<code class="highlighter-rouge">.o</code>文件将会保留，以待重新编译只编译改动过的代码。</p>
+
+<h2 id="make与cmake">make与cmake</h2>
+
+<p>由上，我们知道了整个编译过程，但是如果一个项目很大，使用上述方式输入命令，似乎就很不灵活了。于是产生了<strong>make</strong>工具，它是一个自动化编译工具，规定好编译规则（<strong>Makefile</strong>），一条命令<code class="highlighter-rouge">make</code>，便能将整个工程编译完毕。</p>
+
+<p>对于一个合格的程序员来说，编写Makefile是必备技能。</p>
+
+<p>但是对于一个很大的项目，自己编写Makefile无疑是一件及其吃力的事情。于是又出现了<strong>cmake</strong>，它可以读入所有源文件后，自动生成Makefile文件。当然，cmake也有自己的规则文件（<strong>CmakeLists.txt</strong>）。不过比较而言，编写<code class="highlighter-rouge">CmakeLists.txt</code>却是简单多了。</p>
+
+<p>一般只需要输入<code class="highlighter-rouge">cmake</code>，整个项目会自动编译完成。cmake时大体流程如下：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>`cmake(CmakeLists.txt) --&gt; Makefile`
+
+`make(Makefile) --&gt; 编译完成`
+</code></pre></div></div>
+
+<p>注：make一般在windows下效果不好，camke跨平台比较常见</p>
+
+<h3 id="make选项">make选项</h3>
+
+<p>我们也会经常看到<code class="highlighter-rouge">make install</code>、<code class="highlighter-rouge">make distribute</code>等形式，这些都是什么意思呢？</p>
+
+<p><code class="highlighter-rouge">make install</code>:有些程序需要源码安装，<strong>make install</strong>在编译完程序源码后，会接着往系统写入一些配置，完成程序安装。</p>
+
+<p><code class="highlighter-rouge">make distribute</code>:感觉应该是使当前项目可以被外部项目依赖？</p>
+
+<h3 id="大工程-make-编译流程">大工程 make 编译流程</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./configure
+make
+make install
+</code></pre></div></div>
+
+<p>一般会是如上的顺序进行大工程的编译（c与c++）。</p>
+
+<ol>
+  <li>
+    <p>configure脚本：这个脚本的作用有获取编译参数（当前的系统环境，比如标准库在哪里、软件的安装位置在哪里、需要安装哪些组件）;确定标准库与头文件的位置;确定依赖关系，生成makefile;</p>
+  </li>
+  <li>
+    <p>make：编译;</p>
+  </li>
+  <li>
+    <p>make install：将编译器在内存中生成的可执行文件保存到用户事先指定的安装目录（创建目录、保存文件、设置权限等，并告知操作系统，即在操作系统中，登记这个程序的元数据：文件名、文件描述、关联后缀名等等。Linux系统中，这些信息通常保存在/usr/share/applications目录下的.desktop文件中。）</p>
+  </li>
+</ol>
+
+<h3 id="动态连接与静态连接">动态连接与静态连接</h3>
+<p>开发者可以在编译阶段选择可执行文件连接外部函数库的方式，到底是静态连接（编译时连接），还是动态连接（运行时连接）。所以，最后还要提一下，什么叫做动态连接。</p>
+
+<p><strong>静态连接就是把外部函数库，拷贝到可执行文件中</strong>。所以在编译链接完成后，就不需要静态库文件了。</p>
+<ul>
+  <li>好处是，适用范围比较广，不用担心用户机器缺少某个库文件；</li>
+  <li>缺点是安装包会比较大，而且多个应用程序之间，无法共享库文件。</li>
+</ul>
+
+<p><strong>动态连接的做法正好相反，外部函数库不进入安装包，只在运行时动态引用</strong>。在运行可执行文件时，动态库文件必须存在于指定的位置，否则出错。</p>
+<ul>
+  <li>好处是安装包会比较小，多个应用程序可以共享库文件；</li>
+  <li>缺点是用户必须事先安装好库文件，而且版本和安装位置都必须符合要求，否则就不能正常运行。</li>
+</ul>
+
+<p>现实中，大部分软件采用动态连接，共享库文件。这种动态共享的库文件，Linux平台是后缀名为.so的文件，Windows平台是.dll文件，Mac平台是.dylib文件。</p>
+
+:ET

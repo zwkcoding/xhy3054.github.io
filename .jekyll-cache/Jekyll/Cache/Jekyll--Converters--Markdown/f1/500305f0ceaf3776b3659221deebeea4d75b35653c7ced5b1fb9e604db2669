@@ -1,0 +1,194 @@
+I"7<p>本文主要介绍如何使用滤波器(卡尔曼滤波器与扩展卡尔曼滤波器)进行状态估计。</p>
+
+<h1 id="状态估计问题">状态估计问题</h1>
+<p>首先列出状态估计方程，由运动方程与观测方程组成</p>
+
+<script type="math/tex; mode=display">\left\{\begin{array}{l}{\boldsymbol{x}_{k}=f\left(\boldsymbol{x}_{k-1}, \boldsymbol{u}_{k}\right)+\boldsymbol{w}_{k}} \\ {\boldsymbol{z}_{k}=h\left(\boldsymbol{x}_{k}\right)+\boldsymbol{\upsilon}_{k}}\end{array}\right. \quad k=1, \ldots, N</script>
+
+<p>其中</p>
+<ul>
+  <li>$x_{k}$   是相机在k时刻的位姿，我们一般可以使用变换矩阵或者其李代数表示它。</li>
+  <li>$u_{k}$   是k时刻系统的输入（在slam中通常是运动传感器的读数）</li>
+  <li>$w_{k}$   是运动过程中的噪声</li>
+  <li>$z_{k}$   是指在$x_k$处进行了一次观测得到的观测值</li>
+  <li>${\upsilon}_{k}$ 是观测过程中的噪声</li>
+</ul>
+
+<h1 id="贝叶斯法则">贝叶斯法则</h1>
+<p>对于上述状态估计问题，我们想做的是估计出现在状态的分布</p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{x}_{k} | \boldsymbol{x}_{0}, \boldsymbol{u}_{1 : k}, \boldsymbol{z}_{1 : k}\right)</script>
+
+<p>按照贝叶斯法则，我们可以有如下结论</p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{x}_{k} | \boldsymbol{x}_{0}, \boldsymbol{u}_{1 : k}, \boldsymbol{z}_{1 : k}\right) \propto P\left(\boldsymbol{z}_{k} | \boldsymbol{x}_{k}\right) P\left(\boldsymbol{x}_{k} | \boldsymbol{x}_{0}, \boldsymbol{u}_{1 : k}, \boldsymbol{z}_{1 : k-1}\right)</script>
+
+<p>其中左边是<strong>后验</strong>概率分布（k时刻状态已经发生），右边第一项是<strong>似然</strong>概率分布，第二项是<strong>先验</strong>概率分布（k时刻状态还没发生）。</p>
+
+<h1 id="卡尔曼滤波">卡尔曼滤波</h1>
+<p>要使用卡尔曼滤波方法对上述后验概率分布进行估计，我们首先需要两条假设</p>
+<ol>
+  <li>上述系统满足<strong>马尔可夫性</strong>，当前状态只与前一状态有关</li>
+  <li>系统是<strong>线性高斯</strong>系统，高斯分布经过线性变换仍然是高斯分布</li>
+</ol>
+
+<p>满足上述假设的状态估计问题可以重写为</p>
+
+<script type="math/tex; mode=display">\left\{\begin{array}{l}{\boldsymbol{x}_{k}=\boldsymbol{A}_{k} \boldsymbol{x}_{k-1}+\boldsymbol{u}_{k}+\boldsymbol{w}_{k}} \\ {\boldsymbol{z}_{k}=\boldsymbol{C}_{k} \boldsymbol{x}_{k}+\boldsymbol{v}_{k}}\end{array}\right. \quad k=1, \ldots, N</script>
+
+<p>其中第一个为运动方程，第二个为状态方程，并且<strong>所有的状态与噪声均满足高斯分布</strong>。这里噪声满足如下零均值高斯分布</p>
+
+<script type="math/tex; mode=display">\boldsymbol{w}_{k} \sim N(\mathbf{0}, \boldsymbol{R}) . \quad \boldsymbol{v}_{k} \sim N(\mathbf{0}, \boldsymbol{Q})</script>
+
+<p>由于马尔科夫性，假设我们已经有了$k-1$时刻状态的<strong>后验概率分布</strong>：均值 <script type="math/tex">\hat{x}_{k-1}</script> 与协方差 <script type="math/tex">\hat{P}_{k-1}</script> ，现在需要做的是<strong>根据k时刻的输入与观测数据，确定$x_{k}$的后验概率分布</strong>。</p>
+
+<blockquote>
+  <p>此处需要先声明，对于噪声的协方差R与Q，为了方便我们省略了他们的下标。而我们用尖帽子表示后验，横线表示先验。</p>
+</blockquote>
+
+<p>卡尔曼滤波的<strong>第一步</strong>是依据运动方程确定$x_{k}$的先验概率分布。如下</p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{x}_{k} | \boldsymbol{x}_{0}, \boldsymbol{u}_{1 : k}, \boldsymbol{z}_{1 : k-1}\right)=N\left(\boldsymbol{A}_{k} \hat{\boldsymbol{x}}_{k-1}+\boldsymbol{u}_{k}, \boldsymbol{A}_{k} \hat{\boldsymbol{P}}_{k-1} \boldsymbol{A}_{k}^{T}+\boldsymbol{R}\right)</script>
+
+<p>其中，利用线性高斯系统的性质，我们得到$x_{k}$的先验分布也是高斯分布，并且均值与方差如下：</p>
+
+<script type="math/tex; mode=display">\overline{\boldsymbol{x}}_{k}=\boldsymbol{A}_{k} \hat{\boldsymbol{x}}_{k-1}+\boldsymbol{u}_{k}, \quad \overline{\boldsymbol{P}}_{k}=\boldsymbol{A}_{k} \hat{\boldsymbol{P}}_{k-1} \boldsymbol{A}_{k}^{T}+\boldsymbol{R}</script>
+
+<p><strong>下一步，我们由观测方程得到似然分布</strong></p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{z}_{k} | \boldsymbol{x}_{k}\right)=N\left(\boldsymbol{C}_{k} \boldsymbol{x}_{k}, \boldsymbol{Q}\right)</script>
+
+<p><strong>然后</strong>，由贝叶斯法则我们知道，后验概率分布与似然分布和先验概率分布的乘积成正比，即</p>
+
+<script type="math/tex; mode=display">N\left(\hat{\boldsymbol{x}}_{k}, \hat{\boldsymbol{P}}_{k}\right) \propto N\left(\boldsymbol{C}_{k} \boldsymbol{x}_{k}, \boldsymbol{Q}\right) \cdot N\left(\overline{\boldsymbol{x}}_{k}, \overline{\boldsymbol{P}}_{k}\right)</script>
+
+<p><strong>因为上述三个分布都是高斯分布，上述等式两侧又成正比，所以我们无需关系高斯分布系数部分内容，只需要保证等式两侧指数部分是相等的即可</strong>。即得到下式</p>
+
+<script type="math/tex; mode=display">\left(\boldsymbol{x}_{k}-\hat{\boldsymbol{x}}_{k}\right)^{T} \hat{\boldsymbol{P}}_{k}^{-1}\left(\boldsymbol{x}_{k}-\hat{\boldsymbol{x}}_{k}\right)=\left(\boldsymbol{z}_{k}-\boldsymbol{C}_{k} \boldsymbol{x}_{k}\right)^{T} \boldsymbol{Q}^{-1}\left(\boldsymbol{z}_{k}-\boldsymbol{C}_{k} \boldsymbol{x}_{k}\right)+\left(\boldsymbol{x}_{k}-\overline{\boldsymbol{x}}_{k}\right)^{T} \boldsymbol{P}_{k}^{-1}\left(\boldsymbol{x}_{k}-\overline{\boldsymbol{x}}_{k}\right)</script>
+
+<p>为了保证上面等式成立，我们将两边展开，另$x_{k}$的二次系数与一次系数两边相等。对于<strong>二次系数</strong>，我们得到</p>
+
+<script type="math/tex; mode=display">\hat{\boldsymbol{P}}_{k}^{-1}=\boldsymbol{C}_{k}^{T} \boldsymbol{Q}^{-1} \boldsymbol{C}_{k}+\overline{\boldsymbol{P}}_{k}^{-1}</script>
+
+<p>这个等式给出了$x_{k}$分布的协方差的计算过程，此处另<script type="math/tex">\boldsymbol{K}=\hat{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T} \boldsymbol{Q}^{-1}</script>，并将上式左右同时乘以<script type="math/tex">\hat{P}_{k}</script>，有</p>
+
+<script type="math/tex; mode=display">\boldsymbol{I}=\hat{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T} \boldsymbol{Q}^{-1} \boldsymbol{C}_{k}+\hat{\boldsymbol{P}}_{k} \overline{\boldsymbol{P}}_{k}^{-1}=\boldsymbol{K} \boldsymbol{C}_{k}+\hat{\boldsymbol{P}}_{k} \overline{\boldsymbol{P}}_{k}^{-1}</script>
+
+<p>于是，我们得到卡尔曼滤波中<script type="math/tex">\hat{P}_{k}</script>的更新公式</p>
+
+<script type="math/tex; mode=display">\hat{\boldsymbol{P}}_{k}=\left(\boldsymbol{I}-\boldsymbol{K} \boldsymbol{C}_{k}\right) \overline{\boldsymbol{P}}_{k}</script>
+
+<p>其中，K的更新公式是</p>
+
+<script type="math/tex; mode=display">\boldsymbol{K}=\overline{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T}\left(\boldsymbol{C}_{k} \overline{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T}+\boldsymbol{Q}\right)^{-1}</script>
+
+<p>同样，由<strong>一次项系数</strong>相同可以得到</p>
+
+<script type="math/tex; mode=display">-2 \hat{\boldsymbol{x}}_{k}^{T} \hat{\boldsymbol{P}}_{k}^{-1} \boldsymbol{x}_{k}=-2 \boldsymbol{z}_{k}^{T} \boldsymbol{Q}^{-1} \boldsymbol{C}_{k} \boldsymbol{x}_{k}-2 \overline{\boldsymbol{x}}_{k}^{T} \overline{\boldsymbol{P}}_{k}^{-1} \boldsymbol{x}_{k}</script>
+
+<p>整理可得卡尔曼滤波中$\hat{x}_{k}$的更新公式</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \hat{\boldsymbol{x}}_{k} &=\hat{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T} \boldsymbol{Q}^{-1} \boldsymbol{z}_{k}+\hat{\boldsymbol{P}}_{k} \overline{\boldsymbol{P}}_{k}^{-1} \overline{\boldsymbol{x}}_{k} \\ &=\boldsymbol{K} \boldsymbol{z}_{k}+\left(\boldsymbol{I}-\boldsymbol{K} \boldsymbol{C}_{k}\right) \overline{\boldsymbol{x}}_{k} \\ &=\overline{\boldsymbol{x}}_{k}+\boldsymbol{K}\left(\boldsymbol{z}_{k}-\boldsymbol{C}_{k} \overline{\boldsymbol{x}}_{k}\right) \end{aligned} %]]></script>
+
+<h2 id="卡尔曼滤波步骤归纳">卡尔曼滤波步骤归纳</h2>
+<p>由上面推导，我们可以将卡尔曼滤波归纳成如下<strong>预测</strong>与<strong>更新</strong>两个步骤：</p>
+
+<ul>
+  <li>预测：</li>
+</ul>
+
+<script type="math/tex; mode=display">\overline{\boldsymbol{x}}_{k}=\boldsymbol{A}_{k} \hat{\boldsymbol{x}}_{k-1}+\boldsymbol{u}_{k}, \quad \overline{\boldsymbol{P}}_{k}=\boldsymbol{A}_{k} \hat{\boldsymbol{P}}_{k-1} \boldsymbol{A}_{k}^{T}+\boldsymbol{R}</script>
+
+<ul>
+  <li>更新：
+首先计算K（卡尔曼增益）</li>
+</ul>
+
+<script type="math/tex; mode=display">\boldsymbol{K}=\overline{\boldsymbol{P}}_{k} C_{k}^{T}\left(\boldsymbol{C}_{k} \overline{\boldsymbol{P}}_{k} \boldsymbol{C}_{k}^{T}+\boldsymbol{Q}\right)^{-1}</script>
+
+<p>然后计算后验概率的分布</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} \hat{\boldsymbol{x}}_{k} &=\overline{\boldsymbol{x}}_{k}+\boldsymbol{K}\left(\boldsymbol{z}_{k}-\boldsymbol{C}_{k} \overline{\boldsymbol{x}}_{k}\right) \\ \hat{\boldsymbol{P}}_{k} &=\left(\boldsymbol{I}-\boldsymbol{K} \boldsymbol{C}_{k}\right) \overline{\boldsymbol{P}}_{k} \end{aligned} %]]></script>
+
+<blockquote>
+  <p>卡尔曼滤波是线性系统的最优无偏估计</p>
+</blockquote>
+
+<h1 id="扩展卡尔曼滤波">扩展卡尔曼滤波</h1>
+<blockquote>
+  <p>上面的卡尔曼滤波是基于线性系统的，而我们实际工程遇到的问题一般都是非线性的，比如说slam中的运动方程与观测方程一般都是非线性函数。而一个高斯分布，经过非线性变换后，往往不再是高斯分布了。为了将卡尔曼滤波器的结果扩展到非线性系统中，我们通常会取一定的近似，将一个非高斯分布近似成高斯分布。</p>
+</blockquote>
+
+<p>在扩展卡尔曼滤波器(Extended Kalman Filter, EKF)中，我们一般在某个点附近考虑运动方程及观测方程的<strong>一阶泰勒展开</strong>，只保留一阶项，即线性的部分，然后按照线性系统的方法进行推导.</p>
+
+<p>经过线性化（一阶泰勒展开）之后，我们得到的<strong>运动方程</strong>如下</p>
+
+<script type="math/tex; mode=display">\boldsymbol{x}_{k} \approx f\left(\hat{\boldsymbol{x}}_{k-1}, \boldsymbol{u}_{k}\right)+\left.\frac{\partial f}{\partial \boldsymbol{x}_{k-1}}\right|_{\hat{\boldsymbol{x}}_{k-1}}\left(\boldsymbol{x}_{k-1}-\hat{\boldsymbol{x}}_{k-1}\right)+\boldsymbol{w}_{k}</script>
+
+<p><strong>观测方程</strong>如下</p>
+
+<script type="math/tex; mode=display">z_{k} \approx h\left(\overline{x}_{k}\right)+\left.\frac{\partial h}{\partial x_{k}}\right|_{\overline{x}_{k}}\left(x_{k}-\hat{x}_{k}\right)+n_{k}</script>
+
+<p>此处，我们另两个方程中的<strong>两个偏导数</strong>为</p>
+
+<script type="math/tex; mode=display">\boldsymbol{F}=\left.\frac{\partial f}{\partial \boldsymbol{x}_{k-1}}\right|_{\hat{\boldsymbol{x}}_{k-1}}</script>
+
+<script type="math/tex; mode=display">\boldsymbol{H}=\left.\frac{\partial h}{\partial \boldsymbol{x}_{k}}\right|_{\overline{\boldsymbol{x}}_{k}}</script>
+
+<p>然后，根据运动方程，我们得到的<strong>先验概率分布</strong>为</p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{x}_{k} | \boldsymbol{x}_{0}, \boldsymbol{u}_{1 : k}, \boldsymbol{z}_{0 : k-1}\right)=N\left(f\left(\hat{\boldsymbol{x}}_{k-1}, \boldsymbol{u}_{k}\right), \boldsymbol{F} \hat{\boldsymbol{P}}_{k-1} \boldsymbol{F}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)</script>
+
+<p>根据观测方程，我们得到的<strong>似然概率分布</strong>为</p>
+
+<script type="math/tex; mode=display">P\left(\boldsymbol{z}_{k} | \boldsymbol{x}_{k}\right)=N\left(h\left(\overline{\boldsymbol{x}}_{k}\right)+\boldsymbol{H}\left(\boldsymbol{x}_{k}-\overline{\boldsymbol{x}}_{k}\right), \boldsymbol{Q}_{k}\right)</script>
+
+<p>下面的推导与卡尔曼滤波相同，通过贝叶斯公式使得高斯分布中的指数部分相同。</p>
+
+<h2 id="扩展卡尔曼滤波步骤总结">扩展卡尔曼滤波步骤总结</h2>
+<ul>
+  <li>预测</li>
+</ul>
+
+<script type="math/tex; mode=display">\overline{\boldsymbol{x}}_{k}=f\left(\hat{\boldsymbol{x}}_{k-1}, \boldsymbol{u}_{k}\right), \quad \overline{\boldsymbol{P}}_{k}=\boldsymbol{F} \hat{\boldsymbol{P}}_{k} \boldsymbol{F}^{T}+\boldsymbol{R}_{k}</script>
+
+<ul>
+  <li>更新，先计算K（卡尔曼增益）</li>
+</ul>
+
+<script type="math/tex; mode=display">\boldsymbol{K}_{k}=\overline{\boldsymbol{P}}_{k} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \overline{\boldsymbol{P}}_{k} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{Q}_{k}\right)^{-1}</script>
+
+<p>然后更新后验分布的均值与方差</p>
+
+<script type="math/tex; mode=display">\hat{\boldsymbol{x}}_{k}=\overline{\boldsymbol{x}}_{k}+\boldsymbol{K}_{k}\left(\boldsymbol{z}_{k}-h\left(\overline{\boldsymbol{x}}_{k}\right)\right) \\ \hat{\boldsymbol{P}}_{k}=\left(\boldsymbol{I}-\boldsymbol{K}_{k} \boldsymbol{H}\right) \overline{\boldsymbol{P}}_{k}</script>
+
+<h2 id="ekf的评价">EKF的评价</h2>
+<ul>
+  <li>优点
+    <ul>
+      <li>推导简单清楚，适用各种传感器形式</li>
+      <li>易于做多传感器融合</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>一阶马尔可夫性过于简单，不能充分利用所有的信息</li>
+      <li>一阶泰勒展开线性化遇到非线性严重的模型会误差比较大，并且只能局部近似</li>
+      <li>需要存储所有状态量的均值与协方差矩阵，存储量呈平方增长</li>
+      <li>对outlier很敏感</li>
+      <li>假设都是高斯分布，不是对所有情况都适用</li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p>还有一些其他的滤波方法，比如粒子滤波、IF（信息滤波器）、UKF（Unscented KF）等等。其中粒子滤波不是假设高斯分布。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1]. 视觉slam十四讲</li>
+</ul>
+:ET

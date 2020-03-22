@@ -1,0 +1,50 @@
+I"�<p>在c++中，模板是非常常见并且好用的。基本每一个c++的库都会使用模板，对自己的适用类型进行扩展。本文主要讲的是模板的实例化问题。</p>
+
+<h2 id="函数模板">函数模板</h2>
+
+<h2 id="类模板">类模板</h2>
+
+<h2 id="模板实例化">模板实例化</h2>
+<p>当模板被使用时才会实例化，这一特性意味着，<strong>相同的实例可能出现在多个对象文件中</strong>。举个例子就是说，当两个或多个独立编译的源文件使用了相同的模板，并提供了相同的模板参数时，<strong>每个文件中都会有该模板适用该参数的一个实例。</strong></p>
+
+<p>上述的问题在小程序里不算什么，但是在一个大的程序中，在多个文件中实例化相同模板的<strong>额外开销会非常严重</strong>。</p>
+
+<p>在新标准中，我们可以通过控制<strong>显式实例化</strong>来避免这种开销。</p>
+
+<h3 id="控制实例化">控制实例化</h3>
+<p>与多文件中声明一个变量相同，可以使用关键字<code class="highlighter-rouge">extern</code>来承诺在程序其他位置会有一个该实例化的非<code class="highlighter-rouge">extern</code>声明，只需要在链接成可执行程序时将含有实例化的<code class="highlighter-rouge">.o</code>文件链接上就可以了。<strong>因此使用关键字<code class="highlighter-rouge">extern</code>进行一个模板的声明时不会在本文件中生成实例化代码。</strong></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>extern template declaration;	//实例化声明
+template decaration;	//实例化定义
+</code></pre></div></div>
+
+<p>如下演示一下具体如何操作：
+在第一个文件中，</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//templatebuild.cpp</span>
+<span class="c1">//实例化文件必须为每个在其他文件中声明为extern的类型和函数提供一个（非extern）的定义</span>
+<span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+<p>第二个文件中</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//application.cpp</span>
+<span class="c1">//这些模板类型必须在其他位置已经进行实例化</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>	<span class="c1">//声明，接下来就可以使用类Blob&lt;string&gt;了</span>
+<span class="n">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">b1</span><span class="p">;</span>	<span class="c1">//像一个普通的类一样使用</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">compare</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">);</span>
+</code></pre></div></div>
+<hr />
+<p>在编译时，需要将<code class="highlighter-rouge">templatebuild.o</code>与<code class="highlighter-rouge">application.o</code>链接到一起，生成可执行文件。</p>
+
+<h3 id="类模板的实例化定义">类模板的实例化定义</h3>
+<p>此外，需要说明的一点是，<strong>一个类模板的实例化定义会实例化该模板的所有成员</strong>，包括内联的成员函数。</p>
+
+<p><strong>默认情况下，一个类模板的成员函数只有当程序用到它是才会进行实例化</strong>。但是一个类模板的实例化定义会实例化该模板的所有成员。这是因为当编译器遇到一个实例化定义时，它不了解程序使用哪些成员函数。因此与处理类模板的普通实例化不同，编译器会实例化该类的所有成员。即使我们不使用某个成员，它也会被实例化。因此，如果我们使用一个类型来显式实例化一个类模板，则这个类型必须能用于模板的所有成员。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+:ET

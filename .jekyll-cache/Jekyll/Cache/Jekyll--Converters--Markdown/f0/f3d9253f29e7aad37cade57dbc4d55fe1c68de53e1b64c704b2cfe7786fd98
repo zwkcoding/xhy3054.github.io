@@ -1,0 +1,186 @@
+I"�;<p>这部分内容是在slam中经常会用到的数学内容。</p>
+
+<h1 id="群">群</h1>
+<p>群(group)是一种代数结构，由两部分(一个集合A与一种运算$\cdot$)构成，可以记作$G=(A, \cdot)$,并且群满足如下条件:</p>
+<ol>
+  <li>封闭性:     $ \quad \forall a_1, a_2, \quad a_1 \cdot a_2 \in A $</li>
+  <li>结合律:     $ \quad \forall a_1, a_2, a_3, \quad (a_1 \cdot a_2) \cdot a_3 = a_1 \cdot ( a_2 \cdot a_3) $</li>
+  <li>幺元:       $ \quad \exists a_0 \in A, \quad s.t. \quad \forall a \in A, \quad a_0 \cdot a = a \cdot a_0 = a $</li>
+  <li>逆:        $ \quad \forall a \in A, \quad \exists a^{-1} \in A, \quad s.t. \quad a \cdot a^{-1} = a_0 $</li>
+</ol>
+
+<p>由上面我们可以知道了群的定义，下面例举几个群：</p>
+<ul>
+  <li>
+    <p><strong>一般线性群</strong>$GL(n)$: n×n的可逆矩阵与矩阵乘法构成一个群，幺元是E矩阵</p>
+  </li>
+  <li>
+    <p><strong>旋转矩阵群</strong>$SO(n)$: 旋转矩阵与矩阵乘法构成的一个群，满足上面任何一个性质，幺元是旋转角度0的矩阵。
+<script type="math/tex">\begin{equation} SO(n) = \{ \mathbf{R} \in \mathbb{R}^{n \times n} | \mathbf{R R}^T = \mathbf{I}, det(\mathbf{R})=1 \} \end{equation}</script></p>
+  </li>
+  <li>
+    <p><strong>特殊欧式群</strong>$SE(n)$: 欧式变换矩阵(旋转加平移)与矩阵乘法也构成一个群，它的幺元是旋转角度为0，平移也是0的变换矩阵。
+<script type="math/tex">% <![CDATA[
+\begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}} \mathbf{R} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script></p>
+  </li>
+  <li>
+    <p><strong>相似变换群</strong>$Sim(n)$: 相似变换就是在旋转矩阵上再加上尺度变换，这个群主要会在<strong>单目视觉</strong>中使用，因为单目具有尺度不确定性。如果在单目slam中使用$SE(3)$来表示位姿，那么由于尺度不确定性与尺度漂移，整个slam过程中尺度会发生变化，而这在SE(3)中不能体现出来。所以在单目视觉中，我们一般在相似变换群上来进行位姿的优化。
+<script type="math/tex">% <![CDATA[
+\begin{equation} Sim(3) = \left\{ \mathbf{S} = \left[ {\begin{array}{*{20}{c}} \mathbf{sR} & \mathbf{t} \\ {\mathbf{0}^T} & 1 \end{array}} \right]  \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script></p>
+  </li>
+</ul>
+
+<h2 id="李群">李群</h2>
+<p>李群是指具有连续性质的群。比如向整数群Z那样的离散的群就没有连续性质，所以不是李群。而$SO(n)$与$SE(n)$是李群</p>
+
+<h3 id="李代数">李代数</h3>
+<p>每个李群都有与之对应的李代数。李代数描述了李群的局部性质。</p>
+
+<p>通常李代数由一个集合V，一个数域F和一个二元运算[]组成。通常如果我们说$(\mathbb{V}, \mathbb{F}, [])$是一个李代数，那么它具有如下性质:</p>
+<ul>
+  <li>
+    <p>封闭性: $\forall \mathbf{X}, \mathbf{Y} \in \mathbb{V}, [\mathbf{X} \mathbf{Y}] \in \mathbb{V}$</p>
+  </li>
+  <li>
+    <p>双线性: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, a,b \in \mathbb{F},$有
+<script type="math/tex">[a\mathbf{X}+b\mathbf{Y}, \mathbf{Z}] = a[\mathbf{X}\mathbf{Z}] + b [ \mathbf{Y} \mathbf{Z} ] \quad [\mathbf{Z}, a \mathbf{X}+b\mathbf{Y}] = a [\mathbf{Z} \mathbf{X} ]+ b [\mathbf{ZY}]</script></p>
+  </li>
+  <li>
+    <p>自反性: $\forall \mathbf{X} \in \mathbb{V}, [\mathbf{X} \mathbf{X}] = \mathbf{0}$</p>
+  </li>
+  <li>
+    <p>雅可比等价: $\forall \mathbf{X,Y,Z} \in \mathbb{V}, [\mathbf{X}, [\mathbf{YZ}] ] + [\mathbf{Z}, [\mathbf{YX}] ] + [\mathbf{Y}, [\mathbf{ZX}]]$</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>通常我们成李代数中的二元运算为<strong>李括号</strong>。相比于群中较为简单的二元运算，李括号通常的含义是计算集合中两个元素的差异。一般它不要求结合律，但是满足反对称性，以及元素和自己做李括号之后为0的性质。一个典型的例子是$\mathfrak{g} = (\mathbb{R}^3, \mathbb{R}, \times)$是一个李代数。</p>
+</blockquote>
+
+<h2 id="三维旋转群so3与其对应的李代数mathfrakso3">三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$</h2>
+<p>三维旋转群描述三维空间中的旋转，其集合元素为3×3的正交且行列式为1的矩阵R，我们知道$RR^T=I$。如果将R看作一个随着时间t变化的函数R(t),则有$\mathbf{R}(t) \mathbf{R}(t) ^T = \mathbf{I}$。在等式两边分别对时间求导，可以得到:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} + \mathbf{R} (t) \mathbf{\dot{R}} {(t)^T} = 0 \end{equation}</script>
+
+<p>对上式进行整理，可以得到:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} = - \left(  \mathbf{\dot{R}} (t) \mathbf{R} {(t)^T} \right)^T \end{equation}</script>
+
+<p>从上面的公式我们可以看出$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$是一个<strong>反对称矩阵</strong>。</p>
+
+<h3 id="反对称矩阵与叉乘">反对称矩阵与叉乘</h3>
+<p>对于三维向量a与b之间的外积，其中$\mathbf{a}=[a_1, a_2, a_3]^T$,如下公式:</p>
+
+<script type="math/tex; mode=display">a×b = a^{\wedge} b</script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   {\mathbf{a}^ \wedge } = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{a_2} \\ {a_3}&0&{ - {a_1}}\\ { - {a_2}}&{a_1}&0 \end{array}} \right] \end{equation} %]]></script>
+
+<hr />
+<p>回到刚才的话题，对于$\mathbf{\dot{R}} (t) \mathbf{R} {(t)^T}$这个反对称矩阵，我们将其记为A。可以将其对应到一个向量$\mathbf{a}=[a_1, a_2, a_3]^T$。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   {\mathbf{a}^ \wedge } = \mathbf{A} = \left[ {\begin{array}{*{20}{c}} 0&{ - {a_3}}&{a_2}\\ {a_3}&0&{ - {a_1}}\\ { - {a_2}}&{a_1}&0 \end{array}} \right] \end{equation} %]]></script>
+
+<p>上式也就可以写做</p>
+
+<script type="math/tex; mode=display">\begin{equation}   \mathbf{ \dot{R} } (t) \mathbf{R}(t)^T = \mathbf{\phi} (t) ^ {\wedge} \end{equation}</script>
+
+<p>将上式左右各右乘$\mathbf{R}(t)$，由于R是正交的，所以有</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation}   \mathbf{ \dot{R} } (t)  = \mathbf{\phi} (t)^{\wedge} \mathbf{R}(t) =   \left[ {\begin{array}{*{20}{c}}    0&{ - {\phi _3}}&{\phi _2}\\      {\phi _3}&0&{ - {\phi _1}}\\      { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \mathbf{R} (t) \end{equation} %]]></script>
+
+<p>由上式我们可以发现，每次<strong>对旋转矩阵求导数</strong>，只需要左乘一个$\mathbf{\phi}$矩阵即可。这表明$\mathbf{\phi}$反映了R的导数性质，所以称其在$SO(3)$的正切空间上。同时对上面微分方程进行求解，我们可以得到</p>
+
+<script type="math/tex; mode=display">\begin{equation} \label{eq:so3ode} \mathbf{R}(t) = \exp \left( \mathbf{\phi} (t) ^\wedge \right) \mathbf{R}(t_0) \end{equation}</script>
+
+<hr />
+<p>由上我们可以知道，<strong>三维旋转群$SO(3)$与其对应的李代数$\mathfrak{so}(3)$是$(\mathbb{R}^3, \mathbb{R}, \times)$(三维向量，实数，外积运算)，这个李代数的集合由三维向量组成，每个向量对应到一个反对称矩阵，可以表达旋转矩阵的导数</strong>。它描述了三维旋转群$SO(3)$的局部性质。</p>
+
+<p>此处我们发现SO(3)对应的李代数是定义在$\mathbb{R}^3$上的向量，我们记作$\mathbf{\phi}$（注意这是个向量，虽然希腊字母的粗体不明显）。而每个$\mathbf{\phi}$都可以生成一个反对称矩阵:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} \label{eq:phi} \mathbf{\Phi} = \mathbf{\phi}^{\wedge} = \left[ {\begin{array}{*{20}{c}}     0&{ - {\phi _3}}&{\phi _2}\\  {\phi _3}&0&{ - {\phi _1}}\\  { - {\phi _2}}&{\phi _1}&0    \end{array}} \right] \in \mathbb{R}^{3 \times 3} \end{equation} %]]></script>
+
+<p>在此定义下，两个向量$\mathbf{\phi}_1, \mathbf{\phi}_2$的李括号运算对应的反对称矩阵运算为:</p>
+
+<script type="math/tex; mode=display">\begin{equation} [\mathbf{\phi}_1, \mathbf{\phi}_2]^{\wedge} = \mathbf{ \Phi }_1 \mathbf{ \Phi }_2 - \mathbf{ \Phi }_2 \mathbf{ \Phi }_1 \end{equation}</script>
+
+<p><strong>由于向量与其对应的反对称矩阵关系密切，所以我们说旋转矩阵群的李代数的元素是3维向量或者3维反对称矩阵，都是可以的。</strong></p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathfrak{so}(3) = \left\{ \Phi = \mathbf{\phi^\wedge} \in \mathbb{R}^{3 \times 3} | \mathbf{\phi} \in \mathbb{R}^3 \right\} \end{equation}</script>
+
+<h3 id="so3上的指数映射">$SO(3)$上的指数映射</h3>
+
+<p>首先，任意矩阵的指数映射可以写成一个泰勒展开，当然，只有在收敛的情况下才会有结果，其结果仍然是一个矩阵。</p>
+
+<script type="math/tex; mode=display">\begin{equation} \exp(\mathbf{A}) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{ \mathbf{A}^n}} \end{equation}</script>
+
+<p>同样，对<script type="math/tex">\mathfrak{so}(3)</script>中任意一个元素$\mathbf{\phi}$，它的指数映射是:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \exp(\mathbf{\phi}^\wedge) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{ (\mathbf{\phi}^{\wedge})^n}} \end{equation}</script>
+
+<p>仔细推导这个定义，首先$\mathbf{\phi}$是一个三维向量，我们可以定义它的模长和方法，分别记作$\theta$与$\mathbf{a}$(注意此处的$\mathbf{a}$是一个单位长度的向量)，于是有$\mathbf{\phi} = {\theta} {a}$，首先此处说明的是，$a^{\wedge}$具有如下两条性质:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{a} \mathbf{a}^T = \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} + \mathbf{I} \end{equation}</script>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} \mathbf{a}^{\wedge} = - \mathbf{a}^{\wedge} \end{equation}</script>
+
+<p>上述性质有时间可以尝试证明一下，利用这两个性质，我们可以进行如下推导:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align*} \exp \left( {\mathbf{\phi} ^ \wedge } \right) &= \exp \left( {\theta {\mathbf{a}^ \wedge }} \right) = \sum\limits_{n = 0}^\infty  {\frac{1}{n!}{\left( {\theta {\mathbf{a}^ \wedge }} \right)}^n} \\ &= \mathbf{I} + \theta {\mathbf{a}^ \wedge } + \frac{1}{2!}{\theta ^2}{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \frac{1}{3!}{\theta ^3}{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \frac{1}{4!}{\theta ^4}{\left( {\mathbf{a}^ \wedge } \right)^4} + ...\\ &= \mathbf{a} {\mathbf{a}^T} - {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \theta {\mathbf{a}^ \wedge } + \frac{1}{2!}\theta {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } - \frac{1}{3!}{\theta ^3}{\mathbf{a}^ \wedge } + \frac{1}{4!}{\theta ^4}{\left( {\mathbf{a}^ \wedge } \right)^4} + ...\\ &= \mathbf{a}{\mathbf{a}^T} + \left( {\theta  - \frac{1}{3!}{\theta ^3} + \frac{1}{5!}{\theta ^5} - ...} \right){\mathbf{a}^ \wedge } - \left( {1 - \frac{1}{2!}{\theta ^2} + \frac{1}{4!}{\theta ^4} - ...} \right){\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }\\ &= {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + \mathbf{I} + \sin \theta {\mathbf{a}^ \wedge } - \cos \theta {\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge }\\ &= (1 - \cos \theta ){\mathbf{a}^ \wedge }{\mathbf{a}^ \wedge } + I + \sin \theta {\mathbf{a}^ \wedge }\\ &= \cos \theta \mathbf{I} + (1 - \cos \theta )\mathbf{a}{\mathbf{a}^T} + \sin \theta {\mathbf{a}^ \wedge } \\ \end{align*} %]]></script>
+
+<p>记住最后的这个公式:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \exp( \theta \mathbf{a} ) = \cos \theta \mathbf{I} + (1 - \cos \theta )\mathbf{a}{\mathbf{a}^T} + \sin \theta {\mathbf{a}^ \wedge } \end{equation}</script>
+
+<p>这时<strong>罗德里格斯公式</strong>，这个公式本身的作用是将旋转向量变换成旋转矩阵。所以从这里我们知道<script type="math/tex">\mathfrak{so}(3)</script>实际上是由旋转向量组成的空间。而指数映射就是罗德里格斯公式映射，通过他们我们可以将<script type="math/tex">\mathfrak{so}(3)</script>中的任意一个旋转向量对应到一个$SO(3)$中的一个旋转矩阵。</p>
+
+<blockquote>
+  <p>这里需要提到的一点是，指数映射不是一个双射，但他是一个满射。这一意味着每一个旋转矩阵都可以找到一个向量与之对应，但是可能存在多个向量对应到同一个矩阵。这个很好理解，因为旋转角度具有周期性，多转360度效果一样。</p>
+</blockquote>
+
+<blockquote>
+  <p>同理，<strong>指数映射</strong>作用是从向量到矩阵的映射，反过来，从矩阵到向量的映射是<strong>对数映射</strong>。</p>
+</blockquote>
+
+<h2 id="三维欧式群se3与其对应的李代数mathfrakse3">三维欧式群$SE(3)$与其对应的李代数$\mathfrak{se}(3)$</h2>
+<p>首先，列出三维欧式群$SE(3)$的定义:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} SE(3) = \left\{ \mathbf{T} = \left[ {\begin{array}{*{20}{c}}     \mathbf{R} & \mathbf{t} \\  {\mathbf{0}^T} & 1    \end{array}} \right] \in \mathbb{R}^{4 \times 4} | \mathbf{R} \in SO(3), \mathbf{t} \in \mathbb{R}^3\right\} \end{equation} %]]></script>
+
+<p>由于每个欧式变换矩阵具有六个自由度，所以其对应的李代数位于$\mathbb{R}^6$中:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathfrak{se}(3) = \left\{ \mathbf{ \Xi } = \mathbf{\xi}^\wedge \in \mathbb{R}^{4 \times 4} | \mathbf{\xi} \in \mathbb{R}^6 \right\} \end{equation}</script>
+
+<p>不过需要注意的是，此处我们对$^\wedge$的作用进行拓展，使得其不再是一个反对称关系，而是讲一个六维度向量转换成四维矩阵。如下:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{equation} \mathbf{\xi}^\wedge = {\left[ \begin{array}{l}   \mathbf{\rho} \\    \mathbf{\phi}   \end{array} \right]^ \wedge } = \left[ {\begin{array}{*{20}{c}}     {\mathbf{\phi} ^ \wedge }&\mathbf{\rho} \\    {\mathbf{0}^T}&0  \end{array}} \right] = \mathbf{\Xi} \end{equation} %]]></script>
+
+<p>其中，前三维是平移分量，后三位为旋转分量，这个分量是$\mathfrak{so}(3)$的元素。在此处，该李代数对应的微分方程是:</p>
+
+<script type="math/tex; mode=display">\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}</script>
+
+<blockquote>
+  <p>三维欧式群及其李代数的指数与对数映射类似。</p>
+</blockquote>
+
+<h2 id="总结">总结</h2>
+<div style="text-align: center">
+<img src="/assets/img/liqun/li-qun.png" width="700" height="600" />
+</div>
+
+<blockquote>
+  <p>其中，J是雅克比矩阵，这个矩阵是在SE(3)上的指数映射中，平移部分经过指数映射后，发生了一次以J为系数矩阵的线性变换。旋转部分的指数映射还是罗德里格斯公式。</p>
+</blockquote>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 视觉SLAM十四讲:从理论到实践</li>
+</ul>
+
+:ET

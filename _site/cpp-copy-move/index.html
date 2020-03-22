@@ -54,7 +54,7 @@
         <img src=/assets/img/cute4.jpg alt="c++中的移动操作">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Oct 27</p>
+        <p class="post_meta">2018, Oct 26</p>
         <h1 class="post_title">c++中的移动操作</h1>
       </div>
     </header> <!-- End Header -->
@@ -81,7 +81,7 @@
 </span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
 <span class="k">class</span> <span class="nc">HasPtr</span>
 <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
+<span class="nl">public:</span>
     <span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="p">())</span> <span class="o">:</span> <span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr()"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
     <span class="c1">//拷贝</span>
     <span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="o">:</span><span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr(HasPtr&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
@@ -115,11 +115,11 @@
 
     <span class="o">~</span><span class="n">HasPtr</span><span class="p">(){</span><span class="k">delete</span> <span class="n">ps</span><span class="p">;}</span>
 
-<span class="k">private</span><span class="o">:</span>
+<span class="nl">private:</span>
     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">ps</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
     <span class="n">HasPtr</span> <span class="n">a</span><span class="p">;</span>
     <span class="n">HasPtr</span> <span class="n">b</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
     <span class="n">HasPtr</span> <span class="n">c</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
@@ -261,11 +261,11 @@
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

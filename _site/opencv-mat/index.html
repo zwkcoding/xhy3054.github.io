@@ -54,7 +54,7 @@
         <img src=/assets/img/cartoon4.jpg alt="opencv中的Mat类讲解">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Oct 10</p>
+        <p class="post_meta">2018, Oct 09</p>
         <h1 class="post_title">opencv中的Mat类讲解</h1>
       </div>
     </header> <!-- End Header -->
@@ -80,9 +80,9 @@
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mat</span> <span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">;</span>                          <span class="c1">// creates just the header parts</span>
 <span class="n">A</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">IMREAD_COLOR</span><span class="p">);</span> <span class="c1">// here we'll know the method used (allocate matrix)</span>
-<span class="n">Mat</span> <span class="n">B</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>                                 <span class="c1">// Use the copy constructor</span>
+<span class="n">Mat</span> <span class="nf">B</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>                                 <span class="c1">// Use the copy constructor</span>
 <span class="n">C</span> <span class="o">=</span> <span class="n">A</span><span class="p">;</span>                                    <span class="c1">// Assignment operator</span>
-<span class="n">Mat</span> <span class="n">D</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Rect</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="p">);</span> <span class="c1">// using a rectangle　Ｄ中的指针指向Ａ指针指向矩阵的一片长方形区域</span>
+<span class="n">Mat</span> <span class="nf">D</span> <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Rect</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="p">);</span> <span class="c1">// using a rectangle　Ｄ中的指针指向Ａ指针指向矩阵的一片长方形区域</span>
 <span class="n">Mat</span> <span class="n">E</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="n">Range</span><span class="o">::</span><span class="n">all</span><span class="p">(),</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">));</span> <span class="c1">// using row and column boundaries　也是指向一部分区域，第一个参数代表行（全部行），第二个参数代表列（１～３列）</span>
 </code></pre></div></div>
 
@@ -229,11 +229,11 @@
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

@@ -1,0 +1,76 @@
+I"�<p>我们都知道，在linux下一切都是文件，目录也是文件，本文主要讨论常规文件与目录文件的权限问题。</p>
+
+<p>使用<code class="highlighter-rouge">ll</code>(即ls -l)我们可以查看当前文件夹下的文件的及其相关属性。</p>
+<div style="text-align: center">
+<img src="/assets/img/file_permission/ls.png" />
+</div>
+<p>我们会发现每个文件都会有三种权限<code class="highlighter-rouge">rwx</code>，且为其拥有者、所属用户组成员、其他用户分别进行了不同的设置。</p>
+
+<blockquote>
+  <p>在每行最前面一位，在这里我们会发现是符号<code class="highlighter-rouge">d</code>或<code class="highlighter-rouge">-</code>，这代表的是文件类型，<code class="highlighter-rouge">-</code>代表着常规文件，<code class="highlighter-rouge">d</code>代表目录文件，当然还会有一些其他的特殊文件类型，可以查看书《鸟哥的linux私房菜第四版》163页。</p>
+</blockquote>
+
+<h2 id="文件所有者与所有群">文件所有者与所有群</h2>
+<p>Linux/Unix 是多用户多任务操作系统，所有的文件皆有其拥有者（Owner）。利用<code class="highlighter-rouge">chown</code>命令 可以将文件的拥有者加以改变。一般来说，这个命令只能由系统管理者(root)使用，一般用户没有权限来改变别人的文件的拥有者，也没有权限可以将自己的文件的拥有者改设为别人。只有<strong>系统管理者(root)</strong>才有这样的权限。</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">chgrp</code>命令与<code class="highlighter-rouge">chown</code>一样，但是<code class="highlighter-rouge">chmod</code>不需要系统管理员权限，普通用户就可以使用。</p>
+</blockquote>
+
+<h2 id="常规文件的rwx权限">常规文件的<code class="highlighter-rouge">rwx</code>权限</h2>
+<ul>
+  <li>r(read): 用户可以读取此文件的内容，比如读取文本文件的文字内容等；</li>
+  <li>w(write): 用户可以编辑、新增或是修改该文件的内容（但不含删除该文件）；</li>
+  <li>x(execute): 用户具有执行该文件的权限；</li>
+</ul>
+
+<blockquote>
+  <p>常规文件的<strong>基本权限</strong>是<code class="highlighter-rouge">r</code>权限，如果你想要修改一个文件或者执行一个文件，除了<code class="highlighter-rouge">w</code>或<code class="highlighter-rouge">x</code>权限，你还需要拥有该文件的<code class="highlighter-rouge">r</code>权限。</p>
+</blockquote>
+
+<h2 id="目录文件的rwx权限">目录文件的<code class="highlighter-rouge">rwx</code>权限</h2>
+<ul>
+  <li>r(read): 用户具有读取目录结构列表的权限；</li>
+  <li>w(write): 用户具有改动目录结构列表的权限，比如
+    <ul>
+      <li>建立新的文件与目录；</li>
+      <li>删除已经存在的文件与目录（不论该文件的权限是什么）；</li>
+      <li>将已存在的文件或目录进行更名；</li>
+      <li>移动该目录内的文件、目录位置</li>
+    </ul>
+  </li>
+  <li>x(execute): 用户具有进入该目录，并将该目录作为工作目录（其实就是能对该目录下的文件或者在该目录下执行命令）的权限；</li>
+</ul>
+
+<blockquote>
+  <p>目录文件的<strong>基本权限</strong>是<code class="highlighter-rouge">x</code>权限，因为只有具备了它，你才能执行一切与该目录下有关的命令操作。（其实如果只有r权限的话，也是可以执行ls操作获得文件列表的，只是系统还是会提示权限不够，如下）</p>
+</blockquote>
+
+<div style="text-align: center">
+<img src="/assets/img/file_permission/dir.png" />
+</div>
+
+<h2 id="文件的隐藏属性">文件的隐藏属性</h2>
+<p>除了上述的三个常用的权限属性外，文件还会有一些隐藏属性，可以使用<code class="highlighter-rouge">lsattr</code>查看，使用<code class="highlighter-rouge">chattr</code>进行设置。</p>
+
+<p>比如说，使用<code class="highlighter-rouge">lsattr</code>查看当前文件夹下文件的隐藏属性</p>
+<div style="text-align: center">
+<img src="/assets/img/file_permission/lsattr.png" />
+</div>
+
+<p>我们会发现隐藏属性里只开启了一个<code class="highlighter-rouge">e</code>属性，这个属性是ext3与ext4文件系统自带的属性。</p>
+
+<blockquote>
+  <p>具体还有哪些隐藏属性，这两个命令更详细操作方式，可以查看《鸟哥的linux私房菜第四版》197页，此处只进行简单的讲解。</p>
+</blockquote>
+
+<p>##　文件的特殊权限
+有时我们会发现有些文件的权限并不是<code class="highlighter-rouge">rwx</code>，而是<code class="highlighter-rouge">rws</code>、<code class="highlighter-rouge">rwt</code>等，这里的s与t都是特殊权限。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 鸟哥的linux私房菜（第四版）</li>
+  <li>[2] http://blog.51cto.com/1024079574/1746139</li>
+  <li>[3] https://blog.csdn.net/wh8_2011/article/details/69815660</li>
+</ul>
+:ET

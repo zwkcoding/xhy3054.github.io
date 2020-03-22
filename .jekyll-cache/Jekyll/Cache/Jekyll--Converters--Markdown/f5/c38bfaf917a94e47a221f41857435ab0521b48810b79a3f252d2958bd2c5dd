@@ -1,0 +1,90 @@
+I":1<p>众所周知，c语言与c++需要自行管理动态的内存。许多代码写到最后，防止内存泄漏需要花费程序员大量的心力。在c++11标准中，提出了智能指针来帮助程序员<strong>管理动态内存</strong>。智能指针主要有三种，分别是<code class="highlighter-rouge">shared_ptr</code>、<code class="highlighter-rouge">unique_ptr</code>与<code class="highlighter-rouge">weak_ptr</code>。本文主要讲的就是<code class="highlighter-rouge">shared_ptr</code>使用中的问题。</p>
+
+<h1 id="shared_ptr">shared_ptr</h1>
+<p>首先需要说明的是，<code class="highlighter-rouge">shared_ptr</code>是一个<strong>模板类</strong>。为了让用户可以像使用内置指针一样使用它，这个类的设计者为<strong>它重载了解应用运算符<code class="highlighter-rouge">*</code>、成员访问运算符<code class="highlighter-rouge">-&gt;</code>、赋值运算符<code class="highlighter-rouge">=</code>还有向bool类型的显式类型转换</strong>等。</p>
+
+<p>我们都知道，在使用<code class="highlighter-rouge">new</code>动态申请一块内存ａ后会返回一个指向这片内存的指针，对这个指针值进行拷贝赋值等操作，最后会出现很多个指针都指向ａ。但是通过指针释放ａ只能释放一次，如果释放了多次，就会出现错误。以前，大都是通过自己创建一种<strong>引用计数机制</strong>来管理这样的情况。</p>
+
+<p>在c++11中，标准库提供了一种<code class="highlighter-rouge">shared_ptr</code>智能指针类型。一个动态分配的对象可以在多个<code class="highlighter-rouge">shared_ptr</code>之间共享，因此，<code class="highlighter-rouge">shared_ptr</code>支持拷贝操作。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ptr1</span><span class="p">{</span> <span class="k">new</span> <span class="n">string</span><span class="p">(</span><span class="s">"hello"</span><span class="p">)</span> <span class="p">};</span>
+<span class="k">auto</span> <span class="n">ptr2</span> <span class="o">=</span> <span class="n">ptr1</span><span class="p">;</span>	<span class="c1">//拷贝构造，ptr1与ptr2指向同一块动态内存（一个string对象）</span>
+</code></pre></div></div>
+
+<h3 id="原理分析">原理分析</h3>
+<p><code class="highlighter-rouge">shared_ptr</code>内部包含两个指针，一个指向对象，另一个指向控制块(control block)，控制块中包含一个引用计数和其它一些数据。由于这个控制块需要在多个shared_ptr之间共享，所以它也是存在于<code class="highlighter-rouge">heap</code>中的。<code class="highlighter-rouge">shared_ptr</code>对象本身是线程安全的，也就是说<code class="highlighter-rouge">shared_ptr</code>的引用计数增加和减少的操作都是原子的。</p>
+
+<p><img src="/assets/img/shared_ptr/sh2.png" alt="sh2" /></p>
+
+<h3 id="构造选择">构造选择</h3>
+<p>在初始化<code class="highlighter-rouge">ptr</code>时一般有两种选择，分别是<code class="highlighter-rouge">new</code>与<code class="highlighter-rouge">make_shared</code>。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ptr</span><span class="p">{</span> <span class="k">new</span> <span class="n">string</span><span class="p">(</span><span class="s">"hello"</span><span class="p">)</span> <span class="p">};</span>
+<span class="k">auto</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"hello"</span><span class="p">);</span>
+</code></pre></div></div>
+<hr />
+<p>推荐使用第二种。因为第一种方式创建<code class="highlighter-rouge">shared_ptr</code>时，需要执行两次new操作，一次在 heap 上为 string(“hello”) 分配内存，另一次在 heap 上为控制块分配内存。使用<code class="highlighter-rouge">make_shared</code>来创建<code class="highlighter-rouge">shared_ptr</code>会高效，因为<code class="highlighter-rouge">make_shared</code>仅使用new操作一次，它的做法是在 heap 上分配一块连续的内存用来容纳 string(“hello”) 和控制块。同样，当<code class="highlighter-rouge">shared_ptr</code>被析构时，也只需一次<code class="highlighter-rouge">delete</code>操作。</p>
+
+<h3 id="销毁操作">销毁操作</h3>
+<p>一般情况下不需要考虑所指对象的销毁问题，只在指向数组时，与<code class="highlighter-rouge">unique_ptr</code>不同，标准库并不提供<code class="highlighter-rouge">shared_ptr&lt;T[]&gt;</code>，因此，使用<code class="highlighter-rouge">shared_ptr</code>处理数组时需要显示指定删除行为，例如：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ptr1</span><span class="p">(</span> <span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> 
+                         <span class="p">[](</span> <span class="n">string</span> <span class="o">*</span><span class="n">p</span> <span class="p">)</span> <span class="p">{</span>
+                             <span class="k">delete</span><span class="p">[]</span> <span class="n">p</span><span class="p">;</span>
+                         <span class="p">});</span>
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ptr2</span><span class="p">(</span> <span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span>
+                         <span class="n">std</span><span class="o">::</span><span class="n">default_delete</span><span class="o">&lt;</span><span class="n">string</span><span class="p">[]</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">);</span>
+</code></pre></div></div>
+<hr />
+<blockquote>
+  <p>此处需要说明的还有，一般智能指针管理的资源都是new分配的内存（即默认使用delete进行销毁操作），如果不是，比如说是其他方式申请的动态内存或者申请的不是动态内存等，请记住传递给它一个删除器来订制销毁操作。</p>
+</blockquote>
+
+<h3 id="使用shared_ptr的坑需要注意的问题１">使用shared_ptr的坑－－需要注意的问题１</h3>
+<p>用同一个内置指针初始化<code class="highlighter-rouge">shared_ptr</code>的操作只能出现一次。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">{</span><span class="mi">10</span><span class="p">};</span>
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ptr1</span><span class="p">{</span> <span class="n">p</span> <span class="p">};</span>
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ptr2</span><span class="p">{</span> <span class="n">p</span> <span class="p">};</span>         <span class="c1">// ERROR</span>
+</code></pre></div></div>
+<p>很明显，每次通过内置指针来构造<code class="highlighter-rouge">shared_ptr</code>时候就会分配一个控制块，这时存在两个控制块，也就是说存在两个引用计数。这显然是错误的，因为当这两个<code class="highlighter-rouge">shared_ptr</code>被销毁时，对象将会被delete两次。</p>
+
+<h3 id="使用shared_ptr的坑需要注意的问题２">使用shared_ptr的坑－－需要注意的问题２</h3>
+<p>在对象之间出现<strong>循环引用</strong>时，会使得共享指针引用计数不会降到０，也就不能销毁。循环引用示意图如下：</p>
+
+<p><img src="/assets/img/shared_ptr/am.png" alt="am" /></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;memory&gt;
+</span><span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="p">;</span>
+<span class="c1">// 一段内存泄露的代码</span>
+<span class="k">struct</span> <span class="n">Son</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">Father</span><span class="p">{</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Son</span><span class="o">&gt;</span> <span class="n">son_</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">struct</span> <span class="n">Son</span><span class="p">{</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Father</span><span class="o">&gt;</span> <span class="n">father_</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="k">auto</span> <span class="n">father</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Father</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="k">auto</span> <span class="n">son</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Son</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">father</span><span class="o">-&gt;</span><span class="n">son_</span> <span class="o">=</span> <span class="n">son</span><span class="p">;</span>
+    <span class="n">son</span><span class="o">-&gt;</span><span class="n">father_</span> <span class="o">=</span> <span class="n">father</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"one father's son:"</span><span class="o">&lt;&lt;</span><span class="n">father</span><span class="p">.</span><span class="n">use_count</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>  
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"one son's father:"</span><span class="o">&lt;&lt;</span><span class="n">son</span><span class="p">.</span><span class="n">use_count</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>  
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+<p>编译运行结果为：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/share_ptr<span class="nv">$ </span>./test 
+one father<span class="s1">'s son:2
+one son'</span>s father:2
+</code></pre></div></div>
+<p>函数结束前，堆上的两个对象的引用计数都是２，所以即便函数结束，将两个栈上的的共享指针分别析构，最后堆上的两个对象的引用数也不会为０，而是１，两个对象不会调用析构函数进行析构，从而内存泄漏。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+  <li>[2] http://senlinzhan.github.io/2015/04/24/%E6%B7%B1%E5%85%A5shared-ptr/</li>
+</ul>
+
+:ET

@@ -1,0 +1,71 @@
+I"�<p>c++中带有继承关系的类在进行成员函数调用时，需要考虑很多问题，是否是虚函数？动态静态类型是否一致？调用形式？本文主要就是对这些问题进行一一剖析。</p>
+
+<h2 id="动态类型与静态类型">动态类型与静态类型</h2>
+<p>当我们在继承体系中进行成员函数调用时，一个变量（或表达式）的<strong>静态类型</strong>与其<strong>动态类型</strong>与其息息相关。</p>
+
+<ul>
+  <li>静态类型：一个变量（或表达式）的静态类型在编译时总是已知的，它是变量声明时的类型（或表达式生成的类型）；</li>
+  <li>动态类型：是一个变量或表达式表示的内存中的对象的类型，往往直到运行时才可知。</li>
+</ul>
+
+<blockquote>
+  <p>通常如果一个表达式（变量名也是表达式）<strong>不是引用也不是指针，则它的动态类型与静态类型永远一致</strong>。<strong>基类的指针或引用的静态类型可能与其动态类型不一致</strong>。我们都知道一个派生类对象的存储中<strong>基类部分与派生类部分是分开存储的</strong>。并且在我们使用一个派生类对象对一个基类对象进行赋值时，<strong>调用的是等式左边的基类对象的拷贝赋值运算符</strong>，所以参数传入时将一个基类引用绑定到右边的派生类对象上。在拷贝赋值操作中其实是将右边派生类对象的基类部分拷贝给左边的基类对象。本质也就是将派生类部分“切掉”再赋值给基类对象的，也就是说<strong>得到的基类对象就是一个实打实的基类对象。除了数据成员值相同，与原本的派生类对象不再有任何关系</strong>。</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">base</span><span class="p">{};</span>
+<span class="k">class</span> <span class="nc">derived</span><span class="o">:</span> <span class="k">public</span> <span class="n">base</span><span class="p">{};</span>
+<span class="n">derived</span> <span class="n">d1</span><span class="p">;</span>
+<span class="n">base</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//静态类型与动态类型都是base</span>
+<span class="n">base</span> <span class="o">*</span><span class="n">b2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">d1</span><span class="p">;</span>	<span class="c1">//静态类型base,动态类型derived</span>
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>对象、指针和引用的<strong>静态类型</strong>决定了我们能够使用哪些成员。就算是虚函数，也是因为这个虚函数本身在静态类型的基类中也存在。</p>
+</blockquote>
+
+<h2 id="继承体系中的虚函数与非虚函数">继承体系中的虚函数与非虚函数</h2>
+<p>我们都知道面向对象的编程中，<strong>每个类定义了自己的作用域</strong>。当存在继承关系时，<strong>派生类的作用域嵌套在其基类的作用域之内</strong>。如果一个名字在派生类的作用域中无法正确解释，编译器会继续在外层的基类作用域中寻找该名字的定义。因此，派生类往往可以像使用自己的成员一样使用基类的成员。</p>
+
+<p>和其他作用域一样，派生类也能重定义在其直接或间接基类中的名字，此时<strong>定义在内层作用域的名字将隐藏定义在外层作用域的名字</strong>。如果派生类中定义了与基类中一样名字的函数，则其会直接隐藏基类中的函数，无论它们参数形式是否一致（因为是隐藏不会重载）。</p>
+
+<blockquote>
+  <p>如果想要使用一个被隐藏的基类成员，可以使用作用域运算符<code class="highlighter-rouge">::</code>来指定使用。</p>
+</blockquote>
+
+<p>作用域问题讲完，言归正传，在继承体系中调用普通成员函数与虚函数，区别如下。</p>
+
+<h3 id="普通成员函数">普通成员函数</h3>
+<p>在调用一个普通成员函数时，会执行调用对象的<strong>静态类型</strong>对应的版本。</p>
+
+<h3 id="虚函数">虚函数</h3>
+<p>在调用一个虚函数时，会执行调用对象的<strong>动态类型</strong>对应的版本。这也叫做<strong>动态绑定</strong>。</p>
+
+<h2 id="继承体系中函数调用的解析过程">继承体系中函数调用的解析过程</h2>
+
+<p>此处来分析一下继承体系中函数调用的解析过程，如<code class="highlighter-rouge">p-&gt;mem</code>或<code class="highlighter-rouge">obj.mem()</code>的解析过程:</p>
+<ol>
+  <li>
+    <p>首先确定p(或obj)的<strong>静态类型</strong>。因为我们调用的是一个成员，所以该类型<strong>必然是类类型</strong>。</p>
+  </li>
+  <li>
+    <p>在p（或obj）的静态类型对应的类中<strong>查找mem</strong>（如果是虚函数，要么覆盖要么继承此处就可以找到）。如果找不到，则依次在直接基类中不断查找直到到达继承链的顶端。如果找遍了该类及其基类依然<strong>找不到，则编译器将报错</strong>。</p>
+  </li>
+  <li>
+    <p>一旦找到了mem，就进行<strong>常规的类型检查</strong>以确认调用合法。</p>
+  </li>
+  <li>
+    <p>若调用合法，则编译器将根据<strong>是否是虚函数</strong>而产生不同的代码：</p>
+    <ul>
+      <li>如果mem是<strong>虚函数且我们是通过引用或指针进行的调用</strong>，则编译器产生的代码将在运行时确定运行<strong>指针（或引用）的动态类型的虚函数版本</strong>。</li>
+      <li>反之，如果mem<strong>不是虚函数或者我们是通过对象（非引用、指针）进行的调用</strong>，则编译器将产生一个<strong>常规函数调用</strong>。</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+
+:ET

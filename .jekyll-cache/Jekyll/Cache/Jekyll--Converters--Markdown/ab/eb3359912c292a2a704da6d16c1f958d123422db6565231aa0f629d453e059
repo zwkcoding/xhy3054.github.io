@@ -1,0 +1,108 @@
+I"3<h2 id="whats-ssh">what’s SSH</h2>
+<p>通俗来讲，<strong>SSH</strong>是一种网络协议，主要用于远程登陆。由于这种登陆中信息是加密的，所以即使被中途拦截，也不会泄露密码。</p>
+
+<h2 id="ssh基本用法">SSH基本用法</h2>
+<p><strong>username</strong>为你登陆的远程主机用户名（若本地用户名与远程用户名一致，可省略<code class="highlighter-rouge">username@</code>），<strong>host</strong>为你登陆的远程主机ip，此命令默认使用远程主机的<strong>22</strong>端口进行登陆。</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh username@host
+</code></pre></div></div>
+
+<p>若想指定端口号,可用<strong>p</strong>参数（例如指定<strong>33</strong>端口发送登陆请求）</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh <span class="nt">-p</span> 33 username@host
+</code></pre></div></div>
+
+<h2 id="ssh免密登陆">SSH免密登陆</h2>
+<p>每次登陆都需要输入密码会比较麻烦，可以设置免密登陆。</p>
+
+<p>免密登陆的原理是：</p>
+<blockquote>
+  <p>用户将自己的公钥存储在远程主机上,在登陆时,远程主机会向用户发送一段随机字符串，用户用自己的私钥加密后，再发回来。远程主机用事先储存的公钥进行解密，如果成功，就证明用户是可信的，直接允许登录shell，不再要求密码。</p>
+</blockquote>
+
+<p>因此,用户首先需要提供自己的公钥,可以进入目录<code class="highlighter-rouge">~/.ssh</code>查看一下,<code class="highlighter-rouge">id_rsa.pub</code>为私钥,<code class="highlighter-rouge">id_rsa</code>为公钥。如果没有,可以用如下方式生成:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh-keygen
+</code></pre></div></div>
+
+<p>然后用如下命令,可以将公钥传送给远程主机</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh-copy-id username@host
+</code></pre></div></div>
+
+<p>正常情况至此应该已经大公告成,如果没有,请查看远程主机的<code class="highlighter-rouge">/etc/ssh/sshd_config</code>文件,将下面几行的注释取消</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>　　RSAAuthentication yes
+　　PubkeyAuthentication yes
+　　AuthorizedKeysFile .ssh/authorized_keys
+</code></pre></div></div>
+
+<p>然后重启远程主机的<strong><em>SSH</em></strong>服务(ubuntu)</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>service ssh restart
+</code></pre></div></div>
+
+<p>大功告成!</p>
+
+<h2 id="本机与远程主机之间文件传输">本机与远程主机之间文件传输</h2>
+<p>由本机往远程主机路径<code class="highlighter-rouge">~/picture/</code>传输文件<strong>a</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>scp a username@host:~/picture/
+</code></pre></div></div>
+
+<p>由远程主机往本机路径<code class="highlighter-rouge">~/picture/</code>传输文件<strong>b</strong>(本机<strong>localhost</strong>可以由<code class="highlighter-rouge">ifconfig</code>命令查看)</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>scp b localusername@localhost:~/picture/
+</code></pre></div></div>
+
+<h2 id="配置config便捷登录">配置<code class="highlighter-rouge">config</code>便捷登录</h2>
+<p>在目录<code class="highlighter-rouge">~/.ssh/</code>下新建<code class="highlighter-rouge">config</code>文件，输入如下信息</p>
+<div class="language-config highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Host</span> <span class="n">s1</span>
+<span class="n">HostName</span> <span class="m">10</span>.<span class="m">20</span>.<span class="m">41</span>.<span class="m">20</span>
+<span class="n">User</span> <span class="n">xhy</span>
+<span class="n">Port</span> <span class="m">25000</span>
+
+<span class="n">Host</span> <span class="n">s2</span>
+<span class="n">HostName</span> <span class="m">10</span>.<span class="m">20</span>.<span class="m">41</span>.<span class="m">21</span>
+<span class="n">User</span> <span class="n">xhy</span>
+<span class="n">Port</span> <span class="m">25000</span>
+</code></pre></div></div>
+<p>则再使用<code class="highlighter-rouge">ssh</code>命令登录服务器s1时只需要输入<code class="highlighter-rouge">ssh s1</code>即可。</p>
+
+<h2 id="工具安装">工具安装</h2>
+<p>一般我们都是使用ssh连接服务器，而服务器一般都会预装了ssh服务，所以以上操作不会出现问题，但是也有偶尔我们是想要使用ssh连接任意两台主机，此时也许会出现</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>connect to host xxx.xxx.xxx.xxx port 22:Connection refused
+</code></pre></div></div>
+
+<p>这有可能是因为目前ubuntu主机一般都是默认安装了<strong>openssh-client</strong>，但是没有安装<strong>openssh-server</strong>，可以使用如下命令解决</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#首先使用如下命令查看看是否有sshd进行</span>
+<span class="nv">$ </span>ps <span class="nt">-e</span> | <span class="nb">grep </span>ssh
+<span class="c">#如果没有基本就是得自己安装了</span>
+<span class="nv">$ </span><span class="nb">sudo </span>apt-get <span class="nb">install </span>openssh-server
+</code></pre></div></div>
+<hr />
+
+<blockquote>
+  <p>当然，也有可能是其他原因，比如说你的ip被人屏蔽了等，但是一般我们遇到其他情况可能性比较低。</p>
+</blockquote>
+
+<h2 id="ssh登陆知识常识">SSH登陆知识常识</h2>
+<p>SSH之所以能够保证安全，原因在于它采用了公钥加密。</p>
+
+<p>整个过程是这样的：</p>
+<blockquote>
+  <ul>
+    <li>远程主机收到用户的登录请求，把自己的公钥发给用户。</li>
+    <li>用户使用这个公钥，将登录密码加密后，发送回来。</li>
+    <li>远程主机用自己的私钥，解密登录密码，如果密码正确，就同意用户登录。</li>
+  </ul>
+</blockquote>
+
+<p>这个过程本身是安全的，但是实施的时候存在一个风险：如果有人截获了登录请求，然后冒充远程主机，将伪造的公钥发给用户，那么用户很难辨别真伪。因为不像https协议，SSH协议的公钥是没有证书中心（CA）公证的，也就是说，都是自己签发的。</p>
+
+<p>可以设想，如果攻击者插在用户与远程主机之间（比如在公共的wifi区域），用伪造的公钥，获取用户的登录密码。再用这个密码登录远程主机，那么SSH的安全机制就荡然无存了。这种风险就是著名的”中间人攻击”（Man-in-the-middle attack）。</p>
+
+<p>其实到目前为止并没有有效阻止“中间人攻击的方法”，因此在用户尝试登陆远程主机时，SSH会做出如下提示（非免密登录）：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ssh user@host
+
+　　The authenticity of host 'host (12.18.429.21)' can't be established.
+
+　　RSA key fingerprint is 98:2e:d7:e0:de:9f:ac:67:28:c2:42:2d:37:16:58:4d.
+
+　　Are you sure you want to continue connecting (yes/no)?
+</code></pre></div></div>
+<p>即无法确定host主机的真实性，只知道它的公钥指纹，如果你可以核对这个公钥指纹，即可确保安全登陆。</p>
+:ET

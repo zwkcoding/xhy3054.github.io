@@ -54,7 +54,7 @@
         <img src=/assets/img/reef.jpg alt="c语言和ｃ++语言中函数参数的传递">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Sep 09</p>
+        <p class="post_meta">2018, Sep 08</p>
         <h1 class="post_title">c语言和ｃ++语言中函数参数的传递</h1>
       </div>
     </header> <!-- End Header -->
@@ -79,15 +79,15 @@
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
 #include&lt;string&gt;
 </span><span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
-<span class="kt">bool</span> <span class="n">useBigger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">,</span> <span class="kt">bool</span> <span class="p">(</span><span class="o">*</span><span class="n">pf</span><span class="p">)(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">)){</span>
+<span class="kt">bool</span> <span class="nf">useBigger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">,</span> <span class="kt">bool</span> <span class="p">(</span><span class="o">*</span><span class="n">pf</span><span class="p">)(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">)){</span>
     <span class="k">return</span> <span class="n">pf</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">);</span>
 <span class="p">}</span>
 <span class="c1">//细节：函数的类型只与函数的参数还有返回类型有关，与函数名无关</span>
-<span class="kt">bool</span> <span class="n">lengthCompare</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">){</span>
+<span class="kt">bool</span> <span class="nf">lengthCompare</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">){</span>
     <span class="k">if</span><span class="p">(</span><span class="n">s1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&gt;</span><span class="n">s2</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>	<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
     <span class="k">else</span>	<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
 <span class="p">}</span>
-<span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
     <span class="c1">//此处自动将函数lengthCompare转换成指向该函数的指针</span>
     <span class="n">useBigger</span><span class="p">(</span><span class="s">"1234"</span><span class="p">,</span><span class="s">"123456"</span><span class="p">,</span><span class="n">lengthCompare</span><span class="p">);</span>
 <span class="p">}</span>
@@ -102,10 +102,10 @@
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
 </span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="kt">void</span> <span class="n">reset</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">){</span>
+<span class="kt">void</span> <span class="nf">reset</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">){</span>
     <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-<span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
     <span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>
     <span class="n">reset</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
     <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"j="</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
@@ -151,7 +151,7 @@
 <h2 id="13-main函数参数处理命令行选项">1.3 main函数参数：处理命令行选项</h2>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
 </span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
     <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argc = "</span><span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> 
     <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> 
         <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argv["</span><span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span><span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> 
@@ -210,7 +210,7 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
 </ol>
 
 <p>其实这么写可能比较易读，但是不方便，上述main函数其实还有<strong>一种写法</strong>是：</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
 </code></pre></div></div>
 <hr />
 
@@ -315,11 +315,11 @@ xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

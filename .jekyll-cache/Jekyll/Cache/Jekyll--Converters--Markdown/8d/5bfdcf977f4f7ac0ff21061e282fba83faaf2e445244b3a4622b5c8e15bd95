@@ -1,0 +1,65 @@
+I"_<p>不用说，这三个关键字大家都很熟悉，今天我主要是重新温习一遍，理清一遍。</p>
+<h1 id="访问权限关键字无继承关系时">访问权限关键字（无继承关系时）</h1>
+<ul>
+  <li>
+    <p>public: 这个关键字代表对外界开放，用户可以通过一个对象直接进行其<code class="highlighter-rouge">public</code>成员的访问操作；</p>
+  </li>
+  <li>
+    <p>protected: 这个关键字代表只对自己的派生类开放，对与普通用户不开放；</p>
+  </li>
+  <li>
+    <p>private: 这个关键字代表只对自己内部的成员（或友元）开放，对其他任何外在用户（包括派生类对象）都不开放。</p>
+  </li>
+</ul>
+
+<h1 id="派生类继承来的基类部分的成员的访问权限说明">派生类继承来的基类部分的成员的访问权限说明</h1>
+<p>派生类继承来的基类部分的成员的访问权限受到两个因素影响：</p>
+<ol>
+  <li>在基类中该成员的访问说明符；</li>
+  <li>在派生类的派生列表中的访问说明符。</li>
+</ol>
+
+<p>然后关于派生类继承来的成员的权限可以分为以下两方面来讨论。</p>
+
+<h2 id="派生类对自己继承的基类部分的成员的访问权限解析">派生类对自己继承的基类部分的成员的访问权限解析</h2>
+<p><strong>派生类</strong>对其继承而来的<strong>基类部分的成员</strong>的访问权限只受到１个因素影响：<strong>在基类中该成员的访问说明符</strong>。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//下列两个关键字，第一个代表基类中成员的访问说明符；第二个代表派生类派生列表中的访问说明符</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span> <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>   <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span> <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>  <span class="err">可以访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>  <span class="err">不可访问</span>
+</code></pre></div></div>
+<hr />
+<p>由上，只有基类中成员的访问说明符起作用了，派生访问说明符并没有起作用。</p>
+
+<h2 id="派生访问说明符的作用">派生访问说明符的作用</h2>
+
+<p>派生访问说明符的<strong>作用</strong>是控制派生类用户（包括派生类的派生类在内）对于这部分基类成员的访问权限。</p>
+
+<p>所以对于<strong>一个派生类的用户</strong>（包括派生类的派生类在内），其对于此派生类中的<strong>基类部分的成员</strong>的访问权限就是由两个因素决定的了。如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//下列两个关键字，第一个代表基类中成员的访问说明符；第二个代表派生类派生列表中的访问说明符</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>    <span class="err">可以访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span> <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">public</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span> <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>  <span class="err">派生类的派生类用户可以访问，派生类的其他用户不可访问</span>
+<span class="k">protected</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">public</span><span class="o">:</span>   <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">protected</span><span class="o">:</span>    <span class="err">不可访问</span>
+<span class="k">private</span> <span class="o">+</span> <span class="k">private</span><span class="o">:</span>  <span class="err">不可访问</span>
+</code></pre></div></div>
+<hr />
+<blockquote>
+  <p>同样，还有一点，我们会看到有将派生类向基类类型转换的代码，这个也是有条件的。条件就是，如果对当前代码基类部分的公有成员是可访问的，则派生类向基类的类型转换也是可访问的。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+:ET

@@ -1,0 +1,111 @@
+I"�,<p>使用c++进行开发的我们总会不可避免的使用很多外部的库，这样可以避免自己重复造轮子，大大提高工作效率。但是每个库都会定义大量的全局名字，如类、函数、模板等。如果这些名字都放在全局命名空间中，不可避免的会出现相同的名字，形成<strong>命名冲突。</strong></p>
+
+<p><strong>命名空间</strong>就是为了防止命名冲突而出现的，每个库都可以拥有自己的命名空间，每个命名空间是一个作用域。然后如何使用一个特定命名空间里的成员，就是本文主要要讲的内容，不过我只挑了一些我认为需要记录下来的，因为有很多常识性的规则实在没有多说的必要。</p>
+
+<h1 id="using声明">using声明</h1>
+<p>一条<code class="highlighter-rouge">using</code>声明语句一次只引入命名空间的一个成员。例如最常见的<code class="highlighter-rouge">using std::cout</code>就是使用using声明将std命名空间中的标准输出对象<code class="highlighter-rouge">cout</code>引入<strong>当前作用域</strong>。其实就是在当前作用域声明了有<code class="highlighter-rouge">cout</code>这个对象，并且说明它定义在命名空间<code class="highlighter-rouge">std</code>里。因此如果当前作用域中已经有一个同名的对象，将会<strong>报错</strong>。</p>
+
+<p>需要注意的是using声明<strong>引入的是一个名字</strong>，所以在在引入一个<strong>函数</strong>时比较特殊。如下：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">ns</span><span class="o">::</span><span class="n">print</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>	<span class="c1">//错误：只能引入一个名字，不能指定形参列表</span>
+<span class="k">using</span> <span class="n">ns</span><span class="o">::</span><span class="n">print</span><span class="p">;</span>	<span class="c1">//正确</span>
+</code></pre></div></div>
+<hr />
+<p>并且在引入一个函数时，会出现如下情况。</p>
+<ol>
+  <li>如果using声明出现在局部作用域中，则引入的名字将隐藏外层作用域的相关声明；</li>
+  <li>如果using声明所在的作用域中已经有一个函数与新引入的函数同名且形参列表相同，则将引发错误；</li>
+  <li>除了上面两种情况，其他同名函数都会进行<strong>重载</strong>，最终扩展候选函数集的规模。</li>
+</ol>
+
+<h1 id="using指示">using指示</h1>
+<p><code class="highlighter-rouge">using</code>指示是将某个命名空间中的所有内容都变得有效。但是有一点需要注意，那就是using指示是对<strong>最近的外层作用域</strong>有效。如下</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// namespace A and function f are defined at global scope</span>
+<span class="c1">//定义在全局作用域</span>
+<span class="k">namespace</span> <span class="n">A</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">f</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="k">using</span> <span class="k">namespace</span> <span class="n">A</span><span class="p">;</span> <span class="c1">// 把A中的名字注入到全局作用域</span>
+
+	<span class="c1">// uses i and j from namespace A</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"i: "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">" j: "</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+<p>并且using指示后在同一作用域出现相同名字的时候，并<strong>不会马上报错</strong>，而是直到使用时出现二义性的代码时才会报错。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">blip</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
+	<span class="kt">void</span> <span class="n">f</span><span class="p">()</span> 
+		<span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"i: "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">" j: "</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="s">" k: "</span> <span class="o">&lt;&lt;</span> <span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// ok: j inside blip is hidden inside a namespace</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="c1">// using directive; </span>
+	<span class="c1">// the names in blip are ``added'' to the global scope</span>
+    <span class="k">using</span> <span class="k">namespace</span> <span class="n">blip</span><span class="p">;</span> <span class="c1">// clash between ::j and blip::j</span>
+                          <span class="c1">// detected only if j is used</span>
+
+    <span class="o">++</span><span class="n">i</span><span class="p">;</span>        <span class="c1">// sets blip::i to 17</span>
+    <span class="o">++</span><span class="n">j</span><span class="p">;</span>        <span class="c1">//　二义性错误，是全局的j还是blip::j?</span>
+    <span class="o">++::</span><span class="n">j</span><span class="p">;</span>      <span class="c1">// ok: sets global j to 1</span>
+    <span class="o">++</span><span class="n">blip</span><span class="o">::</span><span class="n">j</span><span class="p">;</span>  <span class="c1">// ok: sets blip::j to 16</span>
+
+    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">97</span><span class="p">;</span> <span class="c1">// local k hides blip::k</span>
+    <span class="o">++</span><span class="n">k</span><span class="p">;</span>        <span class="c1">// sets local k to 98</span>
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>如上，如果使用using指示引入函数与最近的外层作用域重名，会直接被添加到重载集合，即使出现同名且参数列表相同的函数也不会报错，而是知道出现二义性代码才会报错。</p>
+
+<blockquote>
+  <p>通常情况下大家都是在最外层的全局作用域使用using指示，此时没有更外层的作用域了，所以会直接将成员注入到全局作用域。</p>
+</blockquote>
+
+<h1 id="实参相关与类类型形参的函数查找">实参相关与类类型形参的函数查找</h1>
+<p>如果不用using指示与using声明，通常我们在使用一个命名空间中的成员时，需要使用作用域限定符<code class="highlighter-rouge">::</code>指明出处，但是有一点例外，那就是在使用函数时。</p>
+
+<ol>
+  <li>
+    <p>当我们调用一个函数，并且此函数的实参传递一个类类型的对象是，<strong>除了在常规作用域进行函数查找外，还会查找实参类所属的命名空间</strong>（比如<code class="highlighter-rouge">std::cout&lt;&lt;"helio"</code>中对于重载的输出运算符函数并没有指定作用域，但是依然找到了，便是根据实参cout）。</p>
+  </li>
+  <li>
+    <p>如果形参是一个基类，传入的实参是该基类的一个派生类，则除了在常规作用域与实参类所属的命名空间中进行函数的查找外，还会在<strong>基类的作用域中</strong>进行该函数的查找。如下：</p>
+  </li>
+</ol>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">NS</span> <span class="p">{</span>
+    <span class="k">class</span> <span class="nc">Quote</span> <span class="p">{</span> 
+	<span class="nl">public:</span>
+		<span class="n">Quote</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Quote::Quote"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span> 
+	<span class="p">};</span>
+    <span class="kt">void</span> <span class="n">display</span><span class="p">(</span><span class="k">const</span> <span class="n">Quote</span><span class="o">&amp;</span><span class="p">)</span> 
+		<span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"display(const Quote&amp;)"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Bulk_item's base class is declared in namespace NS</span>
+<span class="k">class</span> <span class="nc">Bulk_item</span> <span class="o">:</span> <span class="k">public</span> <span class="n">NS</span><span class="o">::</span><span class="n">Quote</span> <span class="p">{</span> 
+<span class="nl">public:</span>
+	<span class="n">Bulk_item</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Bulk_item::Bulk_item"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">Bulk_item</span> <span class="n">book1</span><span class="p">;</span>
+
+    <span class="n">display</span><span class="p">(</span><span class="n">book1</span><span class="p">);</span> <span class="c1">// calls Quote::display</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+
+:ET

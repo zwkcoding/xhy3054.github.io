@@ -54,7 +54,7 @@
         <img src=/assets/img/cartoon1.jpg alt="c++中的引用">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Oct 09</p>
+        <p class="post_meta">2018, Oct 08</p>
         <h1 class="post_title">c++中的引用</h1>
       </div>
     </header> <!-- End Header -->
@@ -130,7 +130,7 @@
 <span class="k">const</span> <span class="kt">int</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">d1</span><span class="p">;</span>	<span class="c1">//先生成一个临时变量（与常量引用类型一致）</span>
 <span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>	<span class="c1">//让r1绑定这个临时量</span>
 </code></pre></div></div>
-<p>当所要绑定的对象与常量引用类型不一样时，编译器便会创建一个临时变量，并将原变量转换类型赋值给这个临时变量，常量引用最终绑定的是这个临时变量。当绑定对象是某个表达式时执行操作一样。注意！这种操作只在必要时发生，如果绑定的是一个类型相符的变量，则直接进行绑定操作，不会有什么临时变量。</p>
+<p>当所要绑定的对象与常量引用类型不一样时，编译器便会创建一个临时变量，并将原变量转换类型赋值给这个临时变量，常量引用最终绑定的是这个临时变量。当绑定对象是某个表达式时执行操作一样。注意！这种操作只在必要时发生，如果绑定的是一个类型相符的变量，则直接进行绑定操作，不会有什么临时变量。(因此这个引用其实与原变量不再相关，即使原变量值被修改了，这个引用指向的值不变，其实常量引用就相当于一个字面值常量)</p>
 
 <h1 id="右值引用">右值引用</h1>
 <p>新标准中为了支持移动操作，有了<strong>右值引用</strong>的概念。顾名思义，右值引用就是绑定到右值的引用。</p>
@@ -153,7 +153,7 @@
 </code></pre></div></div>
 
 <h2 id="stdmove">std::move()</h2>
-<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>返回一个指向左值对象的右值引用</strong>。</p>
+<p>提到右值引用，就不得不提<code class="highlighter-rouge">std::move()</code>这个函数（头文件<code class="highlighter-rouge">utility</code>）。这个函数的作用就是<strong>将参数包装成一个右值</strong>。</p>
 
 <p>因为<strong>右值引用为左值</strong>，所以我们可以通过右值引用改变源对象的值：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
@@ -166,6 +166,16 @@
 
 <blockquote>
   <p>通常肯定不会这样使用move，通常我们将move函数来辅助完成<a href="https://xhy3054.github.io/cpp-copy-move/">一个对象的移动操作</a>，因此，往往调用<code class="highlighter-rouge">move</code>意味着就承诺：除了对源对象重新赋值或者销毁它外，我们将不再使用它。在对一个源对象做了move操作后，我们只能保证移后源对象结构依旧完好，可以正常销毁，但是它的值我们不能做任何假设。</p>
+</blockquote>
+
+<h1 id="万能引用">万能引用</h1>
+<p>其实还有一种引用，那就是万能引用，万能引用形式和右值引用一样。万能引用只出现在型別推导的场景下，万能引用可以根据不同的语境选择是成为左值或者右值引用。</p>
+
+<h2 id="stdforward">std::forward()</h2>
+<p>万能引用总是会搭配<code class="highlighter-rouge">std::forward()</code>使用，这个函数会根据语境选择是否<strong>将参数包装成一个右值</strong>。仅在实参原本是右值时才会。因此这中操作也叫做<strong>完美转发</strong>。</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">forward</code>和<code class="highlighter-rouge">move</code>其实就是强制类型转换，只不过前者是有条件的转换，后者无条件转换。</p>
 </blockquote>
 
 <h1 id="参考资料">参考资料</h1>
@@ -267,11 +277,11 @@
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

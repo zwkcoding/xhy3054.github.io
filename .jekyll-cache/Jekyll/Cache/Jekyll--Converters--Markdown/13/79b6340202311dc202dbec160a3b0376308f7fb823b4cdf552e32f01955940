@@ -1,0 +1,301 @@
+I"ŗ<p>三角测量的目的是用来确定图片中某一个点的深度。为什么会有这样的需求呢？我们在前面的博客中提到了<a href="https://xhy3054.github.io/epipolar-geometry/">对极几何</a>与<a href="https://xhy3054.github.io/Homography-matrix/">单应变换</a>。在前面其实已经提到过了，在单目VO中，虽然我们可以通过本质矩阵与单应矩阵恢复出相机变换的位姿，但是这两种方法确定的位姿变换是具有<strong>尺度不确定性</strong>的。<strong>在双目vo中，我们会首先使用三角测量恢复出深度信息，再进行位姿估计</strong>。</p>
+
+<blockquote>
+  <p>因为基础矩阵与单应矩阵本身描述的是从<strong>一个2d平面到另一个2d平面的变换</strong>，无需3d深度信息，这两种变换都是正常进行的，因此自然就具有尺度不确定性。更加具体的讲，将基础矩阵与单应矩阵作用在一个齐次坐标(x,y,1)上时，此时，随意的将基础矩阵与单应矩阵进行一定尺度缩放，由于<strong>齐次坐标的尺度等价性</strong>，对最终的变换结果都不会产生影响。</p>
+</blockquote>
+
+<h2 id="三角测量">三角测量</h2>
+<p>三角测量本身是由高斯提出，最早应用在天文地理领域，根据<strong>不同季节观察到的星星的角度</strong>，估计星星与我们的距离。</p>
+
+<p>在相机几何中的应用，推导如下：</p>
+<div style="text-align: center">
+<img src="/assets/img/triangulation/3_Triangulation.PNG" />
+</div>
+
+<blockquote>
+  <p>注意，三角测量依据的是<strong>同一个空间点</strong>在不同时刻的投影到相机成像平面上的位置来确定这两个时刻时这个点的深度。</p>
+</blockquote>
+
+<h2 id="第一种思路">第一种思路</h2>
+<p>由<a href="https://xhy3054.github.io/camerca-module/">相机成像的几何描述</a>我们可以理解如下的公式(世界坐标到像素坐标的转换)：</p>
+
+<script type="math/tex; mode=display">Z_1p_{uv1} = K_1P_w</script>
+
+<script type="math/tex; mode=display">Z_2p_{uv2} = K_2(RP_w + t)</script>
+
+<p>其中K是相机内参，R与t是第二个相机在第一个相机的相机坐标系下的外参，$P_w$是此空间点在第一个相机的相机坐标系下的坐标。Z是空间点到相机光心的距离(也是相机坐标系下的z轴坐标)。$p_{uv1}$与$p_{uv2}$是空间点$P_w$在两个相机平面上的投影点。</p>
+
+<ul>
+  <li>首先做出如下定义（其中$x_1$与$x_2$是归一化的相机坐标（X/Z,Y/Z,1））：</li>
+</ul>
+
+<script type="math/tex; mode=display">x_1 = K_1^{-1}p_{uv1}</script>
+
+<script type="math/tex; mode=display">x_2 = K_2^{-1}p_{uv2}</script>
+
+<ul>
+  <li>带入如上定义可得：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 x_2 = Z_1 Rx_1 + t</script>
+
+<ul>
+  <li>由于我们已经通过本质矩阵分解或者单应矩阵分解获得了R与t，此时想求的是两个特征点的深度，即上式中的$Z_1$与$Z_2$，此时，可通过如下操作分别求出，首先求解$Z_1$，上式两边同时左乘<code class="highlighter-rouge">x2^</code>，也就是两侧同时与$x_2$做外积：</li>
+</ul>
+
+<script type="math/tex; mode=display">Z_2 x_2^{\land} x_2 = 0 = Z_1 x_2^{\land}Rx_1 + x_1^{\land}t</script>
+
+<p>如上，可以直接求出$p_{uv1}$的深度$Z_1$了，然后$Z_1$也可以很轻松地求出。</p>
+
+<h2 id="代码实现自己实现">代码实现（自己实现）</h2>
+<p>首先是上述思路的解法</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="nf">depthFromTriangulation</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">SE3</span><span class="o">&amp;</span> <span class="n">T_search_ref</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Vector3d</span><span class="o">&amp;</span> <span class="n">f_ref</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Vector3d</span><span class="o">&amp;</span> <span class="n">f_cur</span><span class="p">,</span>
+    <span class="kt">double</span><span class="o">&amp;</span> <span class="n">depth</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">;</span>
+    <span class="n">A</span> <span class="o">&lt;&lt;</span> <span class="n">T_search_ref</span><span class="p">.</span><span class="n">rotation_matrix</span><span class="p">()</span><span class="o">*</span><span class="n">f_ref</span><span class="p">,</span> <span class="n">f_cur</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">Matrix2d</span> <span class="n">AtA</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">*</span><span class="n">A</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">AtA</span><span class="p">.</span><span class="n">determinant</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.000001</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">Vector2d</span> <span class="n">depth2</span> <span class="o">=</span> <span class="o">-</span> <span class="n">AtA</span><span class="p">.</span><span class="n">inverse</span><span class="p">()</span><span class="o">*</span><span class="n">A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">*</span><span class="n">T_search_ref</span><span class="p">.</span><span class="n">translation</span><span class="p">();</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">fabs</span><span class="p">(</span><span class="n">depth2</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<h2 id="第二种思路">第二种思路</h2>
+<p>然后此处使用的求解方法是$Cramer’s$法则。这是另一种求解三角化的方式，推导如下：</p>
+
+<script type="math/tex; mode=display">Z_{2} x_{2} - Z_{1} Rx_{1} = t</script>
+
+<p>对公式两侧同时乘以$x_{2}^T$，得到：</p>
+
+<script type="math/tex; mode=display">Z_{2} x_{2}^T x_{2} - Z_{1} x_{2}^T R x_{1} = x_{2}^T t</script>
+
+<p>公式两侧同时乘以$(Rx_{1})^T$，得到：</p>
+
+<script type="math/tex; mode=display">Z_{2} (Rx_{1})^T x_{2} - Z_{1} (Rx_{1})^T Rx_{1} = (Rx_{1})^Tt</script>
+
+<p>对于上述两个公式组成的方程组，利用克莱默法则求解</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[ \begin{array}{cc}{\mathrm{x}_{2}^{T} x_{2}} & {-\mathrm{x}_{2}^{T} R x_{1}} \\ {\left(R x_{1}\right)^{\mathrm{T}} x_{2}} & {-\left(R x_{1}\right)^{\mathrm{T}}\left(R x_{1}\right)}\end{array}\right] \left[ \begin{array}{c}{Z_{2}} \\ {Z_{1}}\end{array}\right]=\left[ \begin{array}{c}{\mathrm{x}_{2}^{T} t} \\ {\left(R x_{1}\right)^{\mathrm{T}} t}\end{array}\right] %]]></script>
+
+<p>克莱默法则是，对于$Ax=b$这样的方程，如果$A$的行列式不为0，方程可以通过如下方式求解：</p>
+
+<script type="math/tex; mode=display">x_{1}=\frac{\operatorname{det} B_{1}}{\operatorname{det} A} \quad x_{2}=\frac{\operatorname{det} B_{2}}{\operatorname{det} A} \quad x_{n}=\frac{\operatorname{det} B_{n}}{\operatorname{det} A}</script>
+
+<p>其中$B_{j}$是$A$的第$j$列被$b$替换后得到的新的矩阵。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 方程</span>
+    <span class="c1">// d_ref * f_ref = d_cur * ( R_RC * f_cur ) + t_RC</span>
+    <span class="c1">// =&gt; [ f_ref^T f_ref, -f_ref^T f_cur ] [d_ref] = [f_ref^T t]</span>
+    <span class="c1">//    [ f_cur^T f_ref, -f_cur^T f_cur ] [d_cur] = [f_cur^T t]</span>
+    <span class="c1">// 二阶方程用克莱默法则求解并解之</span>
+    <span class="n">Vector3d</span> <span class="n">t</span> <span class="o">=</span> <span class="n">T_R_C</span><span class="p">.</span><span class="n">translation</span><span class="p">();</span>
+    <span class="n">Vector3d</span> <span class="n">f2</span> <span class="o">=</span> <span class="n">T_R_C</span><span class="p">.</span><span class="n">rotation_matrix</span><span class="p">()</span> <span class="o">*</span> <span class="n">f_curr</span><span class="p">;</span> 
+    <span class="n">Vector2d</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Vector2d</span> <span class="p">(</span> <span class="n">t</span><span class="p">.</span><span class="n">dot</span> <span class="p">(</span> <span class="n">f_ref</span> <span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">dot</span> <span class="p">(</span> <span class="n">f2</span> <span class="p">)</span> <span class="p">);</span>
+    <span class="c1">// 此处计算出系数矩阵A</span>
+    <span class="kt">double</span> <span class="n">A</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_ref</span><span class="p">.</span><span class="n">dot</span> <span class="p">(</span> <span class="n">f_ref</span> <span class="p">);</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_ref</span><span class="p">.</span><span class="n">dot</span> <span class="p">(</span> <span class="n">f2</span> <span class="p">);</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">f2</span><span class="p">.</span><span class="n">dot</span> <span class="p">(</span> <span class="n">f2</span> <span class="p">);</span>
+    <span class="c1">// 此处计算A的行列式</span>
+    <span class="kt">double</span> <span class="n">d</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="n">Vector2d</span> <span class="n">lambdavec</span> <span class="o">=</span> 
+        <span class="n">Vector2d</span> <span class="p">(</span>  <span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span> <span class="p">(</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span> <span class="p">)</span> <span class="o">-</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span> <span class="p">(</span> <span class="mi">1</span><span class="p">,</span><span class="mi">0</span> <span class="p">),</span>
+                    <span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span> <span class="p">(</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span> <span class="p">)</span> <span class="o">+</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span> <span class="p">(</span> <span class="mi">1</span><span class="p">,</span><span class="mi">0</span> <span class="p">))</span> <span class="o">/</span><span class="n">d</span><span class="p">;</span>
+    <span class="n">Vector3d</span> <span class="n">xm</span> <span class="o">=</span> <span class="n">lambdavec</span> <span class="p">(</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span> <span class="p">)</span> <span class="o">*</span> <span class="n">f_ref</span><span class="p">;</span>
+    <span class="n">Vector3d</span> <span class="n">xn</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">lambdavec</span> <span class="p">(</span> <span class="mi">1</span><span class="p">,</span><span class="mi">0</span> <span class="p">)</span> <span class="o">*</span> <span class="n">f2</span><span class="p">;</span>
+    <span class="n">Vector3d</span> <span class="n">d_esti</span> <span class="o">=</span> <span class="p">(</span> <span class="n">xm</span><span class="o">+</span><span class="n">xn</span> <span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">;</span>  <span class="c1">// 三角化算得的深度向量</span>
+    <span class="kt">double</span> <span class="n">depth_estimation</span> <span class="o">=</span> <span class="n">d_esti</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>   <span class="c1">// 深度值</span>
+</code></pre></div></div>
+<hr />
+
+<h2 id="代码实现使用opencv提供的接口">代码实现（使用opencv提供的接口）</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">triangulation</span> <span class="p">(</span> 
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span> <span class="n">KeyPoint</span> <span class="o">&gt;&amp;</span> <span class="n">keypoint_1</span><span class="p">,</span> 
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span> <span class="n">KeyPoint</span> <span class="o">&gt;&amp;</span> <span class="n">keypoint_2</span><span class="p">,</span> 
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">DMatch</span> <span class="o">&gt;&amp;</span> <span class="n">matches</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">R</span><span class="p">,</span> <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">,</span> 
+    <span class="n">vector</span><span class="o">&lt;</span> <span class="n">Point3d</span> <span class="o">&gt;&amp;</span> <span class="n">points</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//相机第一个位置处的位姿</span>
+    <span class="n">Mat</span> <span class="n">T1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="c1">//相机第二个位置处的位姿</span>
+    <span class="n">Mat</span> <span class="n">T2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">R</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">t</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">);</span>
+    
+    <span class="c1">// 相机内参</span>
+    <span class="n">Mat</span> <span class="n">K</span> <span class="o">=</span> <span class="p">(</span> <span class="n">Mat_</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="p">(</span> <span class="mi">3</span><span class="p">,</span><span class="mi">3</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mf">520.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">325.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">521.0</span><span class="p">,</span> <span class="mf">249.7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Point2f</span><span class="o">&gt;</span> <span class="n">pts_1</span><span class="p">,</span> <span class="n">pts_2</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="n">DMatch</span> <span class="n">m</span><span class="o">:</span><span class="n">matches</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 将像素坐标转换至相机平面坐标，为什么要这一步，上面推导中有讲</span>
+        <span class="n">pts_1</span><span class="p">.</span><span class="n">push_back</span> <span class="p">(</span> <span class="n">pixel2cam</span><span class="p">(</span> <span class="n">keypoint_1</span><span class="p">[</span><span class="n">m</span><span class="p">.</span><span class="n">queryIdx</span><span class="p">].</span><span class="n">pt</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="p">);</span>
+        <span class="n">pts_2</span><span class="p">.</span><span class="n">push_back</span> <span class="p">(</span> <span class="n">pixel2cam</span><span class="p">(</span> <span class="n">keypoint_2</span><span class="p">[</span><span class="n">m</span><span class="p">.</span><span class="n">trainIdx</span><span class="p">].</span><span class="n">pt</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="n">Mat</span> <span class="n">pts_4d</span><span class="p">;</span>
+    <span class="c1">//opencv提供的三角测量函数</span>
+    <span class="n">cv</span><span class="o">::</span><span class="n">triangulatePoints</span><span class="p">(</span> <span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">pts_1</span><span class="p">,</span> <span class="n">pts_2</span><span class="p">,</span> <span class="n">pts_4d</span> <span class="p">);</span>
+    
+    <span class="c1">// 转换成非齐次坐标</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">pts_4d</span><span class="p">.</span><span class="n">cols</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Mat</span> <span class="n">x</span> <span class="o">=</span> <span class="n">pts_4d</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="n">x</span> <span class="o">/=</span> <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// 归一化</span>
+        <span class="n">Point3d</span> <span class="n">p</span> <span class="p">(</span>
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+            <span class="n">x</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> 
+        <span class="p">);</span>
+        <span class="n">points</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span> <span class="n">p</span> <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Point2f</span> <span class="nf">pixel2cam</span> <span class="p">(</span> <span class="k">const</span> <span class="n">Point2d</span><span class="o">&amp;</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">Mat</span><span class="o">&amp;</span> <span class="n">K</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">Point2f</span>
+    <span class="p">(</span>
+        <span class="p">(</span> <span class="n">p</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> 
+        <span class="p">(</span> <span class="n">p</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="n">K</span><span class="p">.</span><span class="n">at</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> 
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><a href="https://github.com/xhy3054/myslam/tree/master/04-VO-feature/triangulation">代码地址</a></p>
+</blockquote>
+
+<h2 id="第三种思路最小二乘法求解深度">第三种思路（最小二乘法求解深度）</h2>
+<ul>
+  <li>
+    <p>对于某个路标点y,在若干个关键帧$k(0,1,2,…)$中可以观测到</p>
+  </li>
+  <li>
+    <p>首先，对于$\mathbf{y} \in \mathbb{R}^{4}$，是空间点在世界坐标系中的齐次坐标。每次观测为$x_{k} = \left[u_{k}, v_{k}, 1\right]^{T}$，这个是相机成像平面的归一化坐标</p>
+  </li>
+  <li>
+    <p>我们假设投影矩阵为$P_{k}=\left[R_{k}, \mathbf{t}_{k}\right] \in \mathbb{R}^{3 \times 4}$，这个是从world系到camera系的投影</p>
+  </li>
+  <li>
+    <p>所以，投影关系为：</p>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">\forall k, \lambda_{k} \mathbf{x}_{k}=\mathbf{P}_{k} \mathbf{y}</script>
+
+<p>其中$\lambda_{k}$为观测点的深度值</p>
+
+<ul>
+  <li>根据上面我们可以知道下式:</li>
+</ul>
+
+<script type="math/tex; mode=display">\lambda_{k}=\mathbf{P}_{k, 3}^{\top} \mathbf{y}</script>
+
+<p>其中$P_{k, 3}^{\top}$是$P_{k}$的第三行（其中角标T仅仅代表是一个横向量）</p>
+
+<ul>
+  <li>我们再将上式带入投影变换的前两行，就得到：</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} u_{k} \mathbf{P}_{k, 3}^{\top} \mathbf{y} &=\mathbf{P}_{k, 1}^{\top} \mathbf{y} \\ v_{k} \mathbf{P}_{k, 3}^{\top} \mathbf{y} &=\mathbf{P}_{k, 2}^{\top} \mathbf{y} \end{aligned} %]]></script>
+
+<ul>
+  <li>每次观测都可以提供两个这样的方程，将y看做未知量，并将其移到等式一侧，可以得到下式：</li>
+</ul>
+
+<script type="math/tex; mode=display">\left[\begin{array}{c}{u_{1} \mathbf{P}_{1,3}^{\top}-\mathbf{P}_{1,1}^{\top}} \\ {v_{1} \mathbf{P}_{1,3}^{\top}-\mathbf{P}_{1,2}^{\top}} \\ {\vdots} \\ {u_{n} \mathbf{P}_{n, 3}^{\top}-\mathbf{P}_{n, 1}^{\top}} \\ {v_{n} \mathbf{P}_{n, 3}^{\top}-\mathbf{P}_{n, 2}^{\top}}\end{array}\right] \mathbf{y}=\mathbf{0} \rightarrow \mathbf{D y}=\mathbf{0}</script>
+
+<ul>
+  <li>于是，y为D零空间的一个非零元素。</li>
+</ul>
+
+<h3 id="最小二乘求解">最小二乘求解</h3>
+<p>对于上面问题，由于$\mathbf{D} \in \mathbb{R}^{2 n \times 4}$，在观测时往往是大于等于两次的，很有可能D满秩（4），也就是无零空间。</p>
+
+<ul>
+  <li>此时我们会寻找上式的最小二乘解：</li>
+</ul>
+
+<script type="math/tex; mode=display">\min _{\mathbf{y}}\|\mathbf{D} \mathbf{y}\|_{2}^{2}, \quad \text { s.t. }\|\mathbf{y}\|=1</script>
+
+<ul>
+  <li>求解上述这个最小二乘问题$y^{T}D^{T}Dy$，我们可以通过对$D^{T}D$进行奇异值分解来求解。</li>
+</ul>
+
+<script type="math/tex; mode=display">\mathbf{D}^{\top} \mathbf{D}=\sum_{i=1}^{4} \sigma_{i}^{2} \mathbf{u}_{i} \mathbf{u}_{j}^{\top}</script>
+
+<ul>
+  <li>其中$\sigma_{i}$为奇异值，并且会由大到小排列（它们对应的特征向量是一组单位正交基），我们找到最小（后面）的那个奇异值，它对应的特征向量，将其转换为齐次坐标，前三维就是y坐标的解了。</li>
+</ul>
+
+<blockquote>
+  <p>通常我们求出来会验证一下该解的有效性，判断条件是$\sigma_{4} \ll \sigma_{3}$。若该条件成立，则认为三角化有效。</p>
+</blockquote>
+
+<h3 id="代码">代码</h3>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// vins中初始化sfm时根据一个三维点在两帧中的投影位置确定三维点位置</span>
+<span class="kt">void</span> <span class="n">GlobalSFM</span><span class="o">::</span><span class="n">triangulatePoint</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">Pose0</span><span class="p">,</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">Pose1</span><span class="p">,</span>
+						<span class="n">Vector2d</span> <span class="o">&amp;</span><span class="n">point0</span><span class="p">,</span> <span class="n">Vector2d</span> <span class="o">&amp;</span><span class="n">point1</span><span class="p">,</span> <span class="n">Vector3d</span> <span class="o">&amp;</span><span class="n">point_3d</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">Matrix4d</span> <span class="n">design_matrix</span> <span class="o">=</span> <span class="n">Matrix4d</span><span class="o">::</span><span class="n">Zero</span><span class="p">();</span>
+	<span class="n">design_matrix</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="n">point0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Pose0</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">Pose0</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">design_matrix</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">point0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">Pose0</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">Pose0</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="n">design_matrix</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="n">point1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Pose1</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">Pose1</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">design_matrix</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">=</span> <span class="n">point1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">Pose1</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">Pose1</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="n">Vector4d</span> <span class="n">triangulated_point</span><span class="p">;</span>
+	<span class="n">triangulated_point</span> <span class="o">=</span>
+		      <span class="n">design_matrix</span><span class="p">.</span><span class="n">jacobiSvd</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">ComputeFullV</span><span class="p">).</span><span class="n">matrixV</span><span class="p">().</span><span class="n">rightCols</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">();</span>
+	<span class="n">point_3d</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+	<span class="n">point_3d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+	<span class="n">point_3d</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">triangulated_point</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<h2 id="使用概率方法更新矫正深度值">使用概率方法更新矫正深度值</h2>
+<p>从上述讲述中，我们已经知道通过两帧图像的匹配点，可以得到一个等式，可以计算出这一点的深度值，所以，如果有n副图像进行匹配，那我们会得到n-1个等式。此时我们就可以计算出这一点的n-1个空间位置的测量值。</p>
+
+<p>好的测量值是符合正太分布的，噪声符合均匀分布，此时我们可以通过一些概率的方法对多次测量结果进行融合，得到更鲁棒的结果。</p>
+
+<ul>
+  <li>
+    <p>在SVO中，使用贝叶斯方法(最大后验概率)进行更新</p>
+  </li>
+  <li>
+    <p>在LSD中，使用卡尔曼滤波进行深度测量值的滤波</p>
+  </li>
+</ul>
+
+<h2 id="其他测距方法">其他测距方法</h2>
+<ol>
+  <li>主动方法
+    <ul>
+      <li>结构光: 光已知空间方向的投影光线的集合称为结构光，结构光激光散斑通过投射具有高度伪随机性的激光散斑，会随着不同距离变换不同的图案，对三维空间直接标记，通过观察物体表面的散斑图案就可以判断其深度。</li>
+      <li>ToF: 飞行时间法，通过连续发射光脉冲（一般是不可见光），到被观测物体上，然后接收从物体反射回去的光脉冲，通过探测光脉冲的往返飞行时间来计算被测物体距离。</li>
+      <li>LIDAR: 激光雷达</li>
+    </ul>
+  </li>
+  <li>使用深度学习构建神经网络对图像深度进行预测</li>
+</ol>
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1] 《视觉slam十四讲》</li>
+  <li>[2] https://ewenwan.github.io</li>
+</ul>
+:ET

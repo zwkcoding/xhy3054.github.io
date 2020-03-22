@@ -1,0 +1,106 @@
+I"1<p>在此需要强调一点，c++中的移动操作不是指标准库函数<code class="highlighter-rouge">move</code>，它仅仅只是一个辅助移动操作顺利进行的标准库函数而已，功能十分单一。</p>
+
+<h1 id="对象的移动">对象的移动</h1>
+<p>本文我们讲的移动是指对象的移动操作，与拷贝操作相对等的一种操作。</p>
+
+<blockquote>
+  <p>一般而言，移动操作的目的是将目标源对象管理的资源直接<strong>移动</strong>到本对象，即本对象接管了原本目标对象管理的资源（而拷贝操作一般只是将资源内容复制了一份），因此移动操作往往比拷贝操作效率更高。不过这也就意味着<strong>源目标对象的资源不再可用</strong>。所以一般情况下这种操作都要确保源目标对象在经历了资源被窃取的情况下依旧可以正常的<strong>生老病死</strong>，即依然可以正常进行赋值、析构等操作。</p>
+</blockquote>
+
+<p>也是因为上述拷贝与移动操作的差别，有一些特殊的对象（IO类对象、unique_ptr类对象等）<strong>只支持移动操作而不支持拷贝操作</strong>，比如标准输入输出对象cout与cin，这是因为输入/输出缓冲区只有一个，不可能有多个对象都管理它。</p>
+
+<h2 id="移动构造函数与移动赋值运算符">移动构造函数与移动赋值运算符</h2>
+<p>相比于移动构造函数与移动赋值运算符，我们更熟悉的可能是拷贝构造函数与拷贝赋值运算符。其实二者函数名完全一样，不一样的是<strong>参数形式从左值引用换成了右值引用</strong>。也因此，一般移动操作都会搭配标准库函数<code class="highlighter-rouge">std::move()</code>使用，这个函数负责<strong>显式地将一个左值转换为对应的右值类型</strong>，它<strong>返回的是一个右值类型的值</strong>。关于右值引用与<code class="highlighter-rouge">std::move()</code>的使用我在<a href="https://xhy3054.github.io/reference-cpp/">c++中的引用</a>这篇博客中有更系统的提到。</p>
+
+<p>如下是对一个对象同时定义拷贝与移动操作：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">class</span> <span class="nc">HasPtr</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="p">())</span> <span class="o">:</span> <span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr()"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
+    <span class="c1">//拷贝</span>
+    <span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="o">:</span><span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr(HasPtr&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
+
+    <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="n">hp</span><span class="p">){</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用operator=(const HasPtr&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">auto</span> <span class="n">new_ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">);</span> <span class="c1">//防止对自身进行赋值，不能先释放ps指向的内存</span>
+        <span class="k">delete</span> <span class="n">ps</span><span class="p">;</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">new_ptr</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">//移动</span>
+    <span class="n">HasPtr</span><span class="p">(</span><span class="n">HasPtr</span><span class="o">&amp;&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="k">noexcept</span>  <span class="c1">//移动过程中不应该抛出异常</span>
+    <span class="o">:</span><span class="n">ps</span><span class="p">(</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr(HasPtr&amp;&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">hp</span><span class="p">.</span><span class="n">ps</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>    <span class="c1">//这样可以使得hp被移动后依然可以正常析构</span>
+    <span class="p">}</span>
+
+    <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">HasPtr</span><span class="o">&amp;&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="k">noexcept</span>    
+    <span class="p">{</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用operator=(HasPtr&amp;&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="c1">//直接检测自赋值</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">hp</span><span class="p">){</span>
+            <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"不是自赋值"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+            <span class="n">ps</span> <span class="o">=</span> <span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">;</span>                 
+            <span class="n">hp</span><span class="p">.</span><span class="n">ps</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>    <span class="c1">//使得hp可以正常析构</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">~</span><span class="n">HasPtr</span><span class="p">(){</span><span class="k">delete</span> <span class="n">ps</span><span class="p">;}</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">ps</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">HasPtr</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">HasPtr</span> <span class="n">b</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+    <span class="n">HasPtr</span> <span class="n">c</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+    <span class="c1">//HasPtr d(a);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+<p>如上代码输出结果为：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/move<span class="nv">$ </span>./move_copy 
+调用HasPtr<span class="o">()</span>
+调用HasPtr<span class="o">(</span>HasPtr&amp;<span class="o">)</span>
+调用HasPtr<span class="o">(</span>HasPtr&amp;&amp;<span class="o">)</span>
+调用operator<span class="o">=(</span>HasPtr&amp;&amp;<span class="o">)</span>　
+调用operator<span class="o">=(</span>HasPtr&amp;&amp;<span class="o">)</span>　
+不是自赋值　
+</code></pre></div></div>
+<hr />
+<p>我们会发现我们<strong>将移动操作声明成<code class="highlighter-rouge">noexcept</code></strong>，这个是因为移动操作通常只是<strong>窃取</strong>资源，本身并不分配资源，所以通常不会抛出任何异常。我们提前告诉编译器，可以使编译器可能会为了检测异常做一些额外的工作。</p>
+
+<p>同时移动操作需要<strong>使得自己的参数对象（源目标对象）在被窃取了资源后依然可以正常赋值、析构</strong>。这个操作必须是移动操作来完成，<code class="highlighter-rouge">std::move()</code>函数只是返回一个右值来表示源对象。使得移动操作可以顺利进行。</p>
+
+<h2 id="合成的移动操作">合成的移动操作</h2>
+<p>与拷贝操作相同，默认情况下，编译器也会<strong>自动生成移动操作</strong>。但是与默认生成拷贝操作的规则大不相同。</p>
+
+<blockquote>
+  <p>通常只有在一个类<strong>没有定义任何自己版本的拷贝控制成员</strong>(包括拷贝构造、拷贝赋值、析构三种，并且将这些成员中的某个定义成删除的也算是定义了自己版本的拷贝控制成员)的情况下，并且此类中的<strong>所有数据成员都支持移动操作</strong>时，编译器才会自动合成移动操作。</p>
+</blockquote>
+
+<h2 id="如果没有移动操作右值也可以被拷贝">如果没有移动操作，右值也可以被拷贝</h2>
+<p>上文中已经提过，也是因为上述拷贝与移动操作的差别，有一些特殊的对象（IO类对象、unique_ptr类对象等）<strong>只支持移动操作而不支持拷贝操作</strong>，比如标准输入输出对象cout与cin，这是因为输入/输出缓冲区只有一个，不可能有多个对象都管理它。此种情况下，在调用移动操作时<strong>必须传入右值，传入左值将会报错</strong>。</p>
+
+<p>同时，更常见的情况是一个类<strong>只支持拷贝操作，不支持移动操作</strong>，此时，<strong>传入右值依旧可以完成拷贝操作</strong>。</p>
+
+<blockquote>
+  <p><strong>原因</strong>很好理解，我们在定义拷贝操作时，因为不会对源目标对象做更改，所以常将参数声明成<code class="highlighter-rouge">const &amp;</code>的类型，而这种类型是可以绑定到一个右值上的。而右值引用不能绑定到一个左值上。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+
+:ET

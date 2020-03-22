@@ -1,0 +1,187 @@
+I"!<p>在学习linux的内容中，存在很多重要有趣有用的小知识，但是这些小知识很繁琐，每一个都写一片博客是不可能的，篇幅太短，所以这篇博客就来将这些小知识来一个大杂烩。</p>
+
+<h2 id="数据流重定向">数据流重定向</h2>
+<p>要想了解数据流重定向，首先我们得知道数据的输入与输出总共有几种。</p>
+<div style="text-align: center">
+<img src="/assets/img/linux/redirection.jpg" />
+</div>
+<p>如上，命令的输入只有一种，那就是<strong>标准输入(STDIN)</strong>；而输出有两种，一种是<strong>标准输出(STDOUT)</strong>，一种是<strong>标准错误输出(STDERR)</strong>。标准输出(STDOUT)的内容是一个命令正确执行后返回的内容，标准错误输出(STDERR)的内容是一个命令执行过程中出现错误返回的错误信息。</p>
+
+<blockquote>
+  <p>上述的三种输入输出可以理解为三个不同的<strong>缓冲区</strong>，输入缓冲区只有一个，输出缓冲区有两个。</p>
+</blockquote>
+
+<p>默认情况下，在终端执行命令时，<strong>STDOUT与STDERR都是默认绑定到了屏幕上</strong>，因此执行一个命令，无论正确执行与否，最终输出都会出现在屏幕上。<strong>STDIN默认绑定在了键盘上</strong>，所以我们可以通过手动输入确定输入内容。</p>
+
+<p><strong>数据流重定向</strong>要做的就是重新定向这三个缓冲区绑定的字符流设备。重定向方法形式如下</p>
+<ol>
+  <li>
+    <p>标准输入(stdin): 代码为0，使用<code class="highlighter-rouge">&lt;</code>或<code class="highlighter-rouge">&lt;&lt;</code>;</p>
+  </li>
+  <li>
+    <p>标准输出(stdout): 代码为1，使用<code class="highlighter-rouge">&gt;</code>或<code class="highlighter-rouge">&gt;&gt;</code>;</p>
+  </li>
+  <li>
+    <p>标准错误输出(stderr): 代码为2，使用<code class="highlighter-rouge">2&gt;</code>或<code class="highlighter-rouge">2&gt;&gt;</code>;</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">&gt;</code>与<code class="highlighter-rouge">&gt;&gt;</code>的区别是：前者是覆盖输入，后者是累加输入；</p>
+  </li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@xhy-SVF14316SCB:~/Music<span class="nv">$ </span><span class="nb">ls
+</span>CloudMusic
+xhy@xhy-SVF14316SCB:~/Music<span class="nv">$ </span><span class="nb">ls</span> <span class="o">&gt;&gt;</span> ls_result
+xhy@xhy-SVF14316SCB:~/Music<span class="nv">$ </span><span class="nb">cat </span>ls_result 
+CloudMusic
+ls_result
+</code></pre></div></div>
+
+<h2 id="命令执行的连接符号--">命令执行的连接符号<code class="highlighter-rouge">; &amp;&amp; ||</code></h2>
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">cmd1; cmd2</code>: 顺序执行cmd1与cmd2</p>
+  </li>
+  <li><code class="highlighter-rouge">cmd1 &amp;&amp; cmd2</code>:
+    <ul>
+      <li>若cmd1执行完毕且正确执行(<code class="highlighter-rouge">$?=0</code>指令回传值为0)，则开始执行cmd2；</li>
+      <li>若cmd1执行完毕且错误执行(指令回传值不为0)，则cmd2不执行；</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">cmd1 || cmd2</code>:
+    <ul>
+      <li>若cmd1执行完毕且正确执行(<code class="highlighter-rouge">$?=0</code>指令回传值为0)，则cmd2不执行；</li>
+      <li>若cmd1执行完毕且错误执行(指令回传值不为0)，则开始执行cmd2；</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="管道命令pipe">管道命令(pipe)</h2>
+<p>首先说明一下，管道命令要实现的功能如下图，其实就是对于输入进行一系列的连续处理。</p>
+<div style="text-align: center">
+<img src="/assets/img/linux/redirection.jpg" />
+</div>
+<p>关于管道命令，可以总结如下几点：</p>
+<ol>
+  <li>
+    <p>管道命令用<code class="highlighter-rouge">|</code>来连接命令，实现将前一个命令的stdout变成后一个命令的stdin；</p>
+  </li>
+  <li>
+    <p>管道命令默认是对stdout起作用，对于stderr不起作用</p>
+  </li>
+  <li>
+    <p>如果一个命令不能接受stdin，则这个命令不能作为管道中的后置命令</p>
+  </li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@xhy-SVF14316SCB:~/book<span class="nv">$ </span>ll
+total 16
+drwxrwxr-x  4 xhy xhy 4096 3月  20 15:34 ./
+drwxr-xr-x 41 xhy xhy 4096 3月  30 20:11 ../
+drwxrwxr-x 10 xhy xhy 4096 3月  20 15:33 book_note/
+drwxr-xr-x  2 xhy xhy 4096 3月  20 23:31 工具书/
+xhy@xhy-SVF14316SCB:~/book<span class="nv">$ </span>ll | <span class="nb">grep </span>book_note
+drwxrwxr-x 10 xhy xhy 4096 3月  20 15:33 book_note/
+</code></pre></div></div>
+
+<blockquote>
+  <p>其实管道命令涉及到了数据流重定向的功能。如果想让stderr可以被管道命令使用，需要使用数据流重定向，将<code class="highlighter-rouge">2&gt;</code>变成<code class="highlighter-rouge">1&gt;</code></p>
+</blockquote>
+
+<h2 id="回车与换行的区别">回车与换行的区别</h2>
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">\r</code>:   回车，打印效果是将输出重定位到<strong>本行</strong>的开头</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">\n</code>:   换行，打印效果是将输出重定位到<strong>下一行</strong>的开头</p>
+  </li>
+</ol>
+
+<h2 id="常用组合键">常用组合键</h2>
+<div style="text-align: center">
+<img src="/assets/img/linux/combine_input.png" />
+</div>
+
+<h2 id="bash环境中的特殊字符">bash环境中的特殊字符</h2>
+<div style="text-align: center">
+<img src="/assets/img/linux/special_character.png" />
+</div>
+
+<h2 id="通配符">通配符</h2>
+<div style="text-align: center">
+<img src="/assets/img/linux/common_character.png" />
+</div>
+
+<h2 id="修改文件权限">修改文件权限</h2>
+<p>语法：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod [-cfvR] [--help] [--version] mode file
+</code></pre></div></div>
+
+<p>参数说明：</p>
+
+<ul>
+  <li>
+    <p>$-c$: 若该文件权限确实已经更改，才显示其更改动作</p>
+  </li>
+  <li>
+    <p>$-f$: 若该文件权限无法被更改也不要显示错误信息</p>
+  </li>
+  <li>
+    <p>$-v$: 显示权限变更的详细资料</p>
+  </li>
+  <li>
+    <p>$-R$: 对当前目录下的所有文件与子目录进行相同的权限变更</p>
+  </li>
+  <li>
+    <p>$–help$: 显示辅助说明</p>
+  </li>
+  <li>
+    <p>$–version$: 显示版本</p>
+  </li>
+</ul>
+
+<p>$mode$是设置权限，用字符串来表示，格式如下：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ugoa...][[+-=][rwxX]...][,...]
+</code></pre></div></div>
+
+<p>其中：</p>
+<ul>
+  <li>u 表示该文件的拥有者，g 表示与该文件的拥有者属于同一个群体(group)者，o 表示其他以外的人，a 表示这三者皆是。</li>
+  <li>$+$ 表示增加权限、$-$ 表示取消权限、$=$ 表示唯一设定权限。</li>
+  <li>r 表示可读取，w 表示可写入，x 表示可执行，X 表示只有当该文件是个子目录或者该文件已经被设定过为可执行。</li>
+</ul>
+
+<h3 id="实例">实例</h3>
+<ul>
+  <li>将文件$file1.txt$设为所有人皆可读取 :
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  chmod ugo+r file1.txt
+  chmod a+r file1.txt
+</code></pre></div>    </div>
+  </li>
+  <li>将文件 file1.txt 与 file2.txt 设为该文件拥有者，与其所属同一个群体者可写入，但其他以外的人则不可写入 :
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  chmod ug+w,o-w file1.txt file2.txt
+</code></pre></div>    </div>
+  </li>
+  <li>将目前目录下的所有文件与子目录皆设为任何人可读取 :
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  chmod -R a+r *
+</code></pre></div>    </div>
+  </li>
+  <li>也可以使用数字来表示权限（r=4，w=2，x=1），下面两组作用相同
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  chmod 777 file
+  chmod a=rwx file
+
+  chmod ug=rwx,o=x file
+  chmod 771 file
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《鸟哥的linux私房菜》；</li>
+</ul>
+
+:ET

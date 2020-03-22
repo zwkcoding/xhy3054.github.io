@@ -1,0 +1,162 @@
+I"=<p>其实关于函数参数的传递，我一直以来的理解还算到位的。但是经常会有一些稀奇古怪的写法会让我有点懵圈，仔细想清楚了，就会发现都是一样的道理，不过要是我来写我可能会那样写，而不这样写，在这里稍微吐槽一下ｃ语言关于数组指针的很多写法，真是很难理解了。写这个博客希望自己从此不要被很多拗口的写法吓住，抓住本质的东西，写自己的代码。</p>
+
+<h1 id="1-函数参数传递的本质">1 函数参数传递的本质</h1>
+<p>在调用一个函数时进行参数传递（<strong>不只是讲参数列表里的参数，包括函数返回值的参数传递</strong>），其本质上进行的工作都是一样的，即<strong>使用实参初始化形参</strong>。</p>
+
+<blockquote>
+  <p>实参与形参本质上是两个完全不同的变量，它们之间并没有更深入的联系，仅仅只是变量与初始值的关系而已。</p>
+</blockquote>
+
+<h2 id="11-传值参数包括传指针">1.1 传值参数（包括传指针）</h2>
+<p>很普通的那种，大家都了解的差不多。</p>
+<blockquote>
+  <p>在此处需要强调一下，所谓<strong>传值</strong>，其实是指在使用实参初始化形参时，将实参的值拷贝一份到形参。此处我将传指针也归纳到了传值这边，因为都有拷贝操作。但是此处需要稍微提一下，有几种类型（也许还有其他？以后遇到会补充）是不能通过这种形式进行拷贝的（也就是<strong>不能进行真正意义上的传值操作</strong>），那就是<strong>数组与函数（还有IO对象如cin、cout等）</strong>。所以当参数列表或者返回值类型中如果出现数组名与函数名（只要参数类型不是引用），编译器会自动将其转换成常量指针类型，然后再使用这个常量指针进行传值操作。</p>
+</blockquote>
+
+<p>例子（函数指针）：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+#include&lt;string&gt;
+</span><span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
+<span class="kt">bool</span> <span class="nf">useBigger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">,</span> <span class="kt">bool</span> <span class="p">(</span><span class="o">*</span><span class="n">pf</span><span class="p">)(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="p">)){</span>
+    <span class="k">return</span> <span class="n">pf</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">//细节：函数的类型只与函数的参数还有返回类型有关，与函数名无关</span>
+<span class="kt">bool</span> <span class="nf">lengthCompare</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">s1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&gt;</span><span class="n">s2</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>	<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="k">else</span>	<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="c1">//此处自动将函数lengthCompare转换成指向该函数的指针</span>
+    <span class="n">useBigger</span><span class="p">(</span><span class="s">"1234"</span><span class="p">,</span><span class="s">"123456"</span><span class="p">,</span><span class="n">lengthCompare</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="12-传引用参数">1.2 传引用参数</h2>
+<blockquote>
+  <p><strong>传引用</strong>的方式也是<strong>使用实参初始化形参</strong>，但是它与<strong>传值</strong>完全不同，它并没有拷贝操作，而是利用引用的特点，将引用类型的形参绑定到实参上。从而达到可以直接操作实参的效果。c语言中不存在引用，所以需要使用指针来完成类似的操作。(多嘴一句，引用在编译器底层其实是通过常量指针实现的)</p>
+</blockquote>
+
+<p>一个经典的例子如下：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">reset</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">){</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>
+    <span class="n">reset</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"j="</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>如上例，在调用<code class="highlighter-rouge">reset</code>函数时，使用实参初始化形参实际相当于<code class="highlighter-rouge">int j=42; int &amp;i=j;</code>因为形参为一个引用，并且被绑定到变量<code class="highlighter-rouge">j</code>上，因此可以通过<code class="highlighter-rouge">i</code>对变量<code class="highlighter-rouge">j</code>的值进行修改。这样就可以替代指针的部分作用了，而且更简单。　</p>
+
+<p>同时，使用传引用调用还有其他一些好处：</p>
+<ol>
+  <li>
+    <p>使用引用避免拷贝，提高效率（进行大的类类型对象的拷贝很低效）；因为引用类型不是一个对象，而仅仅是一种绑定关系，为已存对象另取了一个名字而已。</p>
+  </li>
+  <li>
+    <p>可以传递额外信息，因为引用参数可以改变原变量值，所以并不是只有返回值可以传递信息了，参数也可以（这点指针形参也可以做到）。</p>
+  </li>
+</ol>
+
+<p>注意的问题：</p>
+
+<ol>
+  <li>
+    <p>如上<code class="highlighter-rouge">int &amp;i</code>类型的形参在传入实参时只能是变量，不能是字面值常量，因为其不能用字面值常量初始化；</p>
+  </li>
+  <li>
+    <p>如果想要使得函数实参可以传入字面值常量，形参需要改成<code class="highlighter-rouge">const int &amp;i</code>形式，底层const的引用类型可以使用字面值常量初始化，一般只要不会对参数进行修改，就将其设置成底层const的引用；</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>科普一下，const可以分为顶层const与底层const两种。一般对象只会有顶层const，表示对象本身是常量不能修改；而对于指针与引用变量除了顶层const外（表示自身是常量，一般只对指针而言，引用一般只关心底层const），还有底层const，表示自身指向或者引用的对象是常量。</p>
+</blockquote>
+
+<p>例子：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">;</span>	<span class="c1">//不能改变p1的值，顶层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">ci</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>	<span class="c1">//顶层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ci</span><span class="p">;</span>	<span class="c1">//底层const</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">r1</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>	<span class="c1">//底层const,不能通过r1改变i的值</span>
+</code></pre></div></div>
+
+<h2 id="13-main函数参数处理命令行选项">1.3 main函数参数：处理命令行选项</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argc = "</span><span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> 
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> 
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"argv["</span><span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span><span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> 
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
+</code></pre></div></div>
+<hr />
+
+<p>如上，是主函数的带参数形式，此时在将源文件编译生成可执行文件后，运行时可以带参数。举个例子，比如编译生成的可执行文件叫做<code class="highlighter-rouge">main_arg</code>，则可以输入如下命令执行：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./main_arg -o -d data0 
+</code></pre></div></div>
+
+<p>输出如下结果</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>./main_arg <span class="nt">-o</span> <span class="nt">-d</span> data0 
+argc <span class="o">=</span> 4
+argv[0] <span class="o">=</span> ./main_arg
+argv[1] <span class="o">=</span> <span class="nt">-o</span>
+argv[2] <span class="o">=</span> <span class="nt">-d</span>
+argv[3] <span class="o">=</span> data0
+xhy@ubuntu:~/cpp_learn/6/ch06<span class="nv">$ </span>
+ 
+</code></pre></div></div>
+<hr />
+
+<p>如上可以知道，其中第一个参数<code class="highlighter-rouge">int　argc</code>为命令行中字符串的数量，后面<code class="highlighter-rouge">char *argv[]</code>为一个数组，数组元素为一个指向<code class="highlighter-rouge">char *</code>类型的指针，指向一个ｃ风格的字符串。最后一个指针之后的元素值保证为０（因此不需要argc其实也能确定是否读完了参数）。</p>
+
+<p>在这里了要科普一下（引用也一样）：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">matrix</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>	<span class="c1">//10个指针组成的数组</span>
+<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">10</span><span class="p">]</span>	<span class="c1">//一个指向含有十个整数的数组的指针</span>
+</code></pre></div></div>
+<p>这两种书写形式含义是不一样的。其中<code class="highlighter-rouge">*</code>优先级小于<code class="highlighter-rouge">[]</code>，对于<code class="highlighter-rouge">int (*matrix)[10]</code>可以按如下顺序来理解该声明的含义：</p>
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">*matrix</code>表示对变量<code class="highlighter-rouge">matrix</code>进行解引用操作；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">(*matrix)[10]</code>表示解引用后将得到一个大小为１０的数组；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">int (*matrix)[10]</code>表示数组中的元素是int类型。</p>
+  </li>
+</ol>
+
+<p>同理，对于<code class="highlighter-rouge">int *matrix[10]</code>可以按如下顺序来理解该声明的含义：</p>
+
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">matrix[10]</code>表示matrix是一个大小为１０的数组；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">*matrix[10]</code>表示数组元素是指针类型；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">int *matrix[10]</code>表示数组元素时候int的指针类型。</p>
+  </li>
+</ol>
+
+<p>其实这么写可能比较易读，但是不方便，上述main函数其实还有<strong>一种写法</strong>是：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){}</span>
+</code></pre></div></div>
+<hr />
+
+<p>之所以有这第二种写法，是因为前文中提到过，数组是不能使用传值操作的，所以传递数组其实是将数组名转换成了指针，所以<strong>一个指针的数组其实在传值操作时被转换成了一个指针的指针</strong>。并且一般情况下，我写这第二种形式比较习惯一点。指针的指针。</p>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+</ul>
+
+:ET

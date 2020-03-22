@@ -1,0 +1,168 @@
+I"o%<p>矩阵的本质可以是代表着一定维度空间上的线性变换。矩阵分解的本质是将原本<code class="highlighter-rouge">m*n</code>复杂的矩阵分解成对应的几个简单矩阵的乘积的形式。使得矩阵分析起来更加简单。</p>
+
+<p>前面写过一篇博客讲的是矩阵的特征值分解，但是我们知道很多矩阵都是不能够进行特征值分解的。这种情况下，如果我们想通过矩阵分解的形式将原本比较复杂的矩阵问题分解成比较简单的矩阵相乘的形式，会对其进行<strong>奇异值分解</strong>。</p>
+
+<h1 id="简单回顾特征值分解">简单回顾特征值分解</h1>
+<p>如果一个<code class="highlighter-rouge">n*n</code>矩阵A有n个特征值，并且这n个特征值所对应的n个特征向量线性无关，则矩阵A可以使用下式进行特征值分解：</p>
+
+<script type="math/tex; mode=display">A=W\Sigma W^{-1}</script>
+
+<p>其中，W是n个特征向量所张成的<code class="highlighter-rouge">n*n</code>维矩阵，而$Sigma$是一个对角矩阵，对角线上是矩阵A的n个特征值。</p>
+
+<blockquote>
+  <p>一般情况下，我们会将特征向量标准化（即令他们是单位向量），此时矩阵W的n个特征向量为标准正交基，所以会有$W^TW=I$，即$W^T=W^{-1}$，也就是说W为<strong>酉矩阵</strong>。所以特征值分解也可以写成$A=W\Sigma W^T$</p>
+</blockquote>
+
+<h1 id="奇异值分解">奇异值分解</h1>
+<p>奇异值分解并没有特征值分解那么苛刻的要求，对于任意一个<code class="highlighter-rouge">m*n</code>的矩阵A，可以对其进行如下奇异值分解：</p>
+
+<script type="math/tex; mode=display">A = U\Sigma V^T</script>
+
+<p>其中，</p>
+<ul>
+  <li>U是一个<code class="highlighter-rouge">m*m</code>的矩阵；</li>
+  <li>$Sigma$是一个<code class="highlighter-rouge">m*n</code>的对角矩阵，主对角线上的元素成为<strong>奇异值</strong>；</li>
+  <li>V是一个<code class="highlighter-rouge">n*n</code>的矩阵，U与V都是酉矩阵，即组成它们的都是标准正交基。</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_singularvalue/singular_value.png" />
+</div>
+
+<h2 id="如何奇异值分解">如何奇异值分解？</h2>
+<ol>
+  <li>
+    <p>首先，利用A的转置乘以A会得到一个<code class="highlighter-rouge">n*n</code>的矩阵$A^TA$，对这个矩阵进行特征值分解，得到的n个特征向量张成的<code class="highlighter-rouge">n*n</code>矩阵就是<strong>V矩阵</strong>，在这里我们将V中的每一个特征向量叫做A的<strong>右奇异向量</strong>；</p>
+  </li>
+  <li>
+    <p>然后，利用A乘以A的转置得到<code class="highlighter-rouge">m*m</code>的矩阵$AA^T$，对这个矩阵进行特征值分解，得到的m个特征向量张成的<code class="highlighter-rouge">m*m</code>矩阵就是<strong>U矩阵</strong>，在这里我们将每一个特征向量叫做<strong>左奇异向量</strong>；</p>
+  </li>
+  <li>
+    <p>最后，利用下式求得每个<strong>奇异值</strong>
+<script type="math/tex">A=U\Sigma V^T \Rightarrow AV=U\Sigma V^TV \Rightarrow AV=U\Sigma \Rightarrow  Av_i = \sigma_i u_i  \Rightarrow  \sigma_i =  Av_i / u_i</script></p>
+  </li>
+</ol>
+
+<h3 id="上述奇异值分解步骤的依据">上述奇异值分解步骤的依据</h3>
+<p>在上面，我们说矩阵$A^TA$的特征向量组成的就是SVD的V矩阵，矩阵$AA^T$的特征向量组成的就是SVD的U矩阵，可以通过如下推导证明(以V矩阵为例)：</p>
+
+<script type="math/tex; mode=display">A=U\Sigma V^T \Rightarrow A^T=V\Sigma^T U^T \Rightarrow A^TA = V\Sigma^T U^TU\Sigma V^T = V\Sigma^2V^T</script>
+
+<blockquote>
+  <p>上式中我们还发现矩阵$A^TA$特征值矩阵等于A奇异值矩阵的平方，即$\sigma_i = \sqrt{\lambda_i}$，所以其实在第三步中我们求奇异值的方式其实也可以通过求出矩阵$A^TA$的特征值取平方根来求奇异值。</p>
+</blockquote>
+
+<h2 id="svd求解实例">SVD求解实例</h2>
+<ul>
+  <li>对于一个矩阵A:</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{A} = \left( \begin{array}{ccc} 0& 1\\  1& 1\\   1& 0 \end{array} \right) %]]></script>
+
+<ul>
+  <li>首先计算出$A^TA$和$AA^T$</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{A^TA} = \left( \begin{array}{ccc} 0& 1 &1\\ 1&1& 0 \end{array} \right) \left( \begin{array}{ccc} 0& 1\\  1& 1\\   1& 0 \end{array} \right) = \left( \begin{array}{ccc} 2& 1 \\ 1& 2 \end{array} \right) %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathbf{AA^T} =  \left( \begin{array}{ccc} 0& 1\\  1& 1\\   1& 0 \end{array} \right) \left( \begin{array}{ccc} 0& 1 &1\\ 1&1& 0 \end{array} \right) = \left( \begin{array}{ccc} 1& 1 & 0\\ 1& 2 & 1\\ 0& 1& 1 \end{array} \right) %]]></script>
+
+<ul>
+  <li>求出$A^TA$的特征值与特征向量</li>
+</ul>
+
+<script type="math/tex; mode=display">\lambda_1= 3; v_1 = \left( \begin{array}{ccc} 1/\sqrt{2} \\ 1/\sqrt{2} \end{array} \right); \lambda_2= 1; v_2 = \left( \begin{array}{ccc} -1/\sqrt{2} \\ 1/\sqrt{2} \end{array} \right)</script>
+
+<ul>
+  <li>求出$AA^T$的特征值与特征向量</li>
+</ul>
+
+<script type="math/tex; mode=display">\lambda_1= 3; u_1 = \left( \begin{array}{ccc} 1/\sqrt{6} \\ 2/\sqrt{6} \\ 1/\sqrt{6} \end{array} \right); \lambda_2= 1; u_2 = \left( \begin{array}{ccc} 1/\sqrt{2} \\ 0 \\ -1/\sqrt{2} \end{array} \right);  \lambda_3= 0; u_3 = \left( \begin{array}{ccc} 1/\sqrt{3} \\ -1/\sqrt{3} \\ 1/\sqrt{3} \end{array} \right)</script>
+
+<ul>
+  <li>利用$ Av_i = \sigma_i u_i, i=1,2 $求得奇异值，我们会发现求得的结果与$ \sigma_i = \sqrt{\lambda_i} $的结果相同;</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left( \begin{array}{ccc} 0& 1\\  1& 1\\   1& 0 \end{array} \right) \left( \begin{array}{ccc} 1/\sqrt{2} \\ 1/\sqrt{2} \end{array} \right) = \sigma_1 \left( \begin{array}{ccc} 1/\sqrt{6} \\ 2/\sqrt{6} \\ 1/\sqrt{6} \end{array} \right) \Rightarrow  \sigma_1=\sqrt{3} %]]></script>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left( \begin{array}{ccc} 0& 1\\  1& 1\\   1& 0 \end{array} \right) \left( \begin{array}{ccc} -1/\sqrt{2} \\ 1/\sqrt{2} \end{array} \right) = \sigma_2 \left( \begin{array}{ccc} 1/\sqrt{2} \\ 0 \\ -1/\sqrt{2} \end{array} \right) \Rightarrow  \sigma_2=1 %]]></script>
+
+<ul>
+  <li>最终得到A的奇异值分解为</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+A=U\Sigma V^T = \left( \begin{array}{ccc} 1/\sqrt{6} & 1/\sqrt{2} & 1/\sqrt{3} \\ 2/\sqrt{6} & 0 & -1/\sqrt{3}\\ 1/\sqrt{6} & -1/\sqrt{2} & 1/\sqrt{3} \end{array} \right) \left( \begin{array}{ccc} \sqrt{3} & 0 \\  0 & 1\\ 0 & 0 \end{array} \right) \left( \begin{array}{ccc} 1/\sqrt{2}  & 1/\sqrt{2}  \\ -1/\sqrt{2}  & 1/\sqrt{2}  \end{array} \right) %]]></script>
+
+<h1 id="奇异值分解用于压缩">奇异值分解用于压缩</h1>
+<ul>
+  <li>首先，对于奇异值分解$ A = U\Sigma V^T $，我们也可以写成如下形式，我们假设奇异值大小顺序排列，即$\sigma_1 \geq \sigma_2 \geq…\geq \sigma_n&gt;0$，并且其中每一项的$uv^T$都是秩为1的(m*n)矩阵。</li>
+</ul>
+
+<script type="math/tex; mode=display">A = \sigma_1u_1v_1^T + \sigma_2u_2v_2^T + ... + \sigma_nu_nv_n^T</script>
+
+<ul>
+  <li>对于如下一幅图像，像素（矩阵尺度）为<code class="highlighter-rouge">450*333</code></li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_singularvalue/compression1.jpg" />
+</div>
+
+<ul>
+  <li>我们如果只保留最大的奇异值那一项，即另$A_1 = \sigma_1u_1v_1^T$，然后保存这个矩阵，图像显示如下：</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_singularvalue/compression2.jpg" />
+</div>
+
+<ul>
+  <li>保留前五项，得到下图：</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_singularvalue/compression3.jpg" />
+</div>
+
+<ul>
+  <li>保留前50项，得到下图：</li>
+</ul>
+<div style="text-align: center">
+<img src="/assets/img/matrix_singularvalue/compression4.jpg" />
+</div>
+
+<blockquote>
+  <p>我们会发现保留前50项就已经得到很不错的图像了，但是这时需要存储的元素为<code class="highlighter-rouge">(1+450+333)*50=39200</code>个，远远小于<code class="highlighter-rouge">450*333=149850</code>个。</p>
+</blockquote>
+
+<h1 id="奇异值分解与特征值分解的思考">奇异值分解与特征值分解的思考</h1>
+<ul>
+  <li>
+    <p>这两种分解都是在矩阵分析中对复杂矩阵进行<strong>简化矩阵</strong>的手段；</p>
+  </li>
+  <li>
+    <p>奇异值全都大于０，因为是平方根，所以肯定大于0</p>
+  </li>
+  <li>
+    <p>如果将矩阵看做是线性变换的话，特征值分解与奇异值分解都是将矩阵分解成三个线性变换的叠加（两个旋转，一个拉伸）</p>
+  </li>
+  <li>
+    <p>特征值分解与奇异值分解都可以用于压缩矩阵（通过抛弃较小的奇异值/特征值）,pca降维时的计算方式就与其很相关。</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>在opencv中提供了<code class="highlighter-rouge">cv::SVD</code>可以直接对矩阵进行奇异值分解</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] 《学习opencv3》（中文版）</li>
+  <li>[2] https://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html</li>
+  <li>[3] https://www.cnblogs.com/pinard/p/6251584.html</li>
+  <li>[4] https://www.zhihu.com/question/22237507</li>
+</ul>
+
+:ET

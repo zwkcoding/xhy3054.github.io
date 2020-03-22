@@ -54,7 +54,7 @@
         <img src=/assets/img/one-piece/one-piece12.jpg alt="IMU预积分">
       </div>
       <div class="post_description">
-        <p class="post_meta">2019, Jul 31</p>
+        <p class="post_meta">2019, Jul 30</p>
         <h1 class="post_title">IMU预积分</h1>
       </div>
     </header> <!-- End Header -->
@@ -157,7 +157,7 @@
         <span class="c1">//陀螺仪中值测量</span>
         <span class="n">Vector3d</span> <span class="n">un_gyr</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">_gyr_0</span> <span class="o">+</span> <span class="n">_gyr_1</span><span class="p">)</span> <span class="o">-</span> <span class="n">linearized_bg</span><span class="p">;</span>
         <span class="c1">//旋转预积分</span>
-        <span class="n">result_delta_q</span> <span class="o">=</span> <span class="n">delta_q</span> <span class="o">*</span> <span class="n">Quaterniond</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">);</span>
+        <span class="n">result_delta_q</span> <span class="o">=</span> <span class="n">delta_q</span> <span class="o">*</span> <span class="nf">Quaterniond</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">un_gyr</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dt</span> <span class="o">/</span> <span class="mi">2</span><span class="p">);</span>
         <span class="c1">//加速度中值测量的后一个测量</span>
         <span class="n">Vector3d</span> <span class="n">un_acc_1</span> <span class="o">=</span> <span class="n">result_delta_q</span> <span class="o">*</span> <span class="p">(</span><span class="n">_acc_1</span> <span class="o">-</span> <span class="n">linearized_ba</span><span class="p">);</span>
         <span class="c1">//加速度计中值测量</span>
@@ -304,11 +304,11 @@
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   

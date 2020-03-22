@@ -1,0 +1,119 @@
+I"�3<p>vins是一个很好的开源工作，最近一直在熟悉它，其中大部分的内容之前已经或多多少提到过了，这篇博客主要讲一讲vins初始化中的视觉与imu联合初始化工作。</p>
+
+<blockquote>
+  <p>注意：<script type="math/tex">T_{WI}</script>指的是从I系到W系的变换矩阵。</p>
+</blockquote>
+
+<h1 id="陀螺仪偏置标定问题">陀螺仪偏置标定问题</h1>
+<blockquote>
+  <p>这个工作主要是在<code class="highlighter-rouge">vins/vins_estimator/src/initial/initial_aligment.cpp</code>文件中的<code class="highlighter-rouge">solveGyroscopeBias</code>函数中实现的。此处之所以只对陀螺仪的bias进行标定，而不对加速度计的bias进行标定，原因是视觉sfm恢复出来的角度变换不受尺度影响，比较稳定准确。而sfm恢复出来的位移信息收到尺度影响，不似角度可以直接对齐。</p>
+</blockquote>
+
+<p>对于窗口中连续两帧图像$b_{k}$和$b_{k+1}$，之前已经通过视觉sfm得到了两帧相对于滑窗第一帧的旋转<script type="math/tex">\mathbf{q}_{c_{0} b_{k}}</script>和<script type="math/tex">\mathbf{q}_{c_{0} b_{k+1}}</script>，此时之前通过IMU预积分得到这两帧旋转的预积分<script type="math/tex">\hat{\gamma}_{b_k b_{k+1}}</script>（先前不带bias的预积分）。</p>
+
+<p>此时，我们可以建立约束方程，最小化代价函数，如下：</p>
+
+<script type="math/tex; mode=display">\arg \min _{\delta \mathbf{b}^{g}} \sum_{k \in B}\left\|2\left\lfloor\mathbf{q}_{c_{0} b_{k+1}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}} \otimes {\gamma}_{b_k b_{k+1}}\right\rfloor_{x y z}\right\|^{2}</script>
+
+<blockquote>
+  <p>其中<script type="math/tex">{\gamma}_{b_k b_{k+1}}</script>表示的是算上陀螺仪bias的预积分值。</p>
+</blockquote>
+
+<script type="math/tex; mode=display">\gamma_{b_k b_{k+1}} \approx \hat{\gamma}_{b_k b_{k+1}} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} J_{b_{g}}^{\gamma} \delta b_{g}}\end{array}\right]</script>
+
+<h2 id="具体方法">具体方法</h2>
+<p>在上述问题的求解时，最理想的情况如下（其中等式右边的四元数代表的是旋转不变的四元数）：</p>
+
+<script type="math/tex; mode=display">\mathbf{q}_{c_{0} b_{k+1}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}} \otimes {\gamma}_{b_k b_{k+1}} = \left[\begin{array}{l}{1} \\ {0}\end{array}\right]</script>
+
+<p>对上式进行变换可以得到</p>
+
+<script type="math/tex; mode=display">{\gamma}_{b_k b_{k+1}} = \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}} \otimes \left[\begin{array}{l}{1} \\ {0}\end{array}\right]</script>
+
+<p>将<script type="math/tex">\delta b_{g}</script>带入上式可以得到</p>
+
+<script type="math/tex; mode=display">\hat{\gamma}_{b_k b_{k+1}} \otimes\left[\begin{array}{c}{1} \\ {\frac{1}{2} J_{b_{g}}^{\gamma} \delta b_{g}}\end{array}\right] = \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}} \otimes \left[\begin{array}{l}{1} \\ {0}\end{array}\right]</script>
+
+<p>只考虑上式虚部，我们可以得到(其中$vec$代表取虚部)</p>
+
+<script type="math/tex; mode=display">J_{b_{g}}^{\gamma} \delta b_{g}=2\left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
+
+<p>对于上式，我们想要做的是求解出<script type="math/tex">\delta b_{g}</script>的大小，此时我们可以使用如下办法：</p>
+
+<ul>
+  <li>等式两侧同时乘以<script type="math/tex">J_{b_{g}}^{\gamma T}</script>（在使用cholesky分解求解矩阵，获取使目标函数达到最小的解时，需要将系数矩阵变为正定。），即得到</li>
+</ul>
+
+<script type="math/tex; mode=display">J_{b_{g}}^{\gamma T} J_{b_{g}}^{\gamma} \delta b_{g}=2 J_{b_{g}}^{\gamma T} \left({\hat{\gamma}_{b_k b_{k+1}}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k}}^{-1} \otimes \mathbf{q}_{c_{0} b_{k+1}}\right)_{v e c}</script>
+
+<ul>
+  <li>使用LDLT分解即可求得 <script type="math/tex">\delta b_{g}</script></li>
+</ul>
+
+<h2 id="vins中代码实现">vins中代码实现</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @brief   陀螺仪偏置校正
+ * @optional    根据视觉SFM的结果来校正陀螺仪Bias -&gt; Paper V-B-1
+ *              主要是将相邻帧之间SFM求解出来的旋转矩阵与IMU预积分的旋转量对齐
+ *              注意得到了新的Bias后对应的预积分需要repropagate
+ * @param[in]   all_image_frame所有图像帧构成的map,图像帧保存了位姿、预积分量和关于角点的信息
+ * @param[out]  Bgs 陀螺仪偏置
+ * @return      void
+*/</span>
+<span class="kt">void</span> <span class="nf">solveGyroscopeBias</span><span class="p">(</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">ImageFrame</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">all_image_frame</span><span class="p">,</span> <span class="n">Vector3d</span><span class="o">*</span> <span class="n">Bgs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Matrix3d</span> <span class="n">A</span><span class="p">;</span>
+    <span class="n">Vector3d</span> <span class="n">b</span><span class="p">;</span>
+    <span class="n">Vector3d</span> <span class="n">delta_bg</span><span class="p">;</span>
+    <span class="n">A</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+    <span class="n">b</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+    <span class="n">map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">ImageFrame</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">frame_i</span><span class="p">;</span>
+    <span class="n">map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">ImageFrame</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">frame_j</span><span class="p">;</span>
+    <span class="c1">//遍历所有图像帧</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame_i</span> <span class="o">=</span> <span class="n">all_image_frame</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">next</span><span class="p">(</span><span class="n">frame_i</span><span class="p">)</span> <span class="o">!=</span> <span class="n">all_image_frame</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">frame_i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//下一帧</span>
+        <span class="n">frame_j</span> <span class="o">=</span> <span class="n">next</span><span class="p">(</span><span class="n">frame_i</span><span class="p">);</span>
+        <span class="n">MatrixXd</span> <span class="n">tmp_A</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+        <span class="n">tmp_A</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+        <span class="n">VectorXd</span> <span class="n">tmp_b</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+        <span class="n">tmp_b</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+
+        <span class="c1">//两帧之间的旋转变换 </span>
+        <span class="c1">//R_ij = (R^c0_bk)^-1 * (R^c0_bk+1) 转换为四元数 q_ij = (q^c0_bk)^-1 * (q^c0_bk+1)</span>
+        <span class="n">Eigen</span><span class="o">::</span><span class="n">Quaterniond</span> <span class="n">q_ij</span><span class="p">(</span><span class="n">frame_i</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">R</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">*</span> <span class="n">frame_j</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">R</span><span class="p">);</span>
+        <span class="c1">//tmp_A = J_j_bw 雅可比 ，之前的预积分是没有算上陀螺仪bias的</span>
+        <span class="n">tmp_A</span> <span class="o">=</span> <span class="n">frame_j</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">pre_integration</span><span class="o">-&gt;</span><span class="n">jacobian</span><span class="p">.</span><span class="k">template</span> <span class="n">block</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">O_R</span><span class="p">,</span> <span class="n">O_BG</span><span class="p">);</span>
+        <span class="c1">//tmp_b = 2 * (r^bk_bk+1)^-1 * (q^c0_bk)^-1 * (q^c0_bk+1)</span>
+        <span class="c1">//      = 2 * (r^bk_bk+1)^-1 * q_ij</span>
+        <span class="n">tmp_b</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">frame_j</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">pre_integration</span><span class="o">-&gt;</span><span class="n">delta_q</span><span class="p">.</span><span class="n">inverse</span><span class="p">()</span> <span class="o">*</span> <span class="n">q_ij</span><span class="p">).</span><span class="n">vec</span><span class="p">();</span>
+        <span class="c1">//tmp_A * delta_bg = tmp_b</span>
+        <span class="n">A</span> <span class="o">+=</span> <span class="n">tmp_A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">*</span> <span class="n">tmp_A</span><span class="p">;</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">tmp_A</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">*</span> <span class="n">tmp_b</span><span class="p">;</span>
+
+    <span class="p">}</span>
+    <span class="c1">//LDLT方法</span>
+    <span class="n">delta_bg</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">ldlt</span><span class="p">().</span><span class="n">solve</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="n">ROS_WARN_STREAM</span><span class="p">(</span><span class="s">"gyroscope bias initial calibration "</span> <span class="o">&lt;&lt;</span> <span class="n">delta_bg</span><span class="p">.</span><span class="n">transpose</span><span class="p">());</span>
+
+    <span class="c1">//假设窗口中bgs值都相同</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">WINDOW_SIZE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">Bgs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">delta_bg</span><span class="p">;</span>
+
+    <span class="c1">//标定成功bias后需要重新进行预积分</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame_i</span> <span class="o">=</span> <span class="n">all_image_frame</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">next</span><span class="p">(</span><span class="n">frame_i</span><span class="p">)</span> <span class="o">!=</span> <span class="n">all_image_frame</span><span class="p">.</span><span class="n">end</span><span class="p">(</span> <span class="p">);</span> <span class="n">frame_i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">frame_j</span> <span class="o">=</span> <span class="n">next</span><span class="p">(</span><span class="n">frame_i</span><span class="p">);</span>
+        <span class="n">frame_j</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">pre_integration</span><span class="o">-&gt;</span><span class="n">repropagate</span><span class="p">(</span><span class="n">Vector3d</span><span class="o">::</span><span class="n">Zero</span><span class="p">(),</span> <span class="n">Bgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<hr />
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] https://github.com/HKUST-Aerial-Robotics/VINS-Mono</li>
+  <li>[2] VINS-Mono: A Robust and Versatile Monocular Visual-Inertial State Estimator, Tong Qin, Peiliang Li, Zhenfei Yang, Shaojie Shen, IEEE Transactions on Robotics</li>
+</ul>
+:ET

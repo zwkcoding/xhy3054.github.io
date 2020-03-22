@@ -1,0 +1,94 @@
+I"*<p>一个合格的程序猿，肯定熟练掌握一种或者几种编程语言。而要想熟练掌握ｃ与c++语言，gdb这个工具是一定得了解的。额，不过我写它主要是给自己一个快速查看的链接，等到我把这些背下来就没什么价值了。这里只会写最常用最简单的功能，如果想要了解更多，可以查看<strong>gdb技术手册</strong>。</p>
+
+<h1 id="gdb">gdb</h1>
+<p>GDB是一个由GNU开源组织发布的、UNIX/LINUX操作系统下的、基于命令行的、功能强大的程序调试工具。gdb的功能及其强大，命令也十分的多，但是对于普通的绝大部分的工作来说，懂得这其中最常用这些便可以了。下面记录，专为查阅准备。其次如果想对代码进行调试，一定记得在编译源文件时得将源代码调试信息写入可执行文件，这个在用gcc或g++时使用<code class="highlighter-rouge">-g</code>参数完成这一步操作。</p>
+
+<h2 id="1-必要命令行使用方法">1. 必要命令行使用方法</h2>
+<h3 id="11-进入gdb">1.1 进入gdb</h3>
+
+<p>例子：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ <span class="nt">-g</span> test.cpp <span class="nt">-o</span> <span class="nb">test
+</span>gdb <span class="nb">test</span>
+</code></pre></div></div>
+<p>　　</p>
+
+<blockquote>
+  <p>在调试<code class="highlighter-rouge">test</code>时，<code class="highlighter-rouge">test.cpp</code>源文件一定得在当前目录下，否则执行<code class="highlighter-rouge">list</code>命令时会找不到源码。</p>
+</blockquote>
+
+<h3 id="12-gdb常用命令">1.2 gdb常用命令</h3>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">r</code>:  Run的简写，运行被调试的程序。如果此前没有下过断点，则执行完整个程序；如果有断点，则程序暂停在第一个可用断点处。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">c</code>:  Continue的简写，继续执行被调试程序，直至下一个断点或程序结束。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">b</code>:  Breakpoint的简写，设置断点。可以使用<strong>“行号”“函数名称”“代码地址”</strong>等方式指定断点位置。其中在函数名称前面加“*”符号表示将断点设置在“由编译器生成的prolog代码处”。如果不了解汇编，可以不予理会此用法。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">d</code>: 　Delete breakpoint的简写，删除指定编号的某个断点，或删除所有断点。断点编号从1开始递增。如：<code class="highlighter-rouge">d 1</code>。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">s</code>:  step的简写，执行一行源程序代码，如果此行代码中有函数调用，则进入该函数；相当于其它调试器中的“Step Into (单步跟踪进入)”；</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">n</code>:  next的简写，执行一行源程序代码，此行代码中的函数调用也一并执行。相当于其它调试器中的“Step Over (单步跟踪)”。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">si/ni</code>:  si命令类似于s命令，ni命令类似于n命令。所不同的是，这两个命令（si/ni）所针对的是汇编指令，而s/n针对的是源代码。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">p &lt;变量名称&gt;</code>:  Print的简写，显示指定变量（临时变量或全局变量）的值。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">backtrace（或bt）</code>:  查看各级函数调用及参数。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">finish</code> :  连续运行到当前函数返回为止，然后停下来等待命令。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">list（或l）</code> :  列出源代码，接着上次的位置往下列，每次列10行。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">list 函数名</code> :  列出某个函数的源代码。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">start</code> :  开始执行程序，停在main函数第一行语句前面等待命令。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">set var</code> :  修改变量的值。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">clear</code> :  删除程序中所有的断点，<code class="highlighter-rouge">clear 行号</code>删除此行中的断点，<code class="highlighter-rouge">clear 函数名</code>删除该函数的断点。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">display</code>: 设置程序中断后欲显示的数据及其格式。例如，如果希望每次程序中断后可以看到即将被执行的下一条汇编指令，可以使用命令<code class="highlighter-rouge">display /i $pc</code>其中<code class="highlighter-rouge">$pc</code>代表当前汇编指令，<code class="highlighter-rouge">/i</code>表示以十六进行显示。当需要关心汇编代码时，此命令相当有用。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">undisplay &lt;编号&gt;</code>: 取消先前的display设置，编号从1开始递增。如<code class="highlighter-rouge">undisplay 1</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">i</code>:  Info的简写，locals 查看当前栈帧局部变量的值详情请查阅“help i”。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">q</code>:  Quit的简写，退出GDB调试环境。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">help [命令名称]</code>:  GDB帮助命令，提供对GDB名种命令的解释说明。如果指定了“命令名称”参数，则显示该命令的详细说明；如果没有指定参数，则分类显示所有GDB命令，供用户进一步浏览和查询。</p>
+  </li>
+</ul>
+
+<h3 id="13-设置观察点">1.3 设置观察点</h3>
+<p>观察点一般来观察某个表达式（变量也是一种表达式）的值是否有变化了，如果有变化，马上停住程序。</p>
+
+<h3 id="14-设置捕捉点">1.4 设置捕捉点</h3>
+<p>你可设置捕捉点来补捉程序运行时的一些事件。如：载入共享库（动态链接库）或是C++抛出的某种异常等。</p>
+
+<h2 id="2-调试多线程">2. 调试多线程</h2>
+
+<h2 id="3-调试内核">3. 调试内核</h2>
+
+:ET

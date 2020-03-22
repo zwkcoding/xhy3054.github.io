@@ -1,0 +1,217 @@
+I"F5<p>之前写过一篇<a href="">关于ros入门的博客</a>，但是这段时间我再看时发现当时比较关注全面性，所以在里面可以看到ros里几乎所有的基本知识。但是通篇看下来每一个讲的都没有很仔细，都是概念性的讲解。使得看完后，大家似乎对于ros的实现机制与功能模块有了一定的理解，但是如何使用ros呢？如何开发ros呢？好像还是有一些不是很懂。所以这一篇博客就会从ros使用的案例来说明，如何使用一个最小ros的功能包来跑起来节点。</p>
+
+<h1 id="1-功能包">1. 功能包</h1>
+<blockquote>
+  <p><strong>功能包（package）</strong>是构成ROS的基本单元。ROS应用程序是以功能包为单位开发的。功能包包括至少一个以上的节点或拥有用于运行其他功能包的节点的配置文件。它还包含功能包所需的所有文件，如用于运行各种进程的ROS依赖库、数据集和配置文件等。</p>
+</blockquote>
+
+<ul>
+  <li>在工作空间中创建包<code class="highlighter-rouge">new_package</code>，依赖于包<code class="highlighter-rouge">depend_p1</code>与<code class="highlighter-rouge">depend_p2</code>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/catkin_ws/src
+catkin_create_pkg new_package depend_p1 depend_p2 
+</code></pre></div>    </div>
+    <hr />
+  </li>
+  <li>
+    <p>查看一个包的直接依赖<code class="highlighter-rouge">rospack depends1 new_packsge</code></p>
+  </li>
+  <li>
+    <p>查看一个包的所有依赖（包括直接与间接）<code class="highlighter-rouge">rospack depends new_package</code></p>
+  </li>
+  <li>编译包，直接编译整个工作空间就可以了
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/catkin_ws
+catkin_make
+</code></pre></div>    </div>
+    <hr />
+  </li>
+</ul>
+
+<blockquote>
+  <p><strong>元功能包（metapackage）</strong>是一个具有共同目的的功能包的集合。例如，导航元功能包包含AMCL、DWA、EKF和map_server等10余个功能包。</p>
+</blockquote>
+
+<h1 id="2-节点">2. 节点</h1>
+<blockquote>
+  <p><strong>ros的节点</strong>说到底就是一个操作系统上运行起来的程序。而这个可执行文件是依赖于某一个功能包的。</p>
+</blockquote>
+
+<p>如同前一节，假设我们创建了一个功能包<code class="highlighter-rouge">ros_tutorials_topic</code>，这个功能包主要的作用就是向初学者演示两个节点如何通过话题（topic）来通信。</p>
+
+<ul>
+  <li>
+    <p>首先，这个功能包中会有两个节点（也就是会生成两个可执行文件），一个是话题发布节点，一个是话题订阅节点。</p>
+  </li>
+  <li>
+    <p>生成这两个节点的方法比较简单，就是在功能包文件夹下新建<code class="highlighter-rouge">src</code>文件夹，在里面编写两个节点的源代码，然后编译生成可执行文件即可。在CMakeLists中如下生成的两个可执行文件就是该功能包的两个节点。（添加依赖、链接什么的省略了）</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_executable(topic_publisher src/topic_publisher.cpp)
+add_executable(topic_subscriber src/topic_subscriber.cpp)
+</code></pre></div></div>
+
+<ul>
+  <li>在使用<code class="highlighter-rouge">catkin_make</code>编译之后可执行文件（节点就生成了），下面就可以运行这两个节点了。</li>
+</ul>
+
+<h2 id="21-使用rosrun运行节点">2.1 使用<code class="highlighter-rouge">rosrun</code>运行节点</h2>
+
+<ul>
+  <li>下面三条命令分别新开一个终端执行
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>roscore
+<span class="nv">$ </span>rosrun ros_tutorials_topic topic_publisher
+<span class="nv">$ </span>rosrun ros_tutorials_topic topic_subscriber
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<blockquote>
+  <p>使用<code class="highlighter-rouge">rosrun</code>来启动节点，只需要知道节点所属的功能包的名字，然后知道节点对应的可执行文件的名称，即可找到该节点对应的可执行文件并启动节点了。（如果是python脚本的节点，可执行文件的名称就是python脚本的名字去除后缀名）</p>
+</blockquote>
+
+<h2 id="22-使用roslaunch运行节点">2.2 使用<code class="highlighter-rouge">roslaunch</code>运行节点</h2>
+
+<ul>
+  <li>
+    <p>使用<code class="highlighter-rouge">rosrun</code>来运行节点实在太麻烦，需要开太多的终端。此时我们可以使用<code class="highlighter-rouge">roslaunch</code>来同时启动多个节点。同时，它还有很多灵活的地方，比如修改参数与节点的名称，设置节点的命名空间等。</p>
+  </li>
+  <li>
+    <p>首先需要创建一个<code class="highlighter-rouge">×.launch</code>文件，它基于<code class="highlighter-rouge">XML</code>，提供了标签选项。</p>
+  </li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;launch&gt;</span>
+    <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_publisher"</span> <span class="na">name=</span><span class="s">"topic_publisher1"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_subscriber"</span> <span class="na">name=</span><span class="s">"topic_subscriber1"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_publisher"</span> <span class="na">name=</span><span class="s">"topic_publisher2"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_subscriber"</span> <span class="na">name=</span><span class="s">"topic_subscriber2"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/launch&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>在上述的标签中，分别代表如下含义
+    <ul>
+      <li>$node$ 表示运行的节点</li>
+      <li>$pkg$ 表示该节点所属的功能包名称</li>
+      <li>$type$ 表示实际运行的节点的名称（也就是该节点对应的可执行文件名称）</li>
+      <li>$name$ 节点启动后重新起的名字，如果只有一个同类型的节点，一般取的name与type相同</li>
+    </ul>
+  </li>
+  <li>运行该<code class="highlighter-rouge">union.launch</code>文件</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>roslaunch ros_tutorials_topic union.launch <span class="nt">--screen</span>
+</code></pre></div></div>
+<hr />
+<blockquote>
+  <p>此处需要说明的是使用<code class="highlighter-rouge">roslaunch</code>启动多个节点时，默认这些节点的输出（info、error）等不会打印在终端。所以添加一个<code class="highlighter-rouge">--screen</code>，则所有节点的输出会打印到终端上，方便调试。</p>
+</blockquote>
+
+<ul>
+  <li>查看运行结果</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rosnode list
+/rosout
+/topic_publisher1
+/topic_publisher2
+/topic_subscriber1
+/topic_subscriber2
+</code></pre></div></div>
+<div style="text-align: center">
+<img src="/assets/img/ros/launch1.PNG" />
+</div>
+
+<blockquote>
+  <p>我们会发现此时两个订阅者都订阅了两个发布者发布的话题，这是因为两个发布者发布的话题名称相同，两个订阅者订阅的话题名称也一样。</p>
+</blockquote>
+
+<ul>
+  <li>为了使得<code class="highlighter-rouge">subscriber1</code>只订阅<code class="highlighter-rouge">publisher1</code>发布的话题，<code class="highlighter-rouge">subscriber2</code>只订阅<code class="highlighter-rouge">publisher2</code>发布的话题。我们可以将launch文件进行如下改写</li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;launch&gt;</span>
+    <span class="nt">&lt;group</span> <span class="na">ns=</span><span class="s">"ns1"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_publisher"</span> <span class="na">name=</span><span class="s">"topic_publisher"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_subscriber"</span> <span class="na">name=</span><span class="s">"topic_subscriber"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/group&gt;</span>
+    <span class="nt">&lt;group</span> <span class="na">ns=</span><span class="s">"ns2"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_publisher"</span> <span class="na">name=</span><span class="s">"topic_publisher"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;node</span> <span class="na">pkg=</span><span class="s">"ros_tutorials_topic"</span> <span class="na">type=</span><span class="s">"topic_subscriber"</span> <span class="na">name=</span><span class="s">"topic_subscriber"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/group&gt;</span>
+<span class="nt">&lt;/launch&gt;</span>
+</code></pre></div></div>
+<hr />
+
+<ul>
+  <li>上面新的标签如下：
+    <ul>
+      <li>$group$ 是对指定节点进行分组的标签</li>
+      <li>$ns$ 是group的选项，代表命名空间，是给这个组起了一个名字，使其与其他组区分开来</li>
+    </ul>
+  </li>
+  <li>新的launch文件运行后，使用<code class="highlighter-rouge">rqt_graph</code>来查看各个节点之间的关联，可以看到我们实现了目的。</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/ros/launch2.PNG" />
+</div>
+
+<h2 id="23-launch的标签">2.3 launch的标签</h2>
+<p>在launch文件中根据XML的编写方式可以灵活的实现ros节点的启动。launch中会使用到的标签如下：</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">launch</code> 指roslaunch语句的开始与结束</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">node</code> 这是节点运行的标签，可以在标签里修改功能包、节点名称、执行名称等</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">machine</code> 可以设置运行该节点的PC名称、address、ros-root还有ros-package-path等</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">include</code> 可以加载属于同一个功能包或不同功能包的另一个launch文件，并运行</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">remap</code> 可以更改节点名称、话题名称等等，在节点中用到的ROS变量的名称</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">env</code> 设置环境变量，如路径和IP（较少使用）</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">param</code> 设置参数名称、类型、值等</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">rosparam</code> 可以像rosparam命令一样，查看修改load、dump和delete等参数信息。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">group</code> 用于分组正在运行的节点</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">test</code> 用于测试节点。类似于node，但是可以有用于测试的选型</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">arg</code> 可以在launch文件中定义一个变量，以便在像下面这样运行时更改参数</p>
+  </li>
+</ul>
+
+<p>此处举一个例子，大致演示一下如何使用<code class="highlighter-rouge">arg</code>与<code class="highlighter-rouge">param</code></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;launch&gt;</span>
+    <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">"update_period"</span> <span class="na">default=</span><span class="s">"10"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">"timing"</span> <span class="na">value=</span><span class="s">"$(arg update_period)"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/launch&gt;</span>
+</code></pre></div></div>
+<hr />
+<p>在运行上述launch文件时，可以指定上述参数的值</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>roslaunch my_package my_package.launch update_period:<span class="o">=</span>30
+</code></pre></div></div>
+<hr />
+
+<h1 id="参考文献">参考文献</h1>
+<ul>
+  <li>[1]. ROS Robot Programming. YoonSeok Pyo, HanCheol Cho, RyuWoon Jung, TaeHoon Lim</li>
+</ul>
+
+:ET

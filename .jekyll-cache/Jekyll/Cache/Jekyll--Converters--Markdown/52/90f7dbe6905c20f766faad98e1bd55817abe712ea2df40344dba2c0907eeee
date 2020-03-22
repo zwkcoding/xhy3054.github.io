@@ -1,0 +1,117 @@
+I"
+,<p>本文主要讨论const变量与constexpr变量的初始化时刻与constexpr函数的编译期计算问题。<a href="http://senlinzhan.github.io/2015/05/01/%E8%B0%88%E8%B0%88C-%E7%9A%84%E7%BC%96%E8%AF%91%E5%99%A8%E8%AE%A1%E7%AE%97/">转载</a></p>
+
+<h1 id="const变量的初始化时刻">const变量的初始化时刻</h1>
+<p><code class="highlighter-rouge">const</code>修饰变量，表示这个变量是不可修改的，因此const变量必须初始化，一经初始化就不可修改。</p>
+<ol>
+  <li>
+    <p>如果const变量的初始化值是在编译时就可以确定，则在编译时初始化；</p>
+  </li>
+  <li>
+    <p>如果const变量的初始化值是在运行时才确定，则在运行时初始化；</p>
+  </li>
+</ol>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">SIZE</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>由于SIZE的值是在编译时就已经确定的，编译器会使用常量 100 来替代程序中出现的SIZE。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</code></pre></div></div>
+<hr />
+
+<p>运行时初始化。</p>
+
+<h1 id="constexpr">constexpr</h1>
+<h2 id="constexpr函数的编译期计算">constexpr函数的编译期计算</h2>
+<blockquote>
+  <p>constexpr函数则与编译期计算有关，要是constexpr函数所使用的变量其值能够在编译时就确定，那么constexpr函数就能在编译时执行计算。另一方面，要是constexpr函数所使用的变量其值只能在运行时确定，那么constexpr就和一般的函数没区别。</p>
+</blockquote>
+
+<p>C++11 要求constexpr函数不能多于一条语句，但是碰到 if-else 语句时，但可以巧妙地使用条件操作符来替代：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nf">fib</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">n</span> <span class="p">)</span> <span class="k">noexcept</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">?</span> <span class="n">n</span> <span class="o">:</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">);</span>
+<span class="err">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>C++14 中则放松了这个要求：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nf">fib</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">n</span> <span class="p">)</span> <span class="k">noexcept</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">);</span>   
+    <span class="p">}</span>
+<span class="err">}</span>
+</code></pre></div></div>
+<hr />
+
+<p>要是我们传递一个编译时常量给fib()，那么fib()在程序编译的时候就已经执行好了。代价是增加编译时间，但程序能执行得更高效。</p>
+
+<h2 id="constexpr变量">constexpr变量</h2>
+<p>const变量的值可以在编译时或运行时确定，与const相比，constexpr的限制更多，因为<strong>constexpr变量的值必须在编译时就能确定</strong>。</p>
+
+<p>在一些场合之下，变量的值要求是编译期就必须确定的，constexpr变量正好满足要求。比如数组的大小、<code class="highlighter-rouge">std::array</code>的大小、<code class="highlighter-rouge">std::bitset</code>的大小等。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="k">auto</span> <span class="n">SIZE</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">SIZE</span><span class="o">&gt;</span> <span class="n">arr</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>定义constexpr变量的时候，变量的类型<strong>只能是基本数据类型</strong>、指针和引用，而不能是其它标准库类型。</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// error: constexpr variable cannot have non-literal type</span>
+<span class="k">constexpr</span> <span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="s">"hello"</span><span class="p">;</span>
+</code></pre></div></div>
+<hr />
+
+<p>不过，对于我们自己定义的类型没有这个限制，因为 constructor 和成员函数可以是constexpr函数：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">constexpr</span> <span class="n">Point</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="o">:</span> <span class="n">x_</span><span class="p">(</span> <span class="n">x</span> <span class="p">),</span> <span class="n">y_</span><span class="p">(</span> <span class="n">y</span> <span class="p">)</span>
+    <span class="p">{</span>  <span class="p">}</span>
+    
+    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">x</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">x_</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">y</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">y_</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">set_x</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">x_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">set_y</span><span class="p">(</span> <span class="kt">double</span> <span class="n">y</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>  <span class="p">}</span>
+<span class="nl">private:</span>
+    <span class="kt">double</span> <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<hr />
+
+<p>要是我们使用编译期常量来初始化Point对象，那么，在编译的时候编译器就已经创建了这个对象：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="n">Point</span> <span class="nf">pt</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span> <span class="p">);</span>     <span class="c1">// Evaluate at compiling time</span>
+</code></pre></div></div>
+<hr />
+
+<p>在 C++11 中，constexpr函数隐式地是const函数，所以你会发现set_x()和set_y()这两个函数不能是constexpr函数。</p>
+
+<p>但在 C++14 中，这个限制放宽了，也就是说这两个函数可以声明为constexpr函数：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">// ...</span>
+    <span class="k">constexpr</span> <span class="kt">void</span> <span class="n">set_x</span><span class="p">(</span> <span class="kt">double</span> <span class="n">x</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">x_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="k">constexpr</span> <span class="kt">void</span> <span class="n">set_y</span><span class="p">(</span> <span class="kt">double</span> <span class="n">y</span> <span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>  <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>  <span class="p">}</span>
+    <span class="c1">// ...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<hr />
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] C++ Primer（第5版）</li>
+  <li>[2] http://senlinzhan.github.io/2015/05/01/%E8%B0%88%E8%B0%88C-%E7%9A%84%E7%BC%96%E8%AF%91%E5%99%A8%E8%AE%A1%E7%AE%97/</li>
+</ul>
+
+:ET

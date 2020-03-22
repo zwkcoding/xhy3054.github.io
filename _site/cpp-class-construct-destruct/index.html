@@ -54,7 +54,7 @@
         <img src=/assets/img/cartoon2.jpg alt="c++中类的拷贝控制操作">
       </div>
       <div class="post_description">
-        <p class="post_meta">2018, Oct 16</p>
+        <p class="post_meta">2018, Oct 15</p>
         <h1 class="post_title">c++中类的拷贝控制操作</h1>
       </div>
     </header> <!-- End Header -->
@@ -88,14 +88,14 @@
 <p>此处编写一个简陋的<code class="highlighter-rouge">HasPtr</code>类为例实现<strong>深拷贝</strong>，比较直观有代码感受：</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">HasPtr</span>
 <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
+<span class="nl">public:</span>
 	<span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="p">())</span> <span class="o">:</span> <span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr()"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
 
 	<span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="o">:</span><span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr(HasPtr&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
 
 	<span class="o">~</span><span class="n">HasPtr</span><span class="p">(){</span><span class="k">delete</span> <span class="n">ps</span><span class="p">;}</span>
 
-<span class="k">private</span><span class="o">:</span>
+<span class="nl">private:</span>
 	<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">ps</span><span class="p">;</span>
 <span class="p">};</span>
 
@@ -112,7 +112,7 @@
 <p>拷贝赋值运算符其实就是重载了<code class="highlighter-rouge">=</code>，如果类未定义自己的拷贝赋值运算符，编译器会为它合成一个，合成的拷贝赋值运算符也就是简单的对类的每个数据成员进行简单的拷贝赋值。如果不希望自己的类有拷贝构造函数操作，必须显式将拷贝构造函数声明成<code class="highlighter-rouge">=delete</code>来指出我们希望将它定义成删除的，比如<code class="highlighter-rouge">iostream</code>类就阻止了拷贝操作来避免多个对象写入或者读取相同的IO操作。继续上一个<code class="highlighter-rouge">HasPtr</code>，为其添加拷贝赋值运算符；</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">HasPtr</span>
 <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
+<span class="nl">public:</span>
 	<span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="p">())</span> <span class="o">:</span> <span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr()"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
 
 	<span class="n">HasPtr</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span><span class="o">&amp;</span> <span class="n">hp</span><span class="p">)</span> <span class="o">:</span><span class="n">ps</span><span class="p">(</span><span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">hp</span><span class="p">.</span><span class="n">ps</span><span class="p">))</span> <span class="p">{</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"调用HasPtr(HasPtr&amp;)"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;}</span>
@@ -127,7 +127,7 @@
 
 	<span class="o">~</span><span class="n">HasPtr</span><span class="p">(){</span><span class="k">delete</span> <span class="n">ps</span><span class="p">;}</span>
 
-<span class="k">private</span><span class="o">:</span>
+<span class="nl">private:</span>
 	<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">ps</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div></div>
@@ -144,7 +144,7 @@
 
 <h2 id="探究初始化操作与赋值操作真正调用的函数">探究初始化操作与赋值操作真正调用的函数</h2>
 <p>使用上述定义的类，对它进行测试：</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(){</span>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
 	<span class="n">HasPtr</span>  <span class="n">a</span><span class="p">(</span><span class="s">"hello wprld"</span><span class="p">);</span>  
 	<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
 
@@ -350,11 +350,11 @@ X&amp; <span class="nv">operator</span><span class="o">=(</span>const X&amp;<spa
     
 <ul class="social_footer">
   
-  <li><a href="xhy3054" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
   
 
   
-  <li><a href="wlm-1994" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
   
 
   
