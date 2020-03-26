@@ -1,4 +1,33 @@
-I"!<p>在学习linux的内容中，存在很多重要有趣有用的小知识，但是这些小知识很繁琐，每一个都写一片博客是不可能的，篇幅太短，所以这篇博客就来将这些小知识来一个大杂烩。</p>
+I"Q'<p>在学习linux的内容中，存在很多重要有趣有用的小知识，但是这些小知识很繁琐，每一个都写一片博客是不可能的，篇幅太短，所以这篇博客就来将这些小知识来一个大杂烩。</p>
+<ol>
+  <li>
+    <p><a href="#数据流重定向">数据流重定向</a></p>
+  </li>
+  <li>
+    <p><a href="#管道命令-pipe">管道命令-pipe</a></p>
+  </li>
+  <li>
+    <p><a href="#回车与换行的区别">回车与换行的区别</a></p>
+  </li>
+  <li>
+    <p><a href="#常用组合键">常用组合键</a></p>
+  </li>
+  <li>
+    <p><a href="#bash环境中的特殊字符">bash环境中的特殊字符</a></p>
+  </li>
+  <li>
+    <p><a href="#通配符">通配符</a></p>
+  </li>
+  <li>
+    <p><a href="#修改文件权限">修改文件权限</a></p>
+  </li>
+  <li>
+    <p><a href="#搜索字符串">在linux文件系统中搜索字符串</a></p>
+  </li>
+  <li>
+    <p><a href="#搜索文件">在Linux文件系统中搜索</a></p>
+  </li>
+</ol>
 
 <h2 id="数据流重定向">数据流重定向</h2>
 <p>要想了解数据流重定向，首先我们得知道数据的输入与输出总共有几种。</p>
@@ -56,7 +85,7 @@ ls_result
   </li>
 </ul>
 
-<h2 id="管道命令pipe">管道命令(pipe)</h2>
+<h2 id="管道命令-pipe">管道命令-pipe</h2>
 <p>首先说明一下，管道命令要实现的功能如下图，其实就是对于输入进行一系列的连续处理。</p>
 <div style="text-align: center">
 <img src="/assets/img/linux/redirection.jpg" />
@@ -178,6 +207,18 @@ drwxrwxr-x 10 xhy xhy 4096 3月  20 15:33 book_note/
 </code></pre></div>    </div>
   </li>
 </ul>
+
+<h2 id="搜索字符串">搜索字符串</h2>
+<p>在linux的文件系统中搜索字符串一般使用<code class="highlighter-rouge">grep</code>命令，下面这个命令是在当前目录下的所有文件中递归搜索字符串<code class="highlighter-rouge">string</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>grep -r string ./
+</code></pre></div></div>
+
+<h2 id="搜索文件">搜索文件</h2>
+<p>在linux的文件系统中搜索文件一般使用<code class="highlighter-rouge">find</code>命令，下面这个命令是在当前目录下搜索<code class="highlighter-rouge">2019-03-30-linux-issue.markdown</code>这个文件</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>find ./ -name 2019-03-30-linux-issue.markdown
+</code></pre></div></div>
 
 <h1 id="参考资料">参考资料</h1>
 <ul>
