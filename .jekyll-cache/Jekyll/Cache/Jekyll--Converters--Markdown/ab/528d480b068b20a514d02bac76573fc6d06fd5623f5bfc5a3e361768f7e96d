@@ -1,0 +1,98 @@
+I"�<p><strong>随机抽样一致算法(random sample consensus, RANSAC)</strong>，其实就是采用迭代的方法从一组包含离群的被观测数据中估算出数学模型的参数。(比如通过一群点拟合一条直线等)</p>
+
+<h2 id="基本假设">基本假设</h2>
+<ul>
+  <li>
+    <p>模型假设：事先知道真实数据满足的数学模型，不知道的只是模型的具体参数；</p>
+  </li>
+  <li>
+    <p>输入假设：输入数据中包含正确数据（即inliers，可以被假设模型描述的数据）；同时也包含异常数据（即outliers，偏离正常范围很远、不能用假设模型描述的数据）；即输入数据集中含有噪声；</p>
+  </li>
+  <li>
+    <p>有解假设：给定一组(通常很小，比如直线模型两个点就够了)内群数据，存在一种解法，可以通过这组内群数据求解出最适用于这一数据模型的一组参数；</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>一般当有效数据占绝大多数，无效数据只是少量时，我们可以通过<strong>最小二乘法</strong>或类似的方法来确定模型的参数与误差；如果无效数据很多，最小二乘法可能就不适用了</p>
+</blockquote>
+
+<blockquote>
+  <p>最小二乘法通过<strong>最小化误差的平方和</strong>来寻找数据的最佳函数匹配。</p>
+</blockquote>
+
+<h2 id="算法步骤概述">算法步骤概述</h2>
+<ol>
+  <li><strong>数据采样</strong>：随机采样最小子集；</li>
+  <li><strong>模型计算</strong>：通过第一步采样的最小子集计算出一个模型参数的假设；</li>
+  <li><strong>模型验证</strong>：把刚才没有被采样的点带入刚才建立的模型中，统计内群点的数量；</li>
+  <li>重复以上1、2、3步骤多次；</li>
+  <li><strong>算法终止</strong>：达到终止条件后，选取其中内群点数量最多的那组模型参数作为我们要求的解；</li>
+</ol>
+
+<h2 id="ransac算法的终止条件">RANSAC算法的终止条件</h2>
+<p>假设某一次采样的最小子集中所有数据都是内点的概率为p，那么在第k次第一次出现所有点都是内点的概率情况如下：</p>
+
+<div style="text-align: center">
+<img src="/assets/img/ransac/ransac_stop.png" />
+</div>
+
+<p>关于如何确定终止条件，RANSAC的论文里提出了两种方式：</p>
+
+<ol>
+  <li>
+    <p>第一种方式，求解上面k的期望值与方差，然后期望值加上两倍到三倍的方差，作为采样次数;</p>
+  </li>
+  <li>
+    <p>第二种方式，用的更多，它的原理是要求在采样次数中至少有一次采样全部都是内点的概率大于$\eta$;即</p>
+  </li>
+</ol>
+
+<script type="math/tex; mode=display">p(1 + (1-p) + (1-p)^2 + ... + (1-p)^{n-1}) > \eta</script>
+
+<p>即</p>
+
+<script type="math/tex; mode=display">1 - (1-p)^n > \eta</script>
+
+<p>即</p>
+
+<script type="math/tex; mode=display">n > \frac{log(1 - \eta)}{log(1-p)}</script>
+
+<p>此处，如果这个数据集合中的内点率为$\delta$时，则(下式中m为最小子集数据的个数)</p>
+
+<script type="math/tex; mode=display">p \approx {\delta}^m</script>
+
+<blockquote>
+  <p>需要说明的是此处$\delta$可能并不是已知的，此时可以有两个选择，第一是令其值为最坏情况下的$\delta$，第二是先令其值为非常低的一个值，然后每次迭代后，将其值换为之前验证的模型中最大的那个内点率值（因为最好的模型验证的内点率肯定是最高的）。</p>
+</blockquote>
+
+<h2 id="在关键点匹配对筛选中的应用">在关键点匹配对筛选中的应用</h2>
+<ul>
+  <li>模型假设：模型是单应矩阵表示的对极几何模型；</li>
+  <li>输入假设：输入的数据中包含正确的匹配(inliers)与误匹配(outliers);</li>
+  <li>有解假设：可以通过四对匹配特征点求解处自由度为8的单应矩阵；</li>
+</ul>
+
+<blockquote>
+  <p>具体代码效果可以见<a href="">我的github</a>，不过我直接调用了opencv自带的ransac的实现，并没有自己手写。</p>
+</blockquote>
+
+<h1 id="参考资料">参考资料</h1>
+<ul>
+  <li>[1] https://blog.csdn.net/laobai1015/article/details/51682596</li>
+  <li>[2] https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95</li>
+  <li>[3] https://docs.opencv.org/3.4.1/d9/d0c/group__calib3d.html#gae420abc34eaa03d0c6a67359609d8429</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[4] Fischler M A. Readings in Computer Vision</td>
+          <td> </td>
+          <td>Random Sample Consensus: A Paradigm for Model Fitting with Applications to Image Analysis and Automated Cartography[J]. Readings in Computer Vision, 1987:726-740.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+:ET
