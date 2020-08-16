@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>pycharm远程调试 - line - 千里之行</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#d25469">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#d25469">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#d25469">
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+    <!--将该代码放入博客模板的head中即可-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+        }
+    });
+    </script>
+    <!--latex数学显示公式-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body>
+
+  
+<header class="main_header">
+  <a href="/" class="logo">line</a>
+  <nav class="main_menu">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header> <!-- End Section Header -->
+
+
+<main class="post_content">
+  <article class="post">
+    <header>
+      <div class="post_image">
+        <img src=/assets/img/one-piece/one-piece26.jpg alt="pycharm远程调试">
+      </div>
+      <div class="post_description">
+        <p class="post_meta">2020, Aug 13</p>
+        <h1 class="post_title">pycharm远程调试</h1>
+      </div>
+    </header> <!-- End Header -->
+
+    <div class="entry_content">
+      <p>我们在本地windows使用各种IDE可以很方便的调试代码，但是有的项目对内存或者显存需求量很大，本地的机器很难满足。实验室刚好有一个linux服务器，内存够大，gpu够给力，不过我没有在服务器上安装IDE的权限，于是就鼓捣了一下pycharm的远程调试。</p>
+
+<h1 id="pycharm远程调试">pycharm远程调试</h1>
+
+<p>pycharm的远程调试其实就是利用ssh先将本地工程拷贝到远程服务器上，然后在远程服务器上运行，所以我们需要给pycharm提供以下的信息：</p>
+
+<ol>
+  <li>
+    <p>远程服务器ip，用户名，密码；</p>
+  </li>
+  <li>
+    <p>工程使用的python解释器（一般是远程服务器上anaconda的一个环境）；</p>
+  </li>
+  <li>
+    <p>本地工程文件夹与远程服务器上的工程文件夹的对应关系；</p>
+  </li>
+</ol>
+
+<h2 id="配置步骤">配置步骤</h2>
+
+<ul>
+  <li>
+    <p>首先使用pycharm打开本地的工程目录；</p>
+  </li>
+  <li>
+    <p>依次打开<code class="highlighter-rouge">File</code>-&gt;<code class="highlighter-rouge">Setting</code>-&gt;<code class="highlighter-rouge">Project:工程名</code>-&gt;<code class="highlighter-rouge">Project Interpreter</code>；</p>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm1.PNG" width="800" height="280" />
+</div>
+
+<ul>
+  <li>选择<code class="highlighter-rouge">Project Interpreter</code>最右侧的那个设置按钮点<code class="highlighter-rouge">add</code>，新界面选择<code class="highlighter-rouge">SSH Interpreter</code>;</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm2.PNG" width="800" height="310" />
+</div>
+
+<ul>
+  <li>在<code class="highlighter-rouge">New server configuration</code>中输入ip和用户名，点击<code class="highlighter-rouge">Next</code>，输入密码连接后;</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm3.PNG" width="800" height="550" />
+</div>
+
+<ul>
+  <li>
+    <p>其中<code class="highlighter-rouge">Interpreter</code>是远程服务器中你想使用的python环境地址，<code class="highlighter-rouge">Sync folders</code>是本地和远程的工程文件夹对应关系，两个同名文件夹，设置完后选择<code class="highlighter-rouge">Finish</code>;</p>
+  </li>
+  <li>
+    <p>然后pycharm会自动将本地工程复制到远程服务器上。</p>
+  </li>
+  <li>
+    <p>复制完毕后，要想远程调试还需要<code class="highlighter-rouge">Run</code>-&gt;<code class="highlighter-rouge">edit Configurations</code>，然后在这个界面中选择运行和调试时使用的python解释器<code class="highlighter-rouge">Python interpreter</code>，还有通过<code class="highlighter-rouge">Parameters</code>设置运行时的参数输入。</p>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm4.PNG" width="800" height="400" />
+</div>
+
+<ul>
+  <li>
+    <p>大功告成，可以调试了。</p>
+  </li>
+  <li>
+    <p>如果想对远程服务器进行管理，可以<code class="highlighter-rouge">Tools</code>-&gt;<code class="highlighter-rouge">Deployment</code>-&gt;<code class="highlighter-rouge">configure</code>进行改名、新建、删除等，其中<code class="highlighter-rouge">Encoding for client-server communication</code>是与服务器通信的编码方式，可以设置成<code class="highlighter-rouge">UTF-8</code>(如果包含中文的话)；</p>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm5.PNG" width="800" height="800" />
+</div>
+
+    </div>
+    
+    <div class="post_wrapper">
+      <footer class="post_footer cf">
+        <div class="post_share">
+          <span>Share:</span>
+          <a href="https://twitter.com/intent/tweet?text=pycharm远程调试&url=http://localhost:4000/pychram-remote/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://facebook.com/sharer.php?u=http://localhost:4000/pychram-remote/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a href="https://plus.google.com/share?url=http://localhost:4000/pychram-remote/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+        </div>
+        <div class="post_tag">
+          <span>Tags:</span>
+          
+          <a href="/tags#tools" class="tag">tools</a>
+          
+        </div>
+      </footer>
+    </div>
+  </article> <!-- End Section Post -->
+
+  <section class="author cf">
+    <div class="post_wrapper">
+      <div class="author_image">
+        <img src="/assets/img/wechat.jpg" alt="Author face">
+      </div>
+      <div class="author_info">
+        <h2 class="author_title">line</h2>
+        <p class="author_subtitle">怕什么真理无穷，进一寸有一寸的欢喜。</p>
+        <div class="author_social">
+          
+          <span class="author_email"><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:xianghengyong17@mails.ucas.edu.cn">xianghengyong17@mails.ucas.edu.cn</a></span>
+          
+          
+          
+          <span class="author_phone"><i class="fa fa-phone" aria-hidden="true"></i> <a href="tel:1314-131-0370">1314-131-0370</a></span>
+          
+
+          
+          <span class="author_website"><i class="fa fa-link" aria-hidden="true"></i> <a href="https://xhy3054.github.io/" target="_blank">https://xhy3054.github.io/</a></span>
+                      
+        </div>
+      </div>
+    </div>
+  </section> <!-- End Section Author -->
+
+  <section class="recent_box">
+    <div class="post_wrapper">
+      <h2 class="recent_title">Recent post</h2>
+      <div class="recent_list">
+        
+          
+            <a href="/pytorch-network/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece27.jpg )"><span>pytorch中组成网络的卷积、归一化、relu等常见结构</span></a>
+          
+        
+          
+            <a href="/pychram-remote/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece26.jpg )"><span>pycharm远程调试</span></a>
+          
+        
+          
+            <a href="/stereo-vision/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece25.jpg )"><span>双目相机模型与标定</span></a>
+          
+        
+          
+            <a href="/self-supervised-learning/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece24.jpg )"><span>自监督学习备忘</span></a>
+          
+        
+          
+            <a href="/matchine-learning/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece23.jpg )"><span>机器学习中的常见函数总结（备忘）</span></a>
+          
+        
+          
+            <a href="/memory-alignment/" class="recent_item" style="background-image: url( /assets/img/one-piece/one-piece22.jpg )"><span>SSE/AVX加速时的内存对齐问题</span></a>
+          
+        
+      </div>
+    </div>
+  </section> <!-- End Section Recent Box -->
+  
+  
+<section class="comment_area">
+  <div class="comment_wrapper">
+    
+  </div>
+</section> <!-- End Section Comment Area -->
+  
+</main> <!-- End Section Post Content -->
+
+
+<footer class="main_footer">
+  <div class="wrapper">
+    
+<ul class="social_footer">
+  
+  <li><a href="#" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a></li>      
+  
+
+  
+  <li><a href="#" target="_blank"><i class="fa fa-wechat" aria-hidden="true"></i></a></li>
+  
+
+  
+  <li><a href="#" target="_blank"><i class="fa fa-qq" aria-hidden="true"></i></a></li>
+  
+
+  
+  <li><a href="#" target="_blank"><i class="fa fa-weibo" aria-hidden="true"></i></a></li>
+  
+
+  
+  <li><a href="#" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+  
+
+  
+  <li><a href="#" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+  
+  
+  <li><a href="#" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+  
+</ul>
+
+    <div class="copyright">
+      <p>&copy; 2020. Design by line</p>
+    </div>
+  </div>
+</footer> <!-- End Section Footer -->
+
+
+
+  
+<div class="top" title="Top"><i class="fa fa-chevron-up" aria-hidden="true"></i></div> <!-- End Top Scroll -->
+  
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.vide.min.js"></script>
+<script src="/assets/js/custom.js"></script>
+<!-- End Javascript -->
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+</body>
+</html>

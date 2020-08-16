@@ -1,0 +1,58 @@
+I"�	<p>我们在本地windows使用各种IDE可以很方便的调试代码，但是有的项目对内存或者显存需求量很大，本地的机器很难满足。实验室刚好有一个linux服务器，内存够大，gpu够给力，不过我没有在服务器上安装IDE的权限，于是就鼓捣了一下pycharm的远程调试。</p>
+
+<h1 id="pycharm远程调试">pycharm远程调试</h1>
+
+<p>pycharm的远程调试其实就是利用ssh先将本地工程拷贝到远程服务器上，然后在远程服务器上运行，所以我们需要给pycharm提供以下的信息：</p>
+
+<ol>
+  <li>
+    <p>远程服务器ip，用户名，密码；</p>
+  </li>
+  <li>
+    <p>工程使用的python解释器（一般是远程服务器上anaconda的一个环境）；</p>
+  </li>
+  <li>
+    <p>本地工程文件夹与远程服务器上的工程文件夹的对应关系；</p>
+  </li>
+</ol>
+
+<h2 id="配置步骤">配置步骤</h2>
+
+<ul>
+  <li>
+    <p>首先使用pycharm打开本地的工程目录；</p>
+  </li>
+  <li>
+    <p>依次打开<code class="highlighter-rouge">File</code>-&gt;<code class="highlighter-rouge">Setting</code>-&gt;<code class="highlighter-rouge">Project:工程名</code>-&gt;<code class="highlighter-rouge">Project Interpreter</code>；</p>
+  </li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm1.PNG" width="800" height="310" />
+</div>
+
+<ul>
+  <li>选择<code class="highlighter-rouge">Project Interpreter</code>最右侧的那个设置按钮点<code class="highlighter-rouge">add</code>，新界面选择<code class="highlighter-rouge">SSH Interpreter</code>;</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm2.PNG" width="800" height="350" />
+</div>
+
+<ul>
+  <li>在<code class="highlighter-rouge">New server configuration</code>中输入ip和用户名，点击<code class="highlighter-rouge">Next</code>，输入密码连接后;</li>
+</ul>
+
+<div style="text-align: center">
+<img src="/assets/img/pycharm/pycharm3.PNG" width="800" height="600" />
+</div>
+
+<ul>
+  <li>
+    <p>其中<code class="highlighter-rouge">Interpreter</code>是远程服务器中你想使用的python环境地址，<code class="highlighter-rouge">Sync folders</code>是本地和远程的工程文件夹对应关系，两个同名文件夹，设置完后选择<code class="highlighter-rouge">Finish</code>;</p>
+  </li>
+  <li>
+    <p>然后pycharm会自动将本地工程复制到远程服务器上，复制完毕后，就可以远程调试了。</p>
+  </li>
+</ul>
+:ET
