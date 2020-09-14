@@ -145,6 +145,22 @@
 <h2 id="光流方法评价">光流方法评价</h2>
 <p>光流方法速度很快，求解方法可以使用求解超定方程组，也可以使用高斯牛顿等迭代操作完成。</p>
 
+<h2 id="光流残差的构造方式">光流残差的构造方式</h2>
+
+<h3 id="前向forward与逆向inverse">前向(forward)与逆向(inverse)</h3>
+<p>上面推导光流原理时提到我们需要使用图像中该点处的像素梯度，前向光流使用的目标帧的图像梯度，逆向光流使用的是当前帧的图像梯度。</p>
+
+<h3 id="叠加式additive与构造式compositional">叠加式(additive)与构造式(compositional)</h3>
+<p>在传统光流中估计的是点的位移，但是更鲁棒的做法可能是估计该二维点到另一个二维点的仿射变换。假设该变换函数为w，参数为p，则对于原本的二维点x，经过变换到新的位置为$w(x,p)$。</p>
+
+<p>叠加式与构造式指的是在优化解决光流时更新参数p的方式，其中叠加式为：</p>
+
+<script type="math/tex; mode=display">w(x, p + \delta p)</script>
+
+<p>构造式为：</p>
+
+<script type="math/tex; mode=display">w( w(x, p), \delta p)</script>
+
 <h1 id="参考资料">参考资料</h1>
 <ul>
   <li>[1] 视觉SLAM十四讲</li>
