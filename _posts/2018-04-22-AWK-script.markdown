@@ -6,7 +6,7 @@ img: AWK.jpg # Add image post (optional)
 tags: [linux]
 ---
 
-## what's ***AWK***
+# what's ***AWK***
 > AWK是一种优良的文本处理工具，Linux及Unix环境中现有的功能最强大的数据处理引擎之一。这种编程及数据操作语言（其名称得自于它的创始人阿尔佛雷德·艾侯、彼得·温伯格和布莱恩·柯林汉姓氏的首个字母）的最大功能取决于一个人所拥有的知识。——维基百科
 
 由上可知，**AWK**是一种强大的用于文本分析处理的工具。很多人简单的把它看作**linux**下的一个命令，这种观点是浅显的，**AWK**实际上也是一个脚本解释器（与shell一样），通过下文，我们可以逐渐发现**AWK**的强大。
@@ -16,7 +16,7 @@ tags: [linux]
 
 AWK在处理文本时，一次读入一个记录，每行为一条记录。每条记录会划分成多个域，最终将一个文件规划成一个表格类型的数据结构。
 
-### AWK的内置变量
+## AWK的内置变量
 - $0：当前记录，这个变量存放了当前整行的内容。
 - $1~$n：当前记录的第n个域的内容。（由FS进行分隔）
 - FS：域分隔符”。其默认值为“空白字符”，即空格和制表符。FS可以替换为其它字符，从而改变域分隔符。
@@ -29,7 +29,7 @@ AWK在处理文本时，一次读入一个记录，每行为一条记录。每�
 - FILENAME：当前输入文件名。
 
 
-### ***AWK：***作为一个命令用
+## ***AWK：***作为一个命令用
 假设有一段文本`test.log`，文本内容如下：
 
 	Proto    Recv-Q   Send-Q   Local-Address      Foreign-Address        State
@@ -74,7 +74,7 @@ AWK在处理文本时，一次读入一个记录，每行为一条记录。每�
 
 
 
-### ***AWK：***脚本编写
+## ***AWK：***脚本编写
 
 有`score.log`，内容如下：
 
@@ -124,3 +124,63 @@ AWK在处理文本时，一次读入一个记录，每行为一条记录。每�
 	AVERAGE:     63.80    78.60    70.00
 
 如上便是AWK的脚本方式，如果想要将脚本嵌入shell中，只需要把AWK代码放入`''`中便可以了，而且这样做不需要`-f`参数。方式：`awk '代码'`
+
+### AWK脚本的流程控制
+
+- if语句控制：
+
+```awk
+if (condition)
+{
+    body
+}
+else if (condition)
+{
+    body
+}
+else
+{
+    body
+}
+```
+
+- for语句控制
+
+```awk
+for (initialization; condition; increment)
+{
+    body
+} 
+
+ 
+
+for (var in array)
+```
+
+- while语句控制
+
+```awk
+while (condition)
+{
+    body
+}
+  
+do
+{
+    body
+}
+while (condition)
+```
+
+- swith语句控制
+
+```awk
+switch (expression) 
+{
+case value or regular expression:
+    case-body
+default:
+    default-body
+}
+```
+

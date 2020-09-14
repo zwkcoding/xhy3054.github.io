@@ -12,6 +12,7 @@ tag: [深度学习]
 - [第二类-归一化调整数值范围层](#归一化调整数值范围层)
 - [第三类-非线性激活函数层](#非线性激活函数层)
 
+
 # 提取并调整特征维度
 
 ## 2维卷积层`torch.nn.Conv2d`
@@ -48,6 +49,7 @@ CLASS torch.nn.PixelShuffle(upscale_factor: int)
 ```
 
 - `upscale_factor`：int类型，上采样的倍数，也是上面的r；
+
 
 
 # 归一化调整数值范围层

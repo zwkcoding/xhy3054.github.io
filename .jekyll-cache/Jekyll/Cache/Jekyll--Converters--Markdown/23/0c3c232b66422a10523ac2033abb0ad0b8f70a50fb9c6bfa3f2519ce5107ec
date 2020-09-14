@@ -1,4 +1,4 @@
-I"{<h3 id="whats-anaconda">what’s Anaconda</h3>
+I"�<h3 id="whats-anaconda">what’s Anaconda</h3>
 
 <p><strong>Anaconda</strong>,是用于python编程环境管理的一个工具。它让你可以为每一个项目单独的构建自己的python编程环境，因此很好的解决了不同项目之间的串扰问题。并且使得你的工作更加清晰有条理。</p>
 
@@ -101,4 +101,26 @@
   </li>
 </ul>
 
+<h2 id="安装jupyter-lab">安装jupyter lab</h2>
+
+<ul>
+  <li>安装：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>conda <span class="nb">install</span> <span class="nt">-c</span> conda-forge jupyterlab
+<span class="c"># 或者</span>
+pip <span class="nb">install </span>jupyterlab
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>启动服务</p>
+
+    <p>jupyter lab –ip=0.0.0.0 –port=8080</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>windows的话直接安装anaconda，然后在navigator里便可以找到jupyter</p>
+</blockquote>
 :ET
